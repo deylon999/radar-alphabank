@@ -1,6 +1,6 @@
-import type { Insight } from '../../../schemas/insight';
-import { insightKindLabels, urgencyLabels } from '../../../shared/labels';
-import { Badge, type BadgeTone } from '../../../shared/ui/Badge/Badge';
+import type { Insight } from '../../schemas/insight';
+import { insightKindLabels, urgencyLabels } from '../labels';
+import { Badge, type BadgeTone } from './Badge/Badge';
 
 /**
  * Цвета по правилам продукта: зелёный — только возможности, красный — только срочный риск.

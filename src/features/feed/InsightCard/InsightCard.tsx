@@ -6,9 +6,9 @@ import { Link } from 'react-router';
 import type { Insight } from '../../../schemas/insight';
 import { eventStageLabels, pluralForms, terms } from '../../../shared/labels';
 import { pluralize } from '../../../shared/lib/plural';
+import { InsightLabels } from '../../../shared/ui/InsightLabels';
 import { RelativeTime } from '../../../shared/ui/RelativeTime';
 import styles from './InsightCard.module.css';
-import { InsightLabels } from './InsightLabels';
 
 interface InsightCardProps {
   insight: Insight;
