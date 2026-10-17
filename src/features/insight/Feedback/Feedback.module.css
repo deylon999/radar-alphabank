@@ -1,0 +1,21 @@
+.rating {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--gap-8);
+  margin-top: var(--gap-8);
+}
+
+.comment {
+  display: grid;
+  justify-items: start;
+  gap: var(--gap-12);
+  margin-top: var(--gap-16);
+}
+
+.error {
+  margin: var(--gap-8) 0 0;
+  /* Красный текст (#ec2d20) на белом — 4,2:1, ниже AA. Ошибку объявляет role="alert". */
+  color: var(--color-light-text-primary);
+  font-size: 14px;
+  line-height: 20px;
+}
