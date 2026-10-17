@@ -15,7 +15,7 @@ const SYMBOLS = '1 250 000 ₽ · № 42 — «Склад „Южный-2“
 const WEIGHTS = [
   { className: styles.w400, label: '400 · Regular' },
   { className: styles.w500, label: '500 · Medium' },
-  { className: styles.w700, label: '700 · отрисовывается файлом Medium' },
+  { className: styles.w700, label: '700 · Bold' },
   { className: styles.w900, label: '900 · Black — только промо' },
 ] as const;
 

@@ -1,9 +1,6 @@
 /*
  * Styrene A LC из src/assets/fonts. Подключены только используемые начертания.
- *
- * Прямого Bold (700) в наборе нет — есть только Bold Italic. Чтобы браузер не рисовал
- * «синтетический» жирный и не подставлял Black там, где core-components просит 600/700,
- * файл Medium объявлен на диапазон весов 500–700.
+ * Запросы core-components на вес 600 браузер отрисует ближайшим более жирным — Bold (700).
  * Black (900) — только для крупных цифр промо-плашек (раздел 9.15 ТЗ).
  */
 @font-face {
@@ -17,7 +14,15 @@
 @font-face {
   font-family: 'Styrene A LC';
   src: url('../../assets/fonts/styrenealc-medium.woff2') format('woff2');
-  font-weight: 500 700;
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Styrene A LC';
+  src: url('../../assets/fonts/styrenealc-bold.woff2') format('woff2');
+  font-weight: 700;
   font-style: normal;
   font-display: swap;
 }
