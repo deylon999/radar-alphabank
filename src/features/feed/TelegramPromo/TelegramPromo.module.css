@@ -1,0 +1,31 @@
+/* Промо-слой: сплошная яркая заливка, крупная жирная типографика, одна кнопка. */
+.plate {
+  position: relative;
+  display: grid;
+  justify-items: start;
+  gap: var(--gap-8);
+  padding: var(--gap-24);
+  border-radius: var(--promo-radius);
+  color: var(--promo-text);
+  background: var(--promo-bg);
+}
+
+.title {
+  margin: 0;
+  padding-right: var(--gap-32);
+  font-size: 24px;
+  line-height: 28px;
+  font-weight: 700;
+}
+
+.text {
+  margin: 0 0 var(--gap-8);
+  font-size: 16px;
+  line-height: 20px;
+}
+
+.close {
+  position: absolute;
+  top: var(--gap-16);
+  right: var(--gap-16);
+}
