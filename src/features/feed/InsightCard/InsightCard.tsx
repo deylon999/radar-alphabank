@@ -1,10 +1,11 @@
 import { Link as ActionLink } from '@alfalab/core-components/link/modern';
 import cn from 'classnames';
 import { useId } from 'react';
-import { Link } from 'react-router';
+import { Link, useLocation } from 'react-router';
 
 import type { Insight } from '../../../schemas/insight';
 import { eventStageLabels, pluralForms, terms } from '../../../shared/labels';
+import { feedReturnState } from '../../../shared/lib/feedReturn';
 import { pluralize } from '../../../shared/lib/plural';
 import { InsightLabels } from '../../../shared/ui/InsightLabels';
 import { RelativeTime } from '../../../shared/ui/RelativeTime';
@@ -26,6 +27,7 @@ export function shortImpactPath(insight: Insight): string {
 /** Карточка ленты: суть за 5 секунд. Вся карточка — одна ссылка на инсайт. */
 export function InsightCard({ insight, onHide }: InsightCardProps) {
   const titleId = useId();
+  const { search } = useLocation();
   const chain = shortImpactPath(insight);
   const isUrgentRisk = insight.kind === 'risk' && insight.urgency === 'urgent';
 
@@ -44,7 +46,12 @@ export function InsightCard({ insight, onHide }: InsightCardProps) {
         <RelativeTime iso={insight.updatedAt} className={styles.time} />
       </div>
       <h2 className={styles.title} id={titleId}>
-        <Link to={`/insights/${insight.id}`} className={styles.link} data-card-link="">
+        <Link
+          to={`/insights/${insight.id}`}
+          state={feedReturnState(search)}
+          className={styles.link}
+          data-card-link=""
+        >
           {insight.title}
         </Link>
       </h2>
