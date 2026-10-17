@@ -1,0 +1,47 @@
+.bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0 var(--gap-4);
+  min-height: 40px;
+  margin: 0 0 var(--gap-8);
+  padding: var(--gap-10) var(--gap-16);
+  border: 1px solid var(--color-light-neutral-translucent-300);
+  border-radius: var(--border-radius-12);
+  font-size: 14px;
+  line-height: 20px;
+  font-variant-numeric: tabular-nums;
+}
+
+.since {
+  color: var(--color-light-text-secondary);
+}
+
+.part {
+  white-space: nowrap;
+}
+
+/* Кнопка выглядит как ссылка с пунктиром: включает фильтр, а не уводит на другую страницу. */
+.link {
+  padding: 0;
+  border: 0;
+  border-bottom: 1px dashed currentColor;
+  color: var(--color-light-text-primary);
+  background: none;
+  font: inherit;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.link:hover {
+  border-bottom-style: solid;
+}
+
+.skeleton {
+  width: 60%;
+  height: 16px;
+}
+
+.error {
+  color: var(--color-light-text-secondary);
+}
