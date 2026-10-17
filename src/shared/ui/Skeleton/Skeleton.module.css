@@ -1,0 +1,25 @@
+.lines {
+  display: grid;
+  gap: var(--gap-8);
+}
+
+.line {
+  height: 16px;
+}
+
+.title {
+  width: 240px;
+  max-width: 60%;
+  height: 32px;
+  margin-bottom: var(--gap-24);
+}
+
+.block {
+  padding: var(--gap-16);
+  border-radius: var(--border-radius-12);
+  border: 1px solid var(--color-light-neutral-translucent-300);
+}
+
+.block + .block {
+  margin-top: var(--gap-12);
+}
