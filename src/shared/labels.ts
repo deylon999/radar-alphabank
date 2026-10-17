@@ -103,6 +103,9 @@ export const terms = {
   history: 'История изменений',
   feedback: 'Обратная связь',
   newBadge: 'Новое',
+  describeCompany: 'Расскажите о компании',
+  profileFacts: 'Факты о компании',
+  profileHint: 'Чем точнее профиль, тем точнее лента',
 } as const;
 
 /** Формы слов для склонения с числом (см. shared/lib/plural). */
@@ -111,4 +114,6 @@ export const pluralForms = {
   urgentRisk: { one: 'срочный риск', few: 'срочных риска', many: 'срочных рисков' },
   opportunity: { one: 'возможность', few: 'возможности', many: 'возможностей' },
   source: { one: 'источник', few: 'источника', many: 'источников' },
+  fact: { one: 'факт', few: 'факта', many: 'фактов' },
+  change: { one: 'изменение', few: 'изменения', many: 'изменений' },
 } as const;

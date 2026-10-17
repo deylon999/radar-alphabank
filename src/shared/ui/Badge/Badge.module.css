@@ -17,7 +17,7 @@
   background: var(--color-light-neutral-translucent-300);
 }
 
-/* Зелёный — только возможности. */
+/* Зелёный — только возможности и подтверждённые факты. */
 .positive {
   background: var(--color-light-decorative-muted-alt-green);
 }
@@ -25,6 +25,11 @@
 /* Красный — только срочный риск. */
 .negative {
   background: var(--color-light-decorative-muted-alt-red);
+}
+
+/* Жёлтый — только «ждёт подтверждения» и «под наблюдением». */
+.attention {
+  background: var(--color-light-decorative-muted-alt-yellow);
 }
 
 .strong {

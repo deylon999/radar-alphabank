@@ -3,7 +3,7 @@ import type { ReactNode } from 'react';
 
 import styles from './Badge.module.css';
 
-export type BadgeTone = 'neutral' | 'positive' | 'negative' | 'strong' | 'quiet';
+export type BadgeTone = 'neutral' | 'positive' | 'negative' | 'attention' | 'strong' | 'quiet';
 
 interface BadgeProps {
   tone: BadgeTone;
