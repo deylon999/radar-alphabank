@@ -8,7 +8,8 @@ afterEach(() => {
 });
 
 // jsdom не реализует matchMedia, а адаптивные компоненты core-components его вызывают.
-if (typeof window.matchMedia !== 'function') {
+// Тесты api и моков идут в окружении node — там window нет.
+if (typeof window !== 'undefined' && typeof window.matchMedia !== 'function') {
   Object.defineProperty(window, 'matchMedia', {
     writable: true,
     value: (query: string): MediaQueryList => {
