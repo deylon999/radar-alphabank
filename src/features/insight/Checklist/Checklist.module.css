@@ -1,0 +1,16 @@
+.list {
+  display: grid;
+  gap: var(--gap-12);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.counter {
+  flex: none;
+  color: var(--color-light-text-secondary);
+  font-size: 14px;
+  line-height: 20px;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
