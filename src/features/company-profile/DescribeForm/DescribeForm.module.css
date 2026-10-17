@@ -1,0 +1,143 @@
+.section {
+  min-width: 0;
+}
+
+.title {
+  margin: 0 0 var(--gap-4);
+  font-size: 16px;
+  line-height: 24px;
+  font-weight: 700;
+}
+
+.form {
+  display: grid;
+  gap: var(--gap-20);
+  max-width: 640px;
+  margin-top: var(--gap-16);
+}
+
+.field {
+  display: grid;
+  gap: var(--gap-6);
+  min-width: 0;
+}
+
+.label {
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 500;
+}
+
+.hint {
+  margin: 0;
+  max-width: 75ch;
+  color: var(--color-light-text-secondary);
+  font-size: 14px;
+  line-height: 20px;
+}
+
+.error {
+  margin: 0;
+  /* Как в отзыве: красный текст на белом ниже AA, ошибку объявляет role="alert". */
+  color: var(--color-light-text-primary);
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 500;
+}
+
+.linkRow {
+  display: flex;
+  gap: var(--gap-8);
+}
+
+.links,
+.files {
+  display: grid;
+  gap: var(--gap-4);
+  margin: var(--gap-4) 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.linkItem {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--gap-8);
+  min-width: 0;
+  padding: var(--gap-8) var(--gap-8) var(--gap-8) var(--gap-12);
+  /* Белый фон с рамкой, а не серая подложка: серый вторичный текст на сером — ниже AA. */
+  border: 1px solid var(--color-light-neutral-translucent-300);
+  border-radius: var(--border-radius-8);
+  font-size: 14px;
+  line-height: 20px;
+}
+
+.linkText {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.fileInfo {
+  display: grid;
+  min-width: 0;
+}
+
+/* Неподходящий файл: рамка темнее, причина — текстом рядом; цвет не единственный носитель. */
+.rejectedFile {
+  border-color: var(--color-light-neutral-translucent-700);
+}
+
+.fileProblem {
+  font-weight: 500;
+}
+
+.dropOverlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: inherit;
+  background: var(--color-light-base-bg-primary);
+  font-size: 16px;
+  line-height: 24px;
+  font-weight: 500;
+  pointer-events: none;
+}
+
+.dropzoneContent {
+  display: grid;
+  justify-items: start;
+  gap: var(--gap-8);
+  padding: var(--gap-16);
+}
+
+.dropzoneText {
+  margin: 0;
+  font-size: 14px;
+  line-height: 20px;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--gap-16);
+}
+
+/* Строка под статус зарезервирована: ничего не прыгает, когда появляется текст. */
+.status {
+  min-height: 20px;
+  margin: 0;
+  color: var(--color-light-text-secondary);
+  font-size: 14px;
+  line-height: 20px;
+}
+
+@media (max-width: 599px) {
+  .linkRow {
+    flex-direction: column;
+  }
+}
