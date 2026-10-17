@@ -28,7 +28,9 @@ describe('оболочка приложения', () => {
     renderApp('/');
 
     expect(await companySelect()).toHaveDisplayValue('АО «Полевея Агро»');
-    expect(await screen.findByText(/Паводок в Заречном районе/)).toBeInTheDocument();
+    expect(
+      await screen.findByRole('link', { name: /Паводок в Заречном районе/ }),
+    ).toBeInTheDocument();
     await waitFor(() => {
       expect(document.title).toBe('Лента — Радар');
     });
@@ -36,12 +38,14 @@ describe('оболочка приложения', () => {
 
   it('переключение компании меняет ленту и запоминается', async () => {
     const { user } = renderApp('/');
-    await screen.findByText(/Паводок в Заречном районе/);
+    await screen.findByRole('link', { name: /Паводок в Заречном районе/ });
 
     await user.selectOptions(await companySelect(), 'ООО «Кварталика»');
 
-    expect(await screen.findByText(/Авария на подстанции/)).toBeInTheDocument();
-    expect(screen.queryByText(/Паводок в Заречном районе/)).not.toBeInTheDocument();
+    expect(await screen.findByRole('link', { name: /Авария на подстанции/ })).toBeInTheDocument();
+    expect(
+      screen.queryByRole('link', { name: /Паводок в Заречном районе/ }),
+    ).not.toBeInTheDocument();
     expect(window.localStorage.getItem(SELECTED_COMPANY_STORAGE_KEY)).toBe('kvartalika');
   });
 
@@ -71,7 +75,7 @@ describe('оболочка приложения', () => {
 
     await user.selectOptions(await companySelect(), 'ООО «Кальвета»');
 
-    expect(await screen.findByText(/Цемент Озёрья/)).toBeInTheDocument();
+    expect(await screen.findByRole('link', { name: /Цемент Озёрья/ })).toBeInTheDocument();
   });
 
   it('со страницы инсайта при смене компании уводит в ленту', async () => {
@@ -97,7 +101,9 @@ describe('оболочка приложения', () => {
     setErrorMode(false);
     await user.click(within(alert).getByRole('button', { name: 'Повторить' }));
 
-    expect(await screen.findByText(/Паводок в Заречном районе/)).toBeInTheDocument();
+    expect(
+      await screen.findByRole('link', { name: /Паводок в Заречном районе/ }),
+    ).toBeInTheDocument();
   });
 
   it('на неизвестном адресе показывает страницу 404 со ссылкой в ленту', async () => {
