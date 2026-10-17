@@ -104,3 +104,11 @@ export const terms = {
   feedback: 'Обратная связь',
   newBadge: 'Новое',
 } as const;
+
+/** Формы слов для склонения с числом (см. shared/lib/plural). */
+export const pluralForms = {
+  risk: { one: 'риск', few: 'риска', many: 'рисков' },
+  urgentRisk: { one: 'срочный риск', few: 'срочных риска', many: 'срочных рисков' },
+  opportunity: { one: 'возможность', few: 'возможности', many: 'возможностей' },
+  source: { one: 'источник', few: 'источника', many: 'источников' },
+} as const;
