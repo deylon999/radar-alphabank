@@ -1,0 +1,36 @@
+.field {
+  position: relative;
+}
+
+/* Сам <select> невидим, поэтому фокус с клавиатуры показываем на всём поле. */
+.field:has(.select:focus-visible) {
+  outline: 2px solid var(--focus-color);
+  outline-offset: 2px;
+}
+
+.value {
+  display: block;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+/* Нативный список невидим и растянут на всё поле: клик в любом месте открывает выбор. */
+.select {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  font: inherit;
+  opacity: 0;
+  cursor: pointer;
+  appearance: none;
+}
+
+.chevron {
+  color: var(--color-light-text-secondary);
+  pointer-events: none;
+}
