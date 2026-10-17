@@ -5,6 +5,7 @@ import { createMemoryRouter } from 'react-router';
 import { RouterProvider } from 'react-router/dom';
 
 import { routes } from '../app/router/routes';
+import { ToastProvider } from '../shared/ui/Toast/ToastProvider';
 
 /** Приложение целиком в памяти: настоящие маршруты, свежий кеш без повторов запросов. */
 export function renderApp(path = '/') {
@@ -15,7 +16,9 @@ export function renderApp(path = '/') {
   const user = userEvent.setup();
   const view = render(
     <QueryClientProvider client={queryClient}>
-      <RouterProvider router={router} />
+      <ToastProvider>
+        <RouterProvider router={router} />
+      </ToastProvider>
     </QueryClientProvider>,
   );
   return { ...view, user, router };
