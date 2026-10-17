@@ -1,0 +1,73 @@
+/*
+ * Телефон и планшет: одна колонка «шапка → промо → подтверждение → форма → факты».
+ * Колонки раскрываются через display: contents, порядок задаёт order — как в ленте.
+ */
+.layout {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-24);
+}
+
+.main,
+.aside {
+  display: contents;
+}
+
+.summary {
+  order: 1;
+}
+
+.promo {
+  order: 2;
+}
+
+.banner {
+  order: 3;
+}
+
+.form {
+  order: 4;
+}
+
+.facts {
+  order: 5;
+  min-width: 0;
+}
+
+.title {
+  margin: 0 0 var(--gap-12);
+  font-size: 16px;
+  line-height: 24px;
+  font-weight: 700;
+}
+
+.muted {
+  margin: 0;
+  max-width: 75ch;
+  color: var(--color-light-text-secondary);
+  font-size: 14px;
+  line-height: 20px;
+}
+
+/* Десктоп: слева профиль и факты, справа колонка 360 px с формой. */
+@media (min-width: 1024px) {
+  .layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 360px;
+    gap: var(--gap-32);
+    align-items: start;
+  }
+
+  .main,
+  .aside {
+    display: grid;
+    gap: var(--gap-24);
+    min-width: 0;
+  }
+
+  .aside .form {
+    padding: var(--gap-20);
+    border: 1px solid var(--color-light-neutral-translucent-300);
+    border-radius: var(--border-radius-12);
+  }
+}

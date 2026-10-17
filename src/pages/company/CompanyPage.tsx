@@ -1,5 +1,5 @@
 import { useSelectedCompany } from '../../app/company/selectedCompanyContext';
-import { CompanySummary } from '../../features/company-profile/CompanySummary';
+import { CompanyProfile } from '../../features/company-profile/CompanyProfile';
 import { terms } from '../../shared/labels';
 import { useDocumentTitle } from '../../shared/lib/useDocumentTitle';
 import { PageTitle } from '../../shared/ui/PageTitle';
@@ -10,7 +10,7 @@ export function CompanyPage() {
   return (
     <>
       <PageTitle>{terms.companyProfile}</PageTitle>
-      <CompanySummary companyId={company.id} />
+      <CompanyProfile companyId={company.id} />
     </>
   );
 }
