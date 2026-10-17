@@ -5,6 +5,8 @@
  * стилями компонентов, которые грузятся позже; главное действие — Button view="accent".
  */
 @import '@alfalab/core-components/vars/colors-bluetint.css';
+@import '@alfalab/core-components/vars/colors-promo.css';
+@import '@alfalab/core-components/vars/colors-decorative.css';
 @import '@alfalab/core-components/vars/shadows-bluetint.css';
 @import '@alfalab/core-components/vars/border-radius.css';
 @import '@alfalab/core-components/vars/gaps.css';

@@ -1,0 +1,9 @@
+/*
+ * Промо-слой (раздел 9.15 ТЗ): только плашки из разрешённых мест, не больше одной на экран.
+ * Сплошная заливка из промо-палитры core-components; белый текст на ней — контраст 5,1:1 (AA).
+ */
+:root {
+  --promo-bg: var(--color-light-promo-vibrant-prelude);
+  --promo-text: var(--color-static-neutral-0);
+  --promo-radius: var(--border-radius-24);
+}
