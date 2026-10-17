@@ -1,0 +1,10 @@
+.root {
+  padding: var(--gap-32) var(--gap-16);
+  border-radius: var(--border-radius-16);
+  background: var(--color-light-base-bg-secondary);
+}
+
+.action {
+  display: flex;
+  justify-content: center;
+}
