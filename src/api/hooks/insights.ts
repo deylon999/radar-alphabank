@@ -40,6 +40,8 @@ export function useInsight(insightId: string) {
 export function useUpdateInsightStatus() {
   const queryClient = useQueryClient();
   return useMutation({
+    // Изменения статуса идут строго по очереди: «Отменить» не обгонит «Скрыть».
+    scope: { id: 'insight-status' },
     mutationFn: ({ insightId, status }: { insightId: string; status: InsightStatus }) =>
       updateInsightStatus(insightId, status),
     onSuccess: (insight) => {
