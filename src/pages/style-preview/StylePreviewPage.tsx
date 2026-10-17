@@ -10,7 +10,7 @@ import { useEffect, useState } from 'react';
 import styles from './StylePreviewPage.module.css';
 
 const PANGRAM = 'Съешь же ещё этих мягких французских булок';
-const SYMBOLS = '1 250 000 ₽ · № 42 — «Склад „Южный-2“»';
+const SYMBOLS = '1 250 000 ₽ · № 42 — «Склад „Южный-2“»';
 
 const WEIGHTS = [
   { className: styles.w400, label: '400 · Regular' },
