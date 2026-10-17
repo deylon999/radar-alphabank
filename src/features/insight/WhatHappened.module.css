@@ -1,0 +1,17 @@
+.facts {
+  display: grid;
+  grid-template-columns: max-content minmax(0, 1fr);
+  gap: var(--gap-4) var(--gap-16);
+  margin: 0;
+}
+
+.facts dt {
+  color: var(--color-light-text-secondary);
+  font-size: 14px;
+  line-height: 24px;
+}
+
+.facts dd {
+  margin: 0;
+  font-variant-numeric: tabular-nums;
+}
