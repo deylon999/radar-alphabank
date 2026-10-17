@@ -8,6 +8,7 @@ interface ButtonLinkProps {
   view?: ButtonProps['view'];
   size?: ButtonProps['size'];
   block?: boolean;
+  colors?: ButtonProps['colors'];
   className?: string;
 }
 

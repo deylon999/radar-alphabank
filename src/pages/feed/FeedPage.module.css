@@ -1,0 +1,62 @@
+/*
+ * Телефон и планшет: одна колонка в порядке «заголовок и сводка → свёрнутые фильтры →
+ * лента → промо». Колонки раскрываются через display: contents, чтобы задать порядок
+ * без дублирования разметки.
+ */
+.layout {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-12);
+}
+
+.main,
+.aside {
+  display: contents;
+}
+
+.head {
+  order: 1;
+}
+
+.filters {
+  order: 2;
+}
+
+.feed {
+  order: 3;
+  min-width: 0;
+}
+
+.promo {
+  order: 4;
+}
+
+.promo:empty {
+  display: none;
+}
+
+.list {
+  padding-top: var(--gap-8);
+}
+
+/* Десктоп: лента слева, справа колонка 320 px — промо и фильтры, которые прилипают. */
+@media (min-width: 1024px) {
+  .layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 320px;
+    gap: var(--gap-32);
+    align-items: start;
+  }
+
+  .main {
+    display: block;
+    min-width: 0;
+  }
+
+  .aside {
+    position: sticky;
+    top: calc(64px + var(--gap-24));
+    display: grid;
+    gap: var(--gap-16);
+  }
+}
