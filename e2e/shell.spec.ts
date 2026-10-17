@@ -1,0 +1,94 @@
+import AxeBuilder from '@axe-core/playwright';
+import { expect, type Page, test } from '@playwright/test';
+
+const PAGES = [
+  { path: '/', title: 'Лента — Радар', heading: 'Лента' },
+  { path: '/company', title: 'Профиль компании — Радар', heading: 'Профиль компании' },
+  { path: '/notifications', title: 'Уведомления — Радар', heading: 'Уведомления' },
+  {
+    path: '/insights/agro-flood',
+    title: /^Паводок в Заречном районе.* — Радар$/,
+    heading: /Паводок в Заречном районе/,
+  },
+  { path: '/no-such-page', title: 'Страница не найдена — Радар', heading: 'Страница не найдена' },
+] as const;
+
+const companySelect = (page: Page) => page.getByRole('combobox', { name: 'Компания' });
+
+test('выбранная компания переживает перезагрузку', async ({ page }) => {
+  await page.goto('/');
+  await expect(page.getByText(/Паводок в Заречном районе/)).toBeVisible();
+
+  await companySelect(page).selectOption({ label: 'ООО «Кварталика»' });
+  await expect(page.getByText(/Авария на подстанции/)).toBeVisible();
+
+  await page.reload();
+
+  await expect(companySelect(page)).toHaveValue('kvartalika');
+  await expect(page.getByText(/Авария на подстанции/)).toBeVisible();
+  await expect(page.getByText(/Паводок в Заречном районе/)).toHaveCount(0);
+});
+
+test('разделы открываются из навигации, активный отмечен', async ({ page }) => {
+  await page.goto('/');
+  const nav = page.getByRole('navigation', { name: 'Основная навигация' }).locator('visible=true');
+
+  await nav.getByRole('link', { name: 'Уведомления' }).click();
+
+  await expect(page).toHaveURL(/\/notifications$/);
+  await expect(page.getByRole('heading', { level: 1, name: 'Уведомления' })).toBeVisible();
+  await expect(nav.getByRole('link', { name: 'Уведомления' })).toHaveAttribute(
+    'aria-current',
+    'page',
+  );
+});
+
+test('навигация работает с клавиатуры', async ({ page }) => {
+  await page.goto('/');
+  await expect(page.getByRole('heading', { level: 1, name: 'Лента' })).toBeVisible();
+
+  await page.keyboard.press('Tab');
+  await expect(page.getByRole('link', { name: 'Перейти к содержимому' })).toBeFocused();
+
+  const profileLink = page
+    .getByRole('navigation', { name: 'Основная навигация' })
+    .locator('visible=true')
+    .getByRole('link', { name: 'Профиль компании' });
+  await profileLink.focus();
+  await page.keyboard.press('Enter');
+
+  await expect(page).toHaveURL(/\/company$/);
+  await companySelect(page).focus();
+  await page.keyboard.press('ArrowDown');
+  await expect(companySelect(page)).toHaveValue('kalveta');
+  await expect(page.getByRole('heading', { name: 'ООО «Кальвета»' })).toBeVisible();
+});
+
+for (const { path, title, heading } of PAGES) {
+  test(`${path}: заголовок вкладки, нет горизонтальной прокрутки, нет нарушений axe`, async ({
+    page,
+  }) => {
+    const consoleErrors: string[] = [];
+    page.on('console', (message) => {
+      if (message.type() === 'error') {
+        consoleErrors.push(message.text());
+      }
+    });
+
+    await page.goto(path);
+    await expect(page.getByRole('heading', { level: 1, name: heading })).toBeVisible();
+    await expect(page).toHaveTitle(title);
+
+    const overflow = await page.evaluate(
+      () => document.documentElement.scrollWidth - document.documentElement.clientWidth,
+    );
+    expect(overflow).toBeLessThanOrEqual(0);
+
+    const { violations } = await new AxeBuilder({ page }).analyze();
+    const severe = violations
+      .filter((violation) => violation.impact === 'serious' || violation.impact === 'critical')
+      .map((violation) => `${violation.id}: ${violation.help}`);
+    expect(severe).toEqual([]);
+    expect(consoleErrors).toEqual([]);
+  });
+}
