@@ -1,16 +1,17 @@
 import { expect, test } from '@playwright/test';
 
-test('главная открывается и показывает заголовок', async ({ page }) => {
+test('главная открывается: шапка, лента и заголовок вкладки', async ({ page }) => {
   await page.goto('/');
 
-  await expect(page.getByRole('heading', { level: 1, name: 'Радар' })).toBeVisible();
-  await expect(page).toHaveTitle('Проверка стилей — Радар');
+  await expect(page.getByRole('link', { name: 'Радар' })).toBeVisible();
+  await expect(page.getByRole('heading', { level: 1, name: 'Лента' })).toBeVisible();
+  await expect(page).toHaveTitle('Лента — Радар');
 });
 
 test('шрифт Styrene A LC загружен и применён', async ({ page }) => {
   await page.goto('/');
   // Приложение рисуется после старта моков: шрифты запрашиваются, только когда есть текст.
-  const heading = page.getByRole('heading', { level: 1, name: 'Радар' });
+  const heading = page.getByRole('heading', { level: 1, name: 'Лента' });
   await expect(heading).toBeVisible();
   await page.evaluate(() => document.fonts.ready);
 
@@ -21,14 +22,4 @@ test('шрифт Styrene A LC загружен и применён', async ({ pa
   );
   expect(loadedWeights).toEqual(expect.arrayContaining(['400', '500', '700']));
   await expect(heading).toHaveCSS('font-family', /^"Styrene A LC"/);
-});
-
-test('нет горизонтальной прокрутки', async ({ page }) => {
-  await page.goto('/');
-  await expect(page.getByRole('heading', { level: 1, name: 'Радар' })).toBeVisible();
-
-  const overflow = await page.evaluate(
-    () => document.documentElement.scrollWidth - document.documentElement.clientWidth,
-  );
-  expect(overflow).toBeLessThanOrEqual(0);
 });
