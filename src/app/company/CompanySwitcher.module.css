@@ -1,0 +1,12 @@
+.root {
+  width: 280px;
+  min-width: 0;
+  height: 48px;
+}
+
+@media (max-width: 767px) {
+  .root {
+    width: auto;
+    flex: 1 1 auto;
+  }
+}
