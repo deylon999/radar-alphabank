@@ -16,7 +16,7 @@ test('шрифт Styrene A LC загружен и применён', async ({ pa
       .filter((face) => face.family.includes('Styrene A LC') && face.status === 'loaded')
       .map((face) => face.weight),
   );
-  expect(loadedWeights).toEqual(expect.arrayContaining(['400', '500 700']));
+  expect(loadedWeights).toEqual(expect.arrayContaining(['400', '500', '700']));
 
   const heading = page.getByRole('heading', { level: 1, name: 'Радар' });
   await expect(heading).toHaveCSS('font-family', /^"Styrene A LC"/);
