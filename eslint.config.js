@@ -7,7 +7,13 @@ import globals from 'globals';
 import tseslint from 'typescript-eslint';
 
 export default defineConfig(
-  globalIgnores(['dist', 'coverage', 'test-results', 'playwright-report']),
+  globalIgnores([
+    'dist',
+    'coverage',
+    'test-results',
+    'playwright-report',
+    'public/mockServiceWorker.js',
+  ]),
   {
     // Запрет `eslint-disable`: встроенные директивы игнорируются, а их наличие — предупреждение,
     // которое валит lint при --max-warnings=0.

@@ -6,3 +6,4 @@ test-results
 playwright-report
 src/assets/fonts
 frontend-prompt*.md
+public/mockServiceWorker.js
