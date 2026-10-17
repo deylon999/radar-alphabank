@@ -1,0 +1,91 @@
+.summary {
+  max-width: 75ch;
+  margin: 0 0 var(--gap-16);
+}
+
+/* Телефон: шаги сверху вниз, между ними тонкая стрелка вниз. */
+.chain {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-24);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.step {
+  position: relative;
+  display: grid;
+  align-content: start;
+  gap: var(--gap-4);
+  min-width: 0;
+  padding: var(--gap-12);
+  border: 1px solid var(--color-light-neutral-translucent-300);
+  border-radius: var(--border-radius-8);
+  overflow-wrap: anywhere;
+}
+
+/* Последний шаг — компания — выделен рамкой. */
+.company {
+  border: 2px solid var(--color-light-accent-secondary);
+}
+
+.role {
+  color: var(--color-light-text-secondary);
+  font-size: 11px;
+  line-height: 16px;
+  font-weight: 700;
+  letter-spacing: 0.4px;
+  text-transform: uppercase;
+}
+
+.label {
+  font-weight: 700;
+}
+
+/* Стрелка: тонкая линия с наконечником, рисуется после каждого шага, кроме последнего. */
+.step:not(:last-child)::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 100%;
+  width: 1px;
+  height: var(--gap-24);
+  background: var(--color-light-text-secondary);
+}
+
+.step:not(:last-child)::before {
+  content: '';
+  position: absolute;
+  left: calc(50% - 4px);
+  top: calc(100% + var(--gap-24) - 5px);
+  border: 4px solid transparent;
+  border-top: 5px solid var(--color-light-text-secondary);
+  border-bottom: 0;
+}
+
+/* Десктоп и планшет: шаги в одну строку слева направо, стрелки горизонтальные. */
+@media (min-width: 768px) {
+  .chain {
+    flex-direction: row;
+  }
+
+  .step {
+    flex: 1 1 0;
+  }
+
+  .step:not(:last-child)::after {
+    left: 100%;
+    top: 50%;
+    width: var(--gap-24);
+    height: 1px;
+  }
+
+  .step:not(:last-child)::before {
+    left: calc(100% + var(--gap-24) - 5px);
+    top: calc(50% - 4px);
+    border: 4px solid transparent;
+    border-left: 5px solid var(--color-light-text-secondary);
+    border-right: 0;
+  }
+}
