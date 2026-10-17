@@ -1,0 +1,12 @@
+.root {
+  max-width: 75ch;
+}
+
+.name {
+  margin: 0 0 var(--gap-4);
+  overflow-wrap: anywhere;
+}
+
+.description {
+  margin-top: var(--gap-12);
+}
