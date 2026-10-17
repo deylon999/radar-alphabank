@@ -1,0 +1,31 @@
+.bullets {
+  display: grid;
+  gap: var(--gap-4);
+  max-width: 75ch;
+  margin: 0;
+  padding-left: var(--gap-20);
+}
+
+.source,
+.revision {
+  display: grid;
+  gap: var(--gap-2);
+}
+
+.link {
+  /* Токен ссылок (#2a77ef) даёт 4,2:1 — ниже AA; тёмный текст с подчёркиванием читается как ссылка. */
+  color: var(--color-light-text-primary);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.link:hover {
+  text-decoration-thickness: 2px;
+}
+
+.external {
+  width: 16px;
+  height: 16px;
+  margin-left: var(--gap-4);
+  vertical-align: -2px;
+}
