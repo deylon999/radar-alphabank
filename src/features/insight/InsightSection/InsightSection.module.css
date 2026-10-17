@@ -1,0 +1,36 @@
+.section {
+  min-width: 0;
+  font-size: 16px;
+  line-height: 24px;
+}
+
+.header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--gap-12);
+  margin-bottom: var(--gap-8);
+}
+
+.title {
+  margin: 0;
+  font-size: 16px;
+  line-height: 24px;
+  font-weight: 700;
+}
+
+/* Общие списки разделов: основания, неизвестное, история. */
+.list {
+  display: grid;
+  gap: var(--gap-8);
+  max-width: 75ch;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.muted {
+  color: var(--color-light-text-secondary);
+  font-size: 14px;
+  line-height: 20px;
+}
