@@ -1,0 +1,111 @@
+.groups {
+  display: grid;
+  gap: var(--gap-24);
+}
+
+.group {
+  min-width: 0;
+}
+
+.groupTitle {
+  display: flex;
+  align-items: baseline;
+  gap: var(--gap-8);
+  margin: 0 0 var(--gap-8);
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 700;
+}
+
+.count {
+  color: var(--color-light-text-secondary);
+  font-weight: 400;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Список фактов — строки во всю ширину с разделителями, как таблица в кабинете банка. */
+.list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border: 1px solid var(--color-light-neutral-translucent-300);
+  border-radius: var(--border-radius-12);
+}
+
+.fact {
+  display: grid;
+  gap: var(--gap-6);
+  min-width: 0;
+  padding: var(--gap-12) var(--gap-16);
+}
+
+.fact + .fact {
+  border-top: 1px solid var(--color-light-neutral-translucent-300);
+}
+
+.factHead {
+  display: flex;
+  align-items: center;
+  gap: var(--gap-8);
+  min-width: 0;
+}
+
+.source {
+  overflow: hidden;
+  min-width: 0;
+  color: var(--color-light-text-secondary);
+  font-size: 14px;
+  line-height: 20px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.statement {
+  margin: 0;
+  max-width: 75ch;
+  font-size: 16px;
+  line-height: 24px;
+  overflow-wrap: anywhere;
+}
+
+/* Отклонённое приглушено, но читается: контраст вторичного текста — AA. */
+.rejected .statement {
+  color: var(--color-light-text-secondary);
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--gap-4);
+  margin-left: calc(-1 * var(--gap-8));
+}
+
+.editor {
+  display: grid;
+  gap: var(--gap-8);
+  max-width: 75ch;
+}
+
+.editor .actions {
+  margin-left: 0;
+}
+
+.editorLabel {
+  color: var(--color-light-text-secondary);
+  font-size: 14px;
+  line-height: 20px;
+}
+
+.error {
+  margin: 0;
+  color: var(--color-light-text-primary);
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 500;
+}
+
+/* display: flex/grid выше перебивает атрибут hidden — на время правки прячем явно. */
+.statement[hidden],
+.actions[hidden] {
+  display: none;
+}
