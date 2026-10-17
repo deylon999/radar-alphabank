@@ -2,7 +2,8 @@ import type { FactCategory, ProfileFact } from '../schemas/company';
 import type { Digest, Insight, InsightFilters } from '../schemas/insight';
 import { typograph } from '../shared/lib/typography';
 
-export const PAGE_SIZE = 10;
+/** Небольшая страница, чтобы в демо было видно «Показать ещё». */
+export const PAGE_SIZE = 6;
 const DIGEST_PERIOD_DAYS = 7;
 
 function matchesQuery(insight: Insight, query: string): boolean {
@@ -63,13 +64,19 @@ export function paginate<T>(
   };
 }
 
-/** Сводка за 7 дней. `risks` включает срочные — так число совпадает с фильтром «Риски». */
+/**
+ * Сводка за 7 дней по вкладке «Главное» (прямая связь). `risks` включает срочные —
+ * так число совпадает с лентой при фильтре «Риски».
+ */
 export function computeDigest(items: readonly Insight[], now: number): Digest {
   const since = new Date(now);
   since.setHours(0, 0, 0, 0);
   since.setDate(since.getDate() - DIGEST_PERIOD_DAYS);
   const recent = items.filter(
-    (insight) => insight.status !== 'dismissed' && Date.parse(insight.updatedAt) >= since.getTime(),
+    (insight) =>
+      insight.status !== 'dismissed' &&
+      insight.relevance === 'direct' &&
+      Date.parse(insight.updatedAt) >= since.getTime(),
   );
   const risks = recent.filter((insight) => insight.kind === 'risk');
   return {

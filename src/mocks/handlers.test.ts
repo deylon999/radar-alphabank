@@ -21,6 +21,7 @@ import {
 } from '../api/endpoints/notifications';
 import { createMockServer } from '../test/mockServer';
 import { COMPANY_IDS } from './fixtures';
+import { PAGE_SIZE } from './logic';
 
 const { server, store, setErrorMode } = createMockServer();
 const AGRO = COMPANY_IDS.agro;
@@ -58,14 +59,16 @@ describe('моки ленты', () => {
   });
 
   it('отдаёт ленту страницами по курсору без повторов', async () => {
-    const first = await fetchInsights(AGRO, {}, null);
-    expect(first.items).toHaveLength(10);
-    expect(first.nextCursor).not.toBeNull();
+    const pages = [await fetchInsights(AGRO, {}, null)];
+    for (let cursor = pages[0]?.nextCursor; cursor; cursor = pages.at(-1)?.nextCursor) {
+      pages.push(await fetchInsights(AGRO, {}, cursor));
+    }
 
-    const second = await fetchInsights(AGRO, {}, first.nextCursor);
-    expect(second.nextCursor).toBeNull();
-    const ids = [...first.items, ...second.items].map((item) => item.id);
+    expect(pages.length).toBeGreaterThan(1);
+    expect(pages[0]?.items).toHaveLength(PAGE_SIZE);
+    const ids = pages.flatMap((page) => page.items.map((item) => item.id));
     expect(new Set(ids).size).toBe(ids.length);
+    expect(ids).toHaveLength(11);
   });
 
   it('у разных компаний разные ленты', async () => {
@@ -88,8 +91,11 @@ describe('моки ленты', () => {
     expect((await fetchInsights(AGRO, {}, null)).items[0]?.id).toBe('agro-flood');
   });
 
-  it('считает в сводке все риски вместе со срочными', async () => {
+  it('считает в сводке вкладку «Главное»: все риски вместе со срочными', async () => {
     const digest = await fetchDigest(AGRO);
+    const main = await fetchInsights(AGRO, { relevance: 'direct', kind: ['risk'] }, null);
+
+    expect(digest.risks).toBe(main.items.length);
 
     expect(digest.urgentRisks).toBeGreaterThan(0);
     expect(digest.risks).toBeGreaterThanOrEqual(digest.urgentRisks);
