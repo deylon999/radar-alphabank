@@ -1,0 +1,47 @@
+.header {
+  display: grid;
+  gap: var(--gap-8);
+}
+
+.crumbs {
+  display: flex;
+  flex-wrap: wrap;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  color: var(--color-light-text-secondary);
+  font-size: 14px;
+  line-height: 20px;
+}
+
+.crumbs li + li::before {
+  content: '/';
+  padding: 0 var(--gap-8);
+}
+
+.crumbs a {
+  color: var(--color-light-text-secondary);
+}
+
+.crumbs a:hover {
+  color: var(--color-light-text-primary);
+}
+
+/* PageTitle несёт свой нижний отступ — внутри шапки он не нужен. */
+.header h1 {
+  margin: 0;
+}
+
+.meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--gap-4) var(--gap-8);
+  color: var(--color-light-text-secondary);
+  font-size: 14px;
+  line-height: 20px;
+}
+
+.dates {
+  font-variant-numeric: tabular-nums;
+}
