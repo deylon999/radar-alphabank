@@ -1,0 +1,80 @@
+/*
+ * Телефон и планшет: одна колонка, разделы строго в порядке ТЗ (1–9).
+ * Колонки раскрываются через display: contents, порядок задаёт order.
+ */
+.layout {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-32);
+}
+
+.main,
+.aside {
+  display: contents;
+}
+
+.header {
+  order: 0;
+}
+
+.s1 {
+  order: 1;
+}
+
+.s2 {
+  order: 2;
+}
+
+.s3 {
+  order: 3;
+}
+
+.s4 {
+  order: 4;
+}
+
+.s5 {
+  order: 5;
+}
+
+.s6 {
+  order: 6;
+}
+
+.s7 {
+  order: 7;
+}
+
+.s8 {
+  order: 8;
+}
+
+.s9 {
+  order: 9;
+}
+
+/* Десктоп: основная колонка и правая 320 px с чек-листом и отзывом, она прилипает. */
+@media (min-width: 1024px) {
+  .layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 320px;
+    gap: var(--gap-32);
+    align-items: start;
+  }
+
+  .main {
+    display: grid;
+    gap: var(--gap-32);
+    min-width: 0;
+  }
+
+  .aside {
+    position: sticky;
+    top: calc(64px + var(--gap-24));
+    display: grid;
+    gap: var(--gap-24);
+    padding: var(--gap-20);
+    border: 1px solid var(--color-light-neutral-translucent-300);
+    border-radius: var(--border-radius-12);
+  }
+}

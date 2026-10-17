@@ -1,9 +1,0 @@
-.breadcrumbs {
-  margin-bottom: var(--gap-8);
-  font-size: 14px;
-  line-height: 20px;
-}
-
-.breadcrumbs a {
-  color: var(--color-light-text-secondary);
-}

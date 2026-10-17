@@ -1,17 +1,9 @@
-import { Link, useParams } from 'react-router';
+import { useParams } from 'react-router';
 
-import { InsightPreview } from '../../features/insight/InsightPreview';
-import { terms } from '../../shared/labels';
-import styles from './InsightPage.module.css';
+import { InsightView } from '../../features/insight/InsightView';
 
 export function InsightPage() {
   const { insightId = '' } = useParams();
-  return (
-    <>
-      <nav aria-label="Хлебные крошки" className={styles.breadcrumbs}>
-        <Link to="/">{terms.feed}</Link>
-      </nav>
-      <InsightPreview insightId={insightId} />
-    </>
-  );
+  // key: при переходе к другому инсайту состояние (чек-лист, отзыв) начинается заново.
+  return <InsightView key={insightId} insightId={insightId} />;
 }
