@@ -1,6 +1,18 @@
-import { StylePreviewPage } from '../pages/style-preview/StylePreviewPage';
+import { QueryClientProvider } from '@tanstack/react-query';
+import { useState } from 'react';
+import { createBrowserRouter } from 'react-router';
+import { RouterProvider } from 'react-router/dom';
 
-// Временная точка входа шага 1: роутер и провайдеры появятся в шаге 3.
+import { createQueryClient } from '../api/queryClient';
+import { routes } from './router/routes';
+
+const router = createBrowserRouter(routes);
+
 export function App() {
-  return <StylePreviewPage />;
+  const [queryClient] = useState(createQueryClient);
+  return (
+    <QueryClientProvider client={queryClient}>
+      <RouterProvider router={router} />
+    </QueryClientProvider>
+  );
 }
