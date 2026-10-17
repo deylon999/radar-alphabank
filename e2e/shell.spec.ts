@@ -17,16 +17,16 @@ const companySelect = (page: Page) => page.getByRole('combobox', { name: 'Ком
 
 test('выбранная компания переживает перезагрузку', async ({ page }) => {
   await page.goto('/');
-  await expect(page.getByText(/Паводок в Заречном районе/)).toBeVisible();
+  await expect(page.getByRole('link', { name: /Паводок в Заречном районе/ })).toBeVisible();
 
   await companySelect(page).selectOption({ label: 'ООО «Кварталика»' });
-  await expect(page.getByText(/Авария на подстанции/)).toBeVisible();
+  await expect(page.getByRole('link', { name: /Авария на подстанции/ })).toBeVisible();
 
   await page.reload();
 
   await expect(companySelect(page)).toHaveValue('kvartalika');
-  await expect(page.getByText(/Авария на подстанции/)).toBeVisible();
-  await expect(page.getByText(/Паводок в Заречном районе/)).toHaveCount(0);
+  await expect(page.getByRole('link', { name: /Авария на подстанции/ })).toBeVisible();
+  await expect(page.getByRole('link', { name: /Паводок в Заречном районе/ })).toHaveCount(0);
 });
 
 test('разделы открываются из навигации, активный отмечен', async ({ page }) => {
