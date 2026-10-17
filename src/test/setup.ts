@@ -27,3 +27,19 @@ if (typeof window !== 'undefined' && typeof window.matchMedia !== 'function') {
     },
   });
 }
+
+// jsdom не реализует ResizeObserver, а Tabs из core-components следят за размерами вкладок.
+if (typeof window !== 'undefined' && typeof window.ResizeObserver !== 'function') {
+  class ResizeObserverStub implements ResizeObserver {
+    observe(): void {
+      // Размеры в jsdom не меняются — наблюдать нечего.
+    }
+    unobserve(): void {
+      // См. observe.
+    }
+    disconnect(): void {
+      // См. observe.
+    }
+  }
+  window.ResizeObserver = ResizeObserverStub;
+}
