@@ -1,0 +1,38 @@
+.main {
+  max-width: 1200px;
+  margin: 0 auto;
+  /* Снизу — место под нижнюю панель навигации. */
+  padding: var(--gap-24) var(--gap-16) calc(56px + var(--gap-32) + env(safe-area-inset-bottom, 0));
+}
+
+.main:focus {
+  outline: none;
+}
+
+.skipLink {
+  position: absolute;
+  top: var(--gap-8);
+  left: var(--gap-8);
+  z-index: 20;
+  padding: var(--gap-8) var(--gap-16);
+  border-radius: var(--border-radius-8);
+  color: var(--color-light-text-primary-inverted);
+  background: var(--color-light-accent-secondary);
+  transform: translateY(-200%);
+}
+
+.skipLink:focus {
+  transform: none;
+}
+
+@media (min-width: 768px) {
+  .main {
+    padding-inline: var(--gap-32);
+  }
+}
+
+@media (min-width: 1024px) {
+  .main {
+    padding-bottom: var(--gap-48);
+  }
+}
