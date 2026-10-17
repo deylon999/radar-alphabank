@@ -11,10 +11,12 @@ export interface NavItem {
   Icon: FC<SVGProps<SVGSVGElement>>;
   /** Только точное совпадение адреса — для ленты на «/». */
   end?: boolean;
+  /** Вложенные разделы, при которых пункт тоже подсвечен: инсайт — часть ленты. */
+  alsoActiveFor?: readonly string[];
 }
 
 export const NAV_ITEMS: readonly NavItem[] = [
-  { to: '/', label: terms.feed, Icon: ListBulletedMIcon, end: true },
+  { to: '/', label: terms.feed, Icon: ListBulletedMIcon, end: true, alsoActiveFor: ['/insights/'] },
   { to: '/company', label: terms.companyProfile, Icon: OfficeMIcon },
   { to: '/notifications', label: terms.notifications, Icon: BellMIcon },
 ];
