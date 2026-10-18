@@ -1,11 +1,15 @@
 import '@testing-library/jest-dom/vitest';
 
-import { cleanup } from '@testing-library/react';
+import { cleanup, configure } from '@testing-library/react';
 import { afterEach } from 'vitest';
 
 afterEach(() => {
   cleanup();
 });
+
+// Маршруты грузятся лениво: при параллельном прогоне первая загрузка экрана иногда дольше
+// стандартной секунды findBy*, и тест падал без причины. Поведение не меняется — только ожидание.
+configure({ asyncUtilTimeout: 3000 });
 
 // jsdom не реализует matchMedia, а адаптивные компоненты core-components его вызывают.
 // Тесты api и моков идут в окружении node — там window нет.
