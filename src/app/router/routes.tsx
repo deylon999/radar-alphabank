@@ -1,5 +1,5 @@
 import type { ComponentType } from 'react';
-import type { RouteObject } from 'react-router';
+import { matchPath, type RouteObject } from 'react-router';
 
 import { NotFoundPage } from '../../pages/not-found/NotFoundPage';
 import { PageSkeleton } from '../../shared/ui/Skeleton/PageSkeleton';
@@ -18,6 +18,30 @@ function page(path: string | undefined, load: () => Promise<ComponentType>): Rou
   return path === undefined ? { index: true, ...common } : { path, ...common };
 }
 
+const loadFeed = async () => (await import('../../pages/feed/FeedPage')).FeedPage;
+const loadInsight = async () => (await import('../../pages/insight/InsightPage')).InsightPage;
+const loadCompany = async () => (await import('../../pages/company/CompanyPage')).CompanyPage;
+const loadNotifications = async () =>
+  (await import('../../pages/notifications/NotificationsPage')).NotificationsPage;
+
+const PAGE_LOADERS: [pattern: string, load: () => Promise<ComponentType>][] = [
+  ['/', loadFeed],
+  ['/insights/:insightId', loadInsight],
+  ['/company', loadCompany],
+  ['/notifications', loadNotifications],
+];
+
+/**
+ * Начинает загрузку чанка страницы по адресу, не дожидаясь роутера: при старте её код
+ * качается параллельно с моками. Роутер потом получит уже загруженный модуль.
+ */
+export function preloadPage(pathname: string): void {
+  const match = PAGE_LOADERS.find(([pattern]) => matchPath(pattern, pathname));
+  if (match) {
+    void match[1]().catch(() => undefined);
+  }
+}
+
 export const routes: RouteObject[] = [
   {
     path: '/',
@@ -25,16 +49,10 @@ export const routes: RouteObject[] = [
     HydrateFallback: PageSkeleton,
     ErrorBoundary: RouteErrorBoundary,
     children: [
-      page(undefined, async () => (await import('../../pages/feed/FeedPage')).FeedPage),
-      page(
-        'insights/:insightId',
-        async () => (await import('../../pages/insight/InsightPage')).InsightPage,
-      ),
-      page('company', async () => (await import('../../pages/company/CompanyPage')).CompanyPage),
-      page(
-        'notifications',
-        async () => (await import('../../pages/notifications/NotificationsPage')).NotificationsPage,
-      ),
+      page(undefined, loadFeed),
+      page('insights/:insightId', loadInsight),
+      page('company', loadCompany),
+      page('notifications', loadNotifications),
       // 404 и так в основном чанке: её показывает RouteErrorBoundary.
       { path: '*', Component: NotFoundPage, ErrorBoundary: RouteErrorBoundary },
     ],

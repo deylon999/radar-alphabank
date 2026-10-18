@@ -9,6 +9,7 @@ import { createRoot } from 'react-dom/client';
 
 import { apiConfig } from './api/config';
 import { App } from './app/App';
+import { preloadPage } from './app/router/routes';
 
 /**
  * Моки грузятся отдельным чанком и только при VITE_USE_MOCKS=true. Первое условие Vite
@@ -27,6 +28,8 @@ if (!rootElement) {
   throw new Error('Не найден корневой элемент #root');
 }
 
+// Код страницы качается параллельно с моками, а не после них.
+preloadPage(window.location.pathname);
 void enableMocking().then(() => {
   createRoot(rootElement).render(
     <StrictMode>
