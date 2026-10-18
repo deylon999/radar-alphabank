@@ -10,8 +10,17 @@ async function fetchFromPage(page: Page, path: string) {
   }, `${API_URL}${path}`);
 }
 
-async function waitForMocks(page: Page) {
-  await page.waitForFunction(() => navigator.serviceWorker.controller !== null);
+/**
+ * Моки готовы, когда приложение получило первый ответ от них. Одного Service Worker мало:
+ * после перезагрузки он есть сразу, а MSW в странице включается чуть позже, и запрос,
+ * отправленный в этот промежуток, уходит мимо моков.
+ */
+async function waitForMocks(page: Page, navigate: () => Promise<unknown>) {
+  const firstMockResponse = page.waitForResponse((response) =>
+    response.url().includes('/api/companies'),
+  );
+  await navigate();
+  await firstMockResponse;
 }
 
 test('моки отвечают в браузере без ошибок в консоли', async ({ page }) => {
@@ -22,8 +31,7 @@ test('моки отвечают в браузере без ошибок в ко�
     }
   });
 
-  await page.goto('/');
-  await waitForMocks(page);
+  await waitForMocks(page, () => page.goto('/'));
   const companies = await fetchFromPage(page, '/api/companies');
 
   expect(companies.status).toBe(200);
@@ -32,8 +40,7 @@ test('моки отвечают в браузере без ошибок в ко�
 });
 
 test('параметр ?mock=errors включает режим ошибок', async ({ page }) => {
-  await page.goto('/?mock=errors');
-  await waitForMocks(page);
+  await waitForMocks(page, () => page.goto('/?mock=errors'));
 
   const response = await fetchFromPage(page, '/api/companies');
 
@@ -41,8 +48,7 @@ test('параметр ?mock=errors включает режим ошибок', a
 });
 
 test('состояние моков переживает перезагрузку вкладки', async ({ page }) => {
-  await page.goto('/');
-  await waitForMocks(page);
+  await waitForMocks(page, () => page.goto('/'));
   await page.evaluate(async (url) => {
     await fetch(`${url}/api/insights/agro-flood`, {
       method: 'PATCH',
@@ -51,8 +57,7 @@ test('состояние моков переживает перезагрузк�
     });
   }, API_URL);
 
-  await page.reload();
-  await waitForMocks(page);
+  await waitForMocks(page, () => page.reload());
   const insight = await fetchFromPage(page, '/api/insights/agro-flood');
 
   expect(insight.body).toMatchObject({ id: 'agro-flood', status: 'read' });
