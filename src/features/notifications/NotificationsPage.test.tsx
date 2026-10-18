@@ -50,7 +50,11 @@ describe('Telegram', () => {
     expect(await within(telegram()).findByText('@demo_director')).toBeInTheDocument();
     expect(await screen.findByText('Telegram подключён')).toBeInTheDocument();
 
-    await user.click(within(telegram()).getByRole('button', { name: 'Отключить' }));
+    const disconnect = within(telegram()).getByRole('button', { name: 'Отключить' });
+    await waitFor(() => {
+      expect(disconnect).toBeEnabled();
+    });
+    await user.click(disconnect);
     expect(await within(telegram()).findByText('Не подключён')).toBeInTheDocument();
     await waitFor(() => {
       expect(store.read().notifications.telegram.connected).toBe(false);
@@ -68,7 +72,10 @@ describe('Telegram', () => {
     expect(await within(telegram()).findByRole('alert')).toHaveTextContent(
       'Не удалось получить ссылку',
     );
-    expect(within(telegram()).getByRole('button', { name: 'Подключить Telegram' })).toBeEnabled();
+    // Button из библиотеки держит загрузку минимум 500 мс, чтобы не мигать, — затем кнопка снова доступна.
+    await waitFor(() => {
+      expect(within(telegram()).getByRole('button', { name: 'Подключить Telegram' })).toBeEnabled();
+    });
   });
 });
 
