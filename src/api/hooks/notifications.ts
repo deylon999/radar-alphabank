@@ -15,22 +15,38 @@ export function useNotificationSettings() {
   });
 }
 
+/**
+ * Сохранение с оптимистичным обновлением: новая настройка видна сразу, а если сервер
+ * её не принял — возвращается прежняя. Сохранения идут строго по очереди, поэтому
+ * откат не затрёт изменение, сделанное позже.
+ */
 export function useSaveNotificationSettings() {
   const queryClient = useQueryClient();
+  const key = queryKeys.notifications.settings();
   return useMutation({
+    scope: { id: 'notification-settings' },
     mutationFn: (settings: NotificationSettings) => saveNotificationSettings(settings),
+    onMutate: async (settings) => {
+      await queryClient.cancelQueries({ queryKey: key });
+      const previous = queryClient.getQueryData<NotificationSettings>(key);
+      queryClient.setQueryData(key, settings);
+      return { previous };
+    },
+    onError: (_error, _settings, result) => {
+      if (result?.previous) {
+        queryClient.setQueryData(key, result.previous);
+      }
+    },
     onSuccess: (settings) => {
-      queryClient.setQueryData(queryKeys.notifications.settings(), settings);
+      queryClient.setQueryData(key, settings);
     },
   });
 }
 
-/** Привязку подтверждает бот; статус подключения приходит при следующем запросе настроек. */
+/**
+ * Привязку подтверждает бот, когда пользователь нажмёт «Старт» в Telegram. Статус приходит
+ * при следующем запросе настроек — его делает экран, когда пользователь возвращается.
+ */
 export function useTelegramLink() {
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: requestTelegramLink,
-    onSuccess: () =>
-      queryClient.invalidateQueries({ queryKey: queryKeys.notifications.settings() }),
-  });
+  return useMutation({ mutationFn: requestTelegramLink });
 }
