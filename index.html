@@ -13,9 +13,76 @@
       crossorigin
     />
     <title>Радар</title>
+    <!--
+      Оболочка до загрузки скриптов: шапка и серые блоки появляются сразу после HTML и CSS,
+      React заменяет их при первом рендере. Размеры повторяют AppHeader и PageSkeleton,
+      цвета и отступы — токены из основного CSS, поэтому вёрстка не прыгает.
+    -->
+    <style>
+      .boot-header {
+        border-bottom: 1px solid var(--color-light-neutral-translucent-300);
+      }
+      .boot-inner,
+      .boot-main {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 var(--gap-16);
+      }
+      .boot-inner {
+        display: flex;
+        align-items: center;
+        height: 64px;
+      }
+      .boot-logo {
+        font-size: 16px;
+        line-height: 20px;
+        font-weight: 700;
+        letter-spacing: 0.2px;
+      }
+      .boot-main {
+        padding-top: var(--gap-24);
+      }
+      .boot-title {
+        width: 240px;
+        max-width: 60%;
+        height: 32px;
+        margin-bottom: var(--gap-24);
+        border-radius: var(--border-radius-6);
+        background: var(--color-light-neutral-translucent-100);
+      }
+      .boot-block {
+        height: 106px;
+        border: 1px solid var(--color-light-neutral-translucent-300);
+        border-radius: var(--border-radius-12);
+      }
+      .boot-block + .boot-block {
+        margin-top: var(--gap-12);
+      }
+      @media (min-width: 768px) {
+        .boot-inner,
+        .boot-main {
+          padding: 0 var(--gap-32);
+        }
+        .boot-main {
+          padding-top: var(--gap-24);
+        }
+      }
+    </style>
   </head>
   <body>
-    <div id="root"></div>
+    <div id="root">
+      <div aria-busy="true" aria-label="Загрузка">
+        <div class="boot-header">
+          <div class="boot-inner"><span class="boot-logo">Радар</span></div>
+        </div>
+        <div class="boot-main">
+          <div class="boot-title"></div>
+          <div class="boot-block"></div>
+          <div class="boot-block"></div>
+          <div class="boot-block"></div>
+        </div>
+      </div>
+    </div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
