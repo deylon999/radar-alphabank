@@ -117,6 +117,30 @@ describe('правила', () => {
     expect(store.read().notifications.urgentKinds).toEqual(['risk']);
   });
 
+  it('после быстрых кликов ответы сервера не возвращают промежуточные состояния', async () => {
+    server.use(
+      http.put('*/api/notifications/settings', async () => {
+        await delay(30);
+      }),
+    );
+    const { user } = await openNotifications();
+    const opportunities = screen.getByRole<HTMLInputElement>('checkbox', { name: 'Возможности' });
+
+    await user.click(opportunities);
+    await user.click(opportunities);
+    await user.click(opportunities);
+    expect(opportunities).toBeChecked();
+
+    const seen: boolean[] = [];
+    const timer = setInterval(() => seen.push(opportunities.checked), 5);
+    expect(await screen.findByText('Сохранено')).toBeInTheDocument();
+    clearInterval(timer);
+
+    expect(seen).not.toContain(false);
+    expect(opportunities).toBeChecked();
+    expect(store.read().notifications.urgentKinds).toEqual(['risk', 'opportunity']);
+  });
+
   it('без сводки поле времени скрыто, а выбранное время возвращается вместе со сводкой', async () => {
     const { user } = await openNotifications();
     expect(screen.getByRole('combobox', { name: 'Время сводки' })).toHaveValue('09:00');

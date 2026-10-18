@@ -1,4 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useRef } from 'react';
 
 import type { NotificationSettings } from '../../schemas/notifications';
 import {
@@ -16,29 +17,39 @@ export function useNotificationSettings() {
 }
 
 /**
- * Сохранение с оптимистичным обновлением: новая настройка видна сразу, а если сервер
- * её не принял — возвращается прежняя. Сохранения идут строго по очереди, поэтому
- * откат не затрёт изменение, сделанное позже.
+ * Сохранение с оптимистичным обновлением: новая настройка видна сразу. Сохранения идут
+ * строго по очереди, а ответы применяются только у последнего из них: если быстро кликнуть
+ * несколько раз, ответы на промежуточные клики не «проигрывают» старые состояния заново.
+ * Если последнее сохранение не прошло, возвращается прежняя настройка и экран сверяется
+ * с сервером — ранние сохранения из очереди тоже могли не пройти.
  */
 export function useSaveNotificationSettings() {
   const queryClient = useQueryClient();
   const key = queryKeys.notifications.settings();
+  const latest = useRef(0);
   return useMutation({
     scope: { id: 'notification-settings' },
     mutationFn: (settings: NotificationSettings) => saveNotificationSettings(settings),
     onMutate: async (settings) => {
+      const version = ++latest.current;
       await queryClient.cancelQueries({ queryKey: key });
       const previous = queryClient.getQueryData<NotificationSettings>(key);
       queryClient.setQueryData(key, settings);
-      return { previous };
+      return { previous, version };
     },
-    onError: (_error, _settings, result) => {
-      if (result?.previous) {
+    onError: async (_error, _settings, result) => {
+      if (result?.version !== latest.current) {
+        return;
+      }
+      if (result.previous) {
         queryClient.setQueryData(key, result.previous);
       }
+      await queryClient.invalidateQueries({ queryKey: key });
     },
-    onSuccess: (settings) => {
-      queryClient.setQueryData(key, settings);
+    onSuccess: (settings, _variables, result) => {
+      if (result.version === latest.current) {
+        queryClient.setQueryData(key, settings);
+      }
     },
   });
 }
