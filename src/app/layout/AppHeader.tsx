@@ -2,6 +2,7 @@ import { Link } from 'react-router';
 
 import { terms } from '../../shared/labels';
 import { CompanySwitcher } from '../company/CompanySwitcher';
+import { ThemeToggle } from '../theme/ThemeToggle';
 import styles from './AppHeader.module.css';
 import { MainNav } from './MainNav';
 
@@ -13,8 +14,9 @@ export function AppHeader() {
           {terms.productName}
         </Link>
         <MainNav variant="header" />
-        <div className={styles.switcher}>
+        <div className={styles.actions}>
           <CompanySwitcher />
+          <ThemeToggle />
         </div>
       </div>
     </header>

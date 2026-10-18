@@ -26,10 +26,12 @@
   text-decoration: none;
 }
 
-.switcher {
+.actions {
   display: flex;
   flex: 1 1 auto;
+  align-items: center;
   justify-content: flex-end;
+  gap: var(--gap-8);
   min-width: 0;
 }
 

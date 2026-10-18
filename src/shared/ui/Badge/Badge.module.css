@@ -41,3 +41,18 @@
   color: var(--color-light-text-secondary);
   box-shadow: inset 0 0 0 1px var(--color-light-neutral-translucent-300);
 }
+
+/*
+ * В тёмной теме срочный риск — сплошной красный с тёмным текстом: приглушённый красный на
+ * тёмном фоне почти не отличается от серого. «Сильная» плашка не белая, иначе она громче
+ * срочного риска.
+ */
+:global(html[data-theme='dark']) .negative {
+  color: var(--color-light-text-primary-inverted);
+  background: var(--color-light-status-negative);
+}
+
+:global(html[data-theme='dark']) .strong {
+  color: var(--color-light-text-primary);
+  background: var(--color-light-neutral-translucent-500);
+}

@@ -21,3 +21,27 @@ for (const { name, path, ready } of pages) {
     expect(violations).toEqual([]);
   });
 }
+
+test.describe('переключатель в шапке', () => {
+  test.use({ colorScheme: 'light' });
+
+  test('включает тёмную тему, помнит её после перезагрузки и возвращает светлую', async ({
+    page,
+  }) => {
+    await page.goto('/');
+    await expect(page.getByRole('article').first()).toBeVisible();
+    const body = page.locator('body');
+    const toggle = page.getByRole('button', { name: 'Тёмная тема' });
+    await expect(body).toHaveCSS('background-color', 'rgb(255, 255, 255)');
+
+    await toggle.click();
+    await expect(toggle).toHaveAttribute('aria-pressed', 'true');
+    await expect(body).toHaveCSS('background-color', 'rgb(18, 18, 19)');
+
+    await page.reload();
+    await expect(body).toHaveCSS('background-color', 'rgb(18, 18, 19)');
+
+    await toggle.click();
+    await expect(body).toHaveCSS('background-color', 'rgb(255, 255, 255)');
+  });
+});

@@ -1,0 +1,18 @@
+/*
+ * Поверхности. В светлой теме карточки — белые с рамкой на белом фоне. В тёмной, как в
+ * приложении Альфы, глубину дают светлота и тон: карточки светлее фона, рамки тише, а
+ * вложенное ещё светлее. Тени на тёмном почти не видны, на них не полагаемся.
+ */
+html:root {
+  --radar-card-bg: var(--color-light-base-bg-primary);
+  --radar-card-border: var(--color-light-neutral-translucent-300);
+  --radar-popover-bg: var(--color-light-base-bg-primary);
+  color-scheme: light;
+}
+
+html[data-theme='dark'] {
+  --radar-card-bg: var(--color-light-base-bg-secondary);
+  --radar-card-border: var(--color-light-neutral-translucent-200);
+  --radar-popover-bg: var(--color-light-base-bg-tertiary);
+  color-scheme: dark;
+}

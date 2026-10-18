@@ -6,7 +6,8 @@
   min-height: 40px;
   margin: 0 0 var(--gap-8);
   padding: var(--gap-10) var(--gap-16);
-  border: 1px solid var(--color-light-neutral-translucent-300);
+  border: 1px solid var(--radar-card-border);
+  background: var(--radar-card-bg);
   border-radius: var(--border-radius-12);
   font-size: 14px;
   line-height: 20px;

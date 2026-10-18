@@ -20,7 +20,8 @@
   gap: var(--gap-4);
   min-width: 0;
   padding: var(--gap-12);
-  border: 1px solid var(--color-light-neutral-translucent-300);
+  border: 1px solid var(--radar-card-border);
+  background: var(--radar-card-bg);
   border-radius: var(--border-radius-8);
   overflow-wrap: anywhere;
 }

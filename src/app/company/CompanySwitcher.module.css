@@ -97,7 +97,7 @@
   /* Тонкая рамка к тени: на белой странице без неё верх и бока меню сливаются с фоном. */
   border: 1px solid var(--color-light-neutral-translucent-300);
   border-radius: var(--border-radius-16);
-  background: var(--color-light-base-bg-primary);
+  background: var(--radar-popover-bg);
   box-shadow: var(--shadow-m);
 }
 

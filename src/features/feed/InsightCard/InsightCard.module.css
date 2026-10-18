@@ -4,9 +4,9 @@
   display: grid;
   gap: var(--gap-4);
   padding: var(--gap-10) var(--gap-16) var(--gap-10) var(--gap-20);
-  border: 1px solid var(--color-light-neutral-translucent-300);
+  border: 1px solid var(--radar-card-border);
   border-radius: var(--border-radius-12);
-  background: var(--color-light-base-bg-primary);
+  background: var(--radar-card-bg);
   transition: border-color 0.2s ease-in-out;
 }
 

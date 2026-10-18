@@ -7,7 +7,8 @@
   display: none;
   gap: var(--gap-16);
   padding: var(--gap-16);
-  border: 1px solid var(--color-light-neutral-translucent-300);
+  border: 1px solid var(--radar-card-border);
+  background: var(--radar-card-bg);
   border-radius: var(--border-radius-12);
 }
 

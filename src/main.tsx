@@ -3,6 +3,7 @@ import './app/styles/fonts.css';
 import './app/styles/global.css';
 import './app/styles/promo.css';
 import './app/styles/overrides.css';
+import './app/styles/theme.css';
 
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';

@@ -17,4 +17,11 @@ export const safeStorage = {
       // Хранилище недоступно — значение просто не переживёт перезагрузку.
     }
   },
+  remove(key: string): void {
+    try {
+      window.localStorage.removeItem(key);
+    } catch {
+      // Хранилище недоступно — удалять нечего.
+    }
+  },
 };

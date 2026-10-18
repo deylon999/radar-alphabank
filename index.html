@@ -3,7 +3,6 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="color-scheme" content="light dark" />
     <meta name="description" content="Радар — новостная аналитика для руководителей бизнеса" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link
@@ -14,6 +13,19 @@
       crossorigin
     />
     <title>Радар</title>
+    <!-- Тема ставится до первой отрисовки, иначе страница мигнёт белым. Логика — как в useTheme. -->
+    <script>
+      (function () {
+        var theme = null;
+        try {
+          theme = localStorage.getItem('radar-theme');
+        } catch (error) {}
+        if (theme !== 'light' && theme !== 'dark') {
+          theme = matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+        }
+        document.documentElement.dataset.theme = theme;
+      })();
+    </script>
     <!--
       Оболочка до загрузки скриптов: шапка и серые блоки появляются сразу после HTML и CSS,
       React заменяет их при первом рендере. Размеры повторяют AppHeader и PageSkeleton,
