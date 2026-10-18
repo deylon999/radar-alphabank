@@ -8,9 +8,8 @@ import styles from './CompanySummary.module.css';
 export function CompanySummary({ company }: { company: Company }) {
   return (
     <section aria-label="Компания" className={styles.root}>
-      <Typography.Title tag="h2" view="xsmall" className={styles.name}>
-        {company.name}
-      </Typography.Title>
+      {/* Заголовок блока — 16 px, как остальные: на экране не больше четырёх размеров текста. */}
+      <h2 className={styles.name}>{company.name}</h2>
       <Typography.Text tag="p" view="primary-small" color="secondary">
         {company.industry}
         {company.inn ? ` · ИНН${NBSP}${company.inn}` : ''}
