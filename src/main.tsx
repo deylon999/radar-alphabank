@@ -7,7 +7,7 @@ import './app/styles/overrides.css';
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 
-import { apiConfig } from './api/config';
+import { apiConfig, mockStatus } from './api/config';
 import { App } from './app/App';
 import { preloadPage } from './app/router/routes';
 
@@ -30,10 +30,16 @@ if (!rootElement) {
 
 // Код страницы качается параллельно с моками, а не после них.
 preloadPage(window.location.pathname);
-void enableMocking().then(() => {
-  createRoot(rootElement).render(
-    <StrictMode>
-      <App />
-    </StrictMode>,
-  );
-});
+// Если моки не запустились (встроенный браузер мессенджера, приватный режим Firefox),
+// приложение всё равно рисуется и показывает понятную ошибку вместо вечного скелетона.
+void enableMocking()
+  .catch(() => {
+    mockStatus.failed = true;
+  })
+  .then(() => {
+    createRoot(rootElement).render(
+      <StrictMode>
+        <App />
+      </StrictMode>,
+    );
+  });

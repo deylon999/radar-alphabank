@@ -12,12 +12,24 @@ export interface ApiConfig {
   useMocks: boolean;
 }
 
-export function parseApiConfig(env: Record<string, unknown>): ApiConfig {
+/**
+ * С моками запросы идут на адрес самого сайта: их перехватывает Service Worker, и до сети
+ * они не доходят. Ходить на VITE_API_URL нельзя — с https-сайта запрос на http://localhost
+ * мобильные браузеры блокируют раньше, чем его увидит Service Worker.
+ */
+export function parseApiConfig(env: Record<string, unknown>, siteOrigin?: string): ApiConfig {
   const parsed = envSchema.parse(env);
+  const useMocks = parsed.VITE_USE_MOCKS === 'true';
   return {
-    apiUrl: parsed.VITE_API_URL.replace(/\/+$/, ''),
-    useMocks: parsed.VITE_USE_MOCKS === 'true',
+    apiUrl: (useMocks && siteOrigin ? siteOrigin : parsed.VITE_API_URL).replace(/\/+$/, ''),
+    useMocks,
   };
 }
 
-export const apiConfig: ApiConfig = parseApiConfig(import.meta.env);
+/** Состояние моков в браузере: если Service Worker не запустился, экраны объясняют почему. */
+export const mockStatus = { failed: false };
+
+export const apiConfig: ApiConfig = parseApiConfig(
+  import.meta.env,
+  typeof window === 'undefined' ? undefined : window.location.origin,
+);
