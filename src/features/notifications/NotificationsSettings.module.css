@@ -1,0 +1,53 @@
+.layout {
+  display: grid;
+  gap: var(--gap-32);
+}
+
+.main {
+  display: grid;
+  gap: var(--gap-32);
+  min-width: 0;
+  max-width: 640px;
+}
+
+.section {
+  display: grid;
+  justify-items: start;
+  gap: var(--gap-12);
+  min-width: 0;
+}
+
+.section > * {
+  max-width: 100%;
+}
+
+.title {
+  margin: 0;
+  font-size: 16px;
+  line-height: 24px;
+  font-weight: 700;
+}
+
+.muted {
+  margin: 0;
+  max-width: 75ch;
+  color: var(--color-light-text-secondary);
+  font-size: 14px;
+  line-height: 20px;
+}
+
+/* Десктоп: настройки слева, справа колонка 360 px с превью — она прилипает при прокрутке. */
+@media (min-width: 1024px) {
+  .layout {
+    grid-template-columns: minmax(0, 1fr) 360px;
+    align-items: start;
+  }
+
+  .aside {
+    position: sticky;
+    top: calc(64px + var(--gap-24));
+    padding: var(--gap-20);
+    border: 1px solid var(--color-light-neutral-translucent-300);
+    border-radius: var(--border-radius-12);
+  }
+}
