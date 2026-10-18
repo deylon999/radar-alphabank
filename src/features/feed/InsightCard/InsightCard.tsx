@@ -1,6 +1,6 @@
 import { Link as ActionLink } from '@alfalab/core-components/link/modern';
 import cn from 'classnames';
-import { useId } from 'react';
+import { useEffect, useId, useRef } from 'react';
 import { Link, useLocation } from 'react-router';
 
 import type { Insight } from '../../../schemas/insight';
@@ -24,15 +24,55 @@ export function shortImpactPath(insight: Insight): string {
     .join(' → ');
 }
 
+/**
+ * Клик по тексту, поднятому над ссылкой ради подсказок (время, «почему», цепочка), тоже
+ * открывает инсайт: передаём его ссылке с теми же клавишами — Ctrl/Cmd откроет новую вкладку.
+ * Если пользователь выделил текст, чтобы скопировать, карточку не открываем.
+ */
+function useForwardClicksToLink() {
+  const cardRef = useRef<HTMLElement>(null);
+  const linkRef = useRef<HTMLAnchorElement>(null);
+
+  useEffect(() => {
+    const card = cardRef.current;
+    if (!card) return undefined;
+    const onClick = (event: MouseEvent) => {
+      const target = event.target instanceof Element ? event.target : null;
+      if (!target || target.closest('a, button') || window.getSelection()?.toString()) {
+        return;
+      }
+      linkRef.current?.dispatchEvent(
+        new MouseEvent('click', {
+          bubbles: true,
+          cancelable: true,
+          button: event.button,
+          ctrlKey: event.ctrlKey,
+          metaKey: event.metaKey,
+          shiftKey: event.shiftKey,
+          altKey: event.altKey,
+        }),
+      );
+    };
+    card.addEventListener('click', onClick);
+    return () => {
+      card.removeEventListener('click', onClick);
+    };
+  }, []);
+
+  return { cardRef, linkRef };
+}
+
 /** Карточка ленты: суть за 5 секунд. Вся карточка — одна ссылка на инсайт. */
 export function InsightCard({ insight, onHide }: InsightCardProps) {
   const titleId = useId();
+  const { cardRef, linkRef } = useForwardClicksToLink();
   const { search } = useLocation();
   const chain = shortImpactPath(insight);
   const isUrgentRisk = insight.kind === 'risk' && insight.urgency === 'urgent';
 
   return (
     <article
+      ref={cardRef}
       aria-labelledby={titleId}
       className={cn(
         styles.card,
@@ -47,6 +87,7 @@ export function InsightCard({ insight, onHide }: InsightCardProps) {
       </div>
       <h2 className={styles.title} id={titleId}>
         <Link
+          ref={linkRef}
           to={`/insights/${insight.id}`}
           state={feedReturnState(search)}
           className={styles.link}

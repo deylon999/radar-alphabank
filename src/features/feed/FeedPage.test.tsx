@@ -184,4 +184,28 @@ describe('лента: «Показать ещё» и «Скрыть»', () => {
     });
     expect(link).toHaveAttribute('href', '/insights/agro-flood');
   });
+
+  it.each([
+    ['время', (card: HTMLElement) => card.querySelector('time') ?? card],
+    ['цепочку', (card: HTMLElement) => within(card).getByText(/→/)],
+  ])('клик по тексту с подсказкой (%s) тоже открывает инсайт', async (_, pick) => {
+    const { user, router } = await openFeed();
+
+    await user.click(pick(screen.getAllByRole('article')[0] ?? document.body));
+
+    await waitFor(() => {
+      expect(router.state.location.pathname).toBe('/insights/agro-flood');
+    });
+  });
+
+  it('у обрезанного времени и строк есть подсказки с полным текстом', async () => {
+    await openFeed();
+    const card = screen.getAllByRole('article')[0] ?? document.body;
+
+    expect(within(card).getByText(/→/)).toHaveAttribute(
+      'title',
+      'Паводок в Заречном районе → Склад «Южный-2» → Поставка упаковки',
+    );
+    expect(card.querySelector('time')).toHaveAttribute('title', expect.stringMatching(/\d{4} г\./));
+  });
 });
