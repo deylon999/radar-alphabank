@@ -12,4 +12,12 @@ html:root {
    */
   --form-control-hover-bg-color: var(--color-light-neutral-translucent-300);
   --form-control-box-shadow-hover: inset 0 0 0 1px var(--color-light-neutral-translucent-500);
+
+  /*
+   * Прозрачные кнопки («Исправить», «Отклонить», «Отменить»): подложка при наведении 6 %
+   * на белой странице почти не видна. Берём 10 % — как фон вторичной кнопки, — а нажатие
+   * делаем темнее, чтобы оно читалось после наведения.
+   */
+  --button-transparent-hover-bg-color: var(--color-light-neutral-translucent-300);
+  --button-transparent-active-bg-color: var(--color-light-neutral-translucent-400);
 }
