@@ -23,3 +23,20 @@ test('шрифт Styrene A LC загружен и применён', async ({ pa
   expect(loadedWeights).toEqual(expect.arrayContaining(['400', '500', '700']));
   await expect(heading).toHaveCSS('font-family', /^"Styrene A LC"/);
 });
+
+test('главный сценарий: со старта один клик до срочного риска и того, что проверить', async ({
+  page,
+}) => {
+  await page.goto('/');
+  const first = page.getByRole('article').first();
+  await expect(first).toContainText('Срочно');
+  await expect(first).toContainText('Риск');
+
+  await first.getByRole('link').click();
+
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText(/Паводок/);
+  await expect(page.getByRole('region', { name: 'Что проверить' })).toContainText('0 из 3');
+  await expect(page.getByRole('region', { name: 'Возможное последствие' })).toContainText(
+    'Гипотеза',
+  );
+});

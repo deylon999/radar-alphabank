@@ -92,3 +92,19 @@ for (const { path, title, heading } of PAGES) {
     expect(consoleErrors).toEqual([]);
   });
 }
+
+for (const { path, text } of [
+  { path: '/?mock=errors', text: 'Не удалось загрузить список компаний' },
+  { path: '/?q=несуществующее', text: 'Ничего не нашлось' },
+]) {
+  test(`${path}: состояние без данных проходит axe`, async ({ page }) => {
+    await page.goto(path);
+    await expect(page.getByText(text)).toBeVisible();
+
+    const { violations } = await new AxeBuilder({ page }).analyze();
+    const severe = violations
+      .filter((violation) => violation.impact === 'serious' || violation.impact === 'critical')
+      .map((violation) => `${violation.id}: ${violation.help}`);
+    expect(severe).toEqual([]);
+  });
+}
