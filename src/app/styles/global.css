@@ -25,6 +25,14 @@ body {
   outline-offset: 2px;
 }
 
+/* Смена темы — без анимаций, см. applyTheme в src/app/theme/useTheme.ts. */
+.theme-switching,
+.theme-switching *,
+.theme-switching *::before,
+.theme-switching *::after {
+  transition: none !important;
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,

@@ -7,6 +7,24 @@ export type Theme = 'light' | 'dark';
 
 export const THEME_STORAGE_KEY = 'radar-theme';
 
+/**
+ * Ставит тему на <html> разом. Кнопки и поля core-components плавно перекрашиваются при
+ * смене цветов, каждая со своей скоростью, — без отключения переходов тема «ползёт» по
+ * странице рывками. Стили пересчитываются сразу, пока переходы выключены.
+ */
+function applyTheme(theme: Theme) {
+  const root = document.documentElement;
+  if (root.dataset.theme === theme) {
+    return;
+  }
+  root.classList.add('theme-switching');
+  root.dataset.theme = theme;
+  root.getBoundingClientRect();
+  requestAnimationFrame(() => {
+    root.classList.remove('theme-switching');
+  });
+}
+
 function readStoredTheme(): Theme | null {
   const value = safeStorage.get(THEME_STORAGE_KEY);
   return value === 'light' || value === 'dark' ? value : null;
@@ -23,11 +41,12 @@ export function useTheme() {
   const theme = stored ?? system;
 
   useEffect(() => {
-    document.documentElement.dataset.theme = theme;
+    applyTheme(theme);
   }, [theme]);
 
   const toggle = () => {
     const next: Theme = theme === 'dark' ? 'light' : 'dark';
+    applyTheme(next);
     if (next === system) {
       safeStorage.remove(THEME_STORAGE_KEY);
       setStored(null);
