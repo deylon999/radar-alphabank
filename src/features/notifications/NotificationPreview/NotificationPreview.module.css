@@ -1,0 +1,40 @@
+/* Сообщение бота: нейтральная подложка, плотный текст. Без логотипов и фирменных цветов мессенджера. */
+.message {
+  display: grid;
+  gap: var(--gap-4);
+  max-width: 360px;
+  margin: 0;
+  padding: var(--gap-12) var(--gap-16);
+  border-radius: var(--border-radius-12) var(--border-radius-12) var(--border-radius-12)
+    var(--border-radius-4);
+  background: var(--color-light-neutral-translucent-100);
+  font-size: 14px;
+  line-height: 20px;
+}
+
+.message p {
+  margin: 0;
+}
+
+.meta {
+  font-size: 12px;
+  line-height: 16px;
+  font-weight: 500;
+}
+
+.headline {
+  font-weight: 700;
+}
+
+.message .action {
+  margin-top: var(--gap-4);
+  font-weight: 500;
+  text-decoration: underline;
+}
+
+.muted {
+  margin: 0;
+  color: var(--color-light-text-secondary);
+  font-size: 14px;
+  line-height: 20px;
+}
