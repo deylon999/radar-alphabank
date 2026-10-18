@@ -34,7 +34,7 @@ afterAll(() => {
 const trigger = () => screen.findByRole('button', { name: /^Компания: / });
 
 describe('меню компаний (мышь)', () => {
-  it('показывает компании с отраслью и отмечает выбранную', async () => {
+  it('показывает компании и отмечает выбранную', async () => {
     const { user } = renderApp('/');
     const button = await trigger();
     expect(button).toHaveAccessibleName('Компания: АО «Полевея Агро»');
@@ -45,9 +45,9 @@ describe('меню компаний (мышь)', () => {
     const menu = screen.getByRole('menu', { name: 'Компания' });
     const items = within(menu).getAllByRole('menuitemradio');
     expect(items.map((item) => item.textContent)).toEqual([
-      'АО «Полевея Агро»Агропромышленный холдинг',
-      'ООО «Кальвета»Производство строительных материалов',
-      expect.stringMatching(/^ООО «Кварталика»/),
+      'АО «Полевея Агро»',
+      'ООО «Кальвета»',
+      'ООО «Кварталика»',
     ]);
     expect(items[0]).toHaveAttribute('aria-checked', 'true');
     expect(items[0]).toHaveFocus();

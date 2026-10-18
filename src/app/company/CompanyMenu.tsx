@@ -14,8 +14,10 @@ interface CompanyMenuProps {
 }
 
 /**
- * Переключатель для мыши: кнопка с названием и меню с отраслью под каждой компанией.
- * Выбранная отмечена галочкой. Пункты — menuitemradio, их читает скринридер.
+ * Переключатель для мыши: кнопка с названием и меню компаний. Внешне повторяет выпадающий
+ * список Select из core-components (размеры и цвета взяты из его CSS), но доступен:
+ * у Select из библиотеки обёртка-combobox без имени и иконка галочки без подписи (axe).
+ * Пункты — menuitemradio, выбранный отмечен галочкой сразу после названия.
  */
 export function CompanyMenu({ company, companies, onSelect }: CompanyMenuProps) {
   const selectedIndex = Math.max(
@@ -71,10 +73,7 @@ export function CompanyMenu({ company, companies, onSelect }: CompanyMenuProps) 
                   onMenuKeyDown(event, index);
                 }}
               >
-                <span className={styles.itemText}>
-                  <span className={styles.itemName}>{item.name}</span>
-                  <span className={styles.itemIndustry}>{item.industry}</span>
-                </span>
+                <span className={styles.itemName}>{item.name}</span>
                 {checked ? <CheckmarkMIcon aria-hidden="true" className={styles.check} /> : null}
               </button>
             );
