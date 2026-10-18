@@ -1,0 +1,53 @@
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--gap-8);
+  min-width: 0;
+}
+
+.username {
+  overflow: hidden;
+  min-width: 0;
+  font-size: 16px;
+  line-height: 24px;
+  font-weight: 500;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.muted {
+  margin: 0;
+  color: var(--color-light-text-secondary);
+  font-size: 14px;
+  line-height: 20px;
+  overflow-wrap: anywhere;
+}
+
+.url {
+  color: var(--color-light-text-primary);
+}
+
+.error {
+  margin: 0;
+  color: var(--color-light-text-primary);
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 500;
+}
+
+.steps {
+  display: grid;
+  gap: var(--gap-4);
+  max-width: 75ch;
+  margin: 0;
+  padding-left: var(--gap-20);
+  font-size: 16px;
+  line-height: 24px;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--gap-8);
+}
