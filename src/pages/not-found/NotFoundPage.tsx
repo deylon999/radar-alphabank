@@ -10,7 +10,7 @@ export function NotFoundPage() {
       <PageTitle>Страница не найдена</PageTitle>
       <EmptyState
         title="Такой страницы нет"
-        description="Возможно, ссылка устарела. Важное по вашей компании — в ленте."
+        description={'Возможно, ссылка устарела. Важное по вашей компании\u00a0— в ленте.'}
         action={
           <ButtonLink to="/" view="secondary" size={40}>
             Открыть ленту

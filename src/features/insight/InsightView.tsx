@@ -71,7 +71,7 @@ export function InsightView({ insightId }: { insightId: string }) {
     return (
       <EmptyState
         title="Инсайт не найден"
-        description="Возможно, он устарел или был удалён. Актуальное — в ленте."
+        description={'Возможно, он устарел или был удалён. Актуальное\u00a0— в ленте.'}
         action={
           <ButtonLink to="/" view="secondary" size={40}>
             Открыть ленту

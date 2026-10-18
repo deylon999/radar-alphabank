@@ -24,7 +24,9 @@ export function CompanyGate({ children }: { children: ReactNode }) {
       return (
         <EmptyState
           title="Компаний пока нет"
-          description="Добавьте компанию на стороне сервиса — после этого здесь появится лента."
+          description={
+            'Добавьте компанию на стороне сервиса\u00a0— после этого здесь появится лента.'
+          }
         />
       );
     case 'ready':

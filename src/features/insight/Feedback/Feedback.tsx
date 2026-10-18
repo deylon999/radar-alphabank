@@ -72,7 +72,7 @@ export function Feedback({ insightId }: { insightId: string }) {
           </p>
           {/* Своя подпись: подпись Textarea из библиотеки не связана с полем для скринридера. */}
           <label htmlFor={commentId} className={sectionStyles.muted}>
-            Комментарий — необязательно
+            Комментарий&nbsp;— необязательно
           </label>
           <Textarea
             id={commentId}

@@ -41,7 +41,7 @@ export function FeedEmpty({ tab, hasFilters, onResetFilters }: FeedEmptyProps) {
   return (
     <EmptyState
       title="Пока ничего важного"
-      description="Уточните профиль компании — лента станет точнее."
+      description={'Уточните профиль компании\u00a0— лента станет точнее.'}
       action={
         <ButtonLink to="/company" view="secondary" size={40}>
           Уточнить профиль
