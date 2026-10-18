@@ -24,7 +24,11 @@ export function TelegramCard({ settings }: { settings: NotificationSettings }) {
         </div>
         <p className={styles.muted}>Срочные инсайты и сводка приходят в этот аккаунт.</p>
         <div className={styles.actions}>
-          <Button view="secondary" size={40} onClick={telegram.disconnect}>
+          {/*
+           * key у кнопок каждого состояния: иначе React переиспользует кнопку на той же позиции,
+           * и минимальные 500 мс загрузки из Button перетекают на «Открыть Telegram» и «Отключить».
+           */}
+          <Button key="disconnect" view="secondary" size={40} onClick={telegram.disconnect}>
             Отключить
           </Button>
         </div>
@@ -45,6 +49,7 @@ export function TelegramCard({ settings }: { settings: NotificationSettings }) {
         </ol>
         <div className={styles.actions}>
           <Button
+            key="open"
             view="primary"
             size={40}
             href={url}
@@ -56,6 +61,7 @@ export function TelegramCard({ settings }: { settings: NotificationSettings }) {
             <VisuallyHidden> (откроется в новой вкладке)</VisuallyHidden>
           </Button>
           <Button
+            key="copy"
             view="secondary"
             size={40}
             onClick={() => {
@@ -102,6 +108,7 @@ export function TelegramCard({ settings }: { settings: NotificationSettings }) {
       ) : null}
       <div className={styles.actions}>
         <Button
+          key="connect"
           view="primary"
           size={40}
           loading={telegram.isRequestingLink}
