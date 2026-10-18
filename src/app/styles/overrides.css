@@ -5,4 +5,11 @@
 html:root {
   /* Красный — только главное действие и срочный риск: активная вкладка подчёркнута тёмным. */
   --primary-tablist-line-color: var(--color-light-accent-secondary);
+
+  /*
+   * Поля ввода при наведении: библиотека осветляет фон (10 % → 6 %), и на белой странице
+   * поле почти пропадает. Фон оставляем прежним, наведение показывает тонкая рамка.
+   */
+  --form-control-hover-bg-color: var(--color-light-neutral-translucent-300);
+  --form-control-box-shadow-hover: inset 0 0 0 1px var(--color-light-neutral-translucent-500);
 }
