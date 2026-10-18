@@ -58,20 +58,25 @@ export function RulesForm({ settings }: { settings: NotificationSettings }) {
             />
           ))}
         </fieldset>
-        <NativeSelectField
-          className={styles.time}
-          label="Время сводки"
-          size={48}
-          value={settings.digestTime}
-          disabled={settings.digest === 'off'}
-          options={digestTimeOptions(settings.digestTime).map((time) => ({
-            value: time,
-            label: time,
-          }))}
-          onChange={(digestTime) => {
-            update({ ...settings, digestTime });
-          }}
-        />
+        {/*
+         * Без сводки время не нужно — поле скрыто, а выбранное время хранится в настройках.
+         * Неактивное поле не подходит: его бледное значение axe считает нарушением контраста.
+         */}
+        {settings.digest === 'off' ? null : (
+          <NativeSelectField
+            className={styles.time}
+            label="Время сводки"
+            size={48}
+            value={settings.digestTime}
+            options={digestTimeOptions(settings.digestTime).map((time) => ({
+              value: time,
+              label: time,
+            }))}
+            onChange={(digestTime) => {
+              update({ ...settings, digestTime });
+            }}
+          />
+        )}
       </SettingsSection>
     </>
   );

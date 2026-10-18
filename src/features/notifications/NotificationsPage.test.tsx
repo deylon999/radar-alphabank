@@ -117,14 +117,15 @@ describe('правила', () => {
     expect(store.read().notifications.urgentKinds).toEqual(['risk']);
   });
 
-  it('без сводки время выбрать нельзя', async () => {
+  it('без сводки поле времени скрыто, а выбранное время возвращается вместе со сводкой', async () => {
     const { user } = await openNotifications();
-    const time = screen.getByRole('combobox', { name: 'Время сводки' });
-    expect(time).toBeEnabled();
+    expect(screen.getByRole('combobox', { name: 'Время сводки' })).toHaveValue('09:00');
 
     await user.click(screen.getByRole('radio', { name: 'Не присылать' }));
+    expect(screen.queryByRole('combobox', { name: 'Время сводки' })).not.toBeInTheDocument();
 
-    expect(time).toBeDisabled();
+    await user.click(screen.getByRole('radio', { name: 'Раз в неделю' }));
+    expect(screen.getByRole('combobox', { name: 'Время сводки' })).toHaveValue('09:00');
   });
 
   it('не грузятся настройки — ошибка и «Повторить»', async () => {
