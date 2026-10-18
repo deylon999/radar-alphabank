@@ -80,6 +80,20 @@ describe('лента: фильтры ↔ адрес', () => {
     });
   });
 
+  it('«Очистить поиск» доступна с клавиатуры и убирает запрос из адреса', async () => {
+    const { user, router } = await openFeed('/?q=Южный');
+    const clear = screen.getByRole('button', { name: 'Очистить поиск' });
+
+    clear.focus();
+    await user.keyboard('{Enter}');
+
+    await waitFor(() => {
+      expect(search(router).get('q')).toBeNull();
+    });
+    expect(screen.getByRole('textbox', { name: 'Поиск по ленте' })).toHaveValue('');
+    expect(screen.queryByRole('button', { name: 'Очистить поиск' })).toBeNull();
+  });
+
   it('пустой результат предлагает сбросить фильтры', async () => {
     const { user } = renderApp('/?q=несуществующее');
 

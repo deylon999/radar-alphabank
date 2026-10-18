@@ -1,10 +1,17 @@
+import { IconButton } from '@alfalab/core-components/icon-button/modern';
 import { Input } from '@alfalab/core-components/input/modern';
+import { CrossCircleMIcon } from '@alfalab/icons-glyph/CrossCircleMIcon';
 import { MagnifierMIcon } from '@alfalab/icons-glyph/MagnifierMIcon';
-import { useEffect, useId, useRef, useState } from 'react';
+import { type SVGProps, useEffect, useId, useRef, useState } from 'react';
 
 import styles from './FeedFilters.module.css';
 
 const DEBOUNCE_MS = 300;
+
+/** Иконка декоративная: доступное имя есть у самой кнопки. */
+function ClearIcon(props: SVGProps<SVGSVGElement>) {
+  return <CrossCircleMIcon {...props} aria-hidden="true" />;
+}
 
 interface SearchFieldProps {
   value: string;
@@ -48,7 +55,6 @@ export function SearchField({ value, onChange }: SearchFieldProps) {
         id={inputId}
         size={40}
         block
-        clear
         placeholder="Склад, поставщик, регион"
         leftAddons={<MagnifierMIcon aria-hidden="true" />}
         value={draft}
@@ -56,11 +62,22 @@ export function SearchField({ value, onChange }: SearchFieldProps) {
           setDraft(next);
           commit(next);
         }}
-        onClear={() => {
-          setDraft('');
-          clearTimeout(timer.current);
-          onChange('');
-        }}
+        // Своя кнопка очистки вместо `clear`: у встроенной иконка без подписи (axe)
+        // и tabIndex=-1 — с клавиатуры до неё не добраться.
+        rightAddons={
+          draft ? (
+            <IconButton
+              icon={ClearIcon}
+              size={24}
+              aria-label="Очистить поиск"
+              onClick={() => {
+                setDraft('');
+                clearTimeout(timer.current);
+                onChange('');
+              }}
+            />
+          ) : null
+        }
       />
     </div>
   );
