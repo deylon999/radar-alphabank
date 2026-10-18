@@ -18,6 +18,12 @@ export const insightKindLabels: Record<InsightKind, string> = {
   opportunity: 'Возможность',
 };
 
+/** Во множественном числе — для настроек: «Срочно присылать: риски, возможности». */
+export const insightKindPluralLabels: Record<InsightKind, string> = {
+  risk: 'Риски',
+  opportunity: 'Возможности',
+};
+
 export const urgencyLabels: Record<Urgency, string> = {
   urgent: 'Срочно',
   important: 'Важно',
@@ -106,6 +112,10 @@ export const terms = {
   describeCompany: 'Расскажите о компании',
   profileFacts: 'Факты о компании',
   profileHint: 'Чем точнее профиль, тем точнее лента',
+  telegram: 'Telegram',
+  urgentRules: 'Срочные уведомления',
+  digest: 'Сводка',
+  notificationPreview: 'Так будет выглядеть уведомление',
 } as const;
 
 /** Формы слов для склонения с числом (см. shared/lib/plural). */

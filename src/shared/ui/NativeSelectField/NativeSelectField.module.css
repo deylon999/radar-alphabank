@@ -34,3 +34,7 @@
   color: var(--color-light-text-secondary);
   pointer-events: none;
 }
+
+.select:disabled {
+  cursor: default;
+}

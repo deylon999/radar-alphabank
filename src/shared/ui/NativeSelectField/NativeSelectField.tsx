@@ -15,6 +15,7 @@ interface NativeSelectFieldProps {
   options: readonly SelectOption[];
   onChange: (value: string) => void;
   size?: 40 | 48 | 56;
+  disabled?: boolean;
   className?: string;
 }
 
@@ -30,6 +31,7 @@ export function NativeSelectField({
   options,
   onChange,
   size = 48,
+  disabled = false,
   className,
 }: NativeSelectFieldProps) {
   const [focused, setFocused] = useState(false);
@@ -43,6 +45,7 @@ export function NativeSelectField({
       size={size}
       block
       filled
+      disabled={disabled}
       focused={focused}
       rightAddons={<ChevronDownMIcon aria-hidden="true" className={styles.chevron} />}
     >
@@ -53,6 +56,7 @@ export function NativeSelectField({
         aria-label={label}
         className={styles.select}
         value={value}
+        disabled={disabled}
         onChange={(event) => {
           onChange(event.target.value);
         }}
