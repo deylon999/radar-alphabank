@@ -57,3 +57,30 @@ test('состояние моков переживает перезагрузк�
 
   expect(insight.body).toMatchObject({ id: 'agro-flood', status: 'read' });
 });
+
+test('с моками запросы идут на адрес самого сайта, а не на localhost:8000', async ({ page }) => {
+  const apiHosts = new Set<string>();
+  page.on('request', (request) => {
+    const url = new URL(request.url());
+    if (url.pathname.startsWith('/api/')) {
+      apiHosts.add(url.origin);
+    }
+  });
+
+  await page.goto('/');
+  await expect(page.getByRole('article').first()).toBeVisible();
+
+  expect([...apiHosts]).toEqual([new URL(page.url()).origin]);
+});
+
+test.describe('браузер без Service Worker', () => {
+  // Так ведут себя встроенные браузеры мессенджеров и приватный режим Firefox.
+  test.use({ serviceWorkers: 'block' });
+
+  test('вместо вечной загрузки — понятная ошибка', async ({ page }) => {
+    await page.goto('/');
+
+    await expect(page.getByText('Не удалось загрузить список компаний')).toBeVisible();
+    await expect(page.getByText(/Демо-данные не запустились в этом браузере/)).toBeVisible();
+  });
+});
