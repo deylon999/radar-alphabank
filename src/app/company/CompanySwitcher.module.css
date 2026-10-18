@@ -56,7 +56,8 @@
 
 /*
  * Меню для мыши повторяет выпадающий список Select из core-components: скругление 16 px,
- * пункты 48 px, обычный шрифт 16 px, галочка сразу после названия, тень --shadow-m.
+ * пункты 48 px, обычный шрифт 16 px, галочка сразу после названия, тень --shadow-m
+ * и тонкая рамка.
  */
 .menuRoot {
   position: relative;
@@ -93,6 +94,8 @@
   width: max-content;
   max-width: 360px;
   padding: var(--gap-12) 0;
+  /* Тонкая рамка к тени: на белой странице без неё верх и бока меню сливаются с фоном. */
+  border: 1px solid var(--color-light-neutral-translucent-300);
   border-radius: var(--border-radius-16);
   background: var(--color-light-base-bg-primary);
   box-shadow: var(--shadow-m);
