@@ -26,8 +26,11 @@ export function parseApiConfig(env: Record<string, unknown>, siteOrigin?: string
   };
 }
 
-/** Состояние моков в браузере: если Service Worker не запустился, экраны объясняют почему. */
-export const mockStatus = { failed: false };
+/**
+ * Состояние моков в браузере: если Service Worker не запустился, экраны объясняют почему.
+ * `restart` появляется, когда моки работают, — им http-клиент подключает их заново.
+ */
+export const mockStatus: { failed: boolean; restart?: () => Promise<void> } = { failed: false };
 
 export const apiConfig: ApiConfig = parseApiConfig(
   import.meta.env,

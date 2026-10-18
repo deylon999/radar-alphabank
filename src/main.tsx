@@ -19,8 +19,9 @@ async function enableMocking(): Promise<void> {
   if (import.meta.env.VITE_USE_MOCKS === 'false' || !apiConfig.useMocks) {
     return;
   }
-  const { worker } = await import('./mocks/browser');
-  await worker.start({ onUnhandledFrame: 'bypass', quiet: true });
+  const { startMocks, restartMocks } = await import('./mocks/browser');
+  await startMocks();
+  mockStatus.restart = restartMocks;
 }
 
 const rootElement = document.getElementById('root');

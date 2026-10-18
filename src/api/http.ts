@@ -2,7 +2,7 @@ import type { z } from 'zod';
 
 import { apiErrorBodySchema } from '../schemas/common';
 import { ApiError } from './ApiError';
-import { apiConfig } from './config';
+import { apiConfig, mockStatus } from './config';
 
 export const DEFAULT_TIMEOUT_MS = 15_000;
 
@@ -52,6 +52,12 @@ async function readErrorMessage(response: Response): Promise<string> {
   }
 }
 
+/** Моки отвечают JSON или 204. Что-то другое — ответ сервера сайта, мимо моков. */
+function missedMocks(response: Response): boolean {
+  const isJson = response.headers.get('Content-Type')?.includes('application/json') ?? false;
+  return response.status !== 204 && !isJson;
+}
+
 async function send(path: string, options: RequestOptions): Promise<Response> {
   const { method = 'GET', query, json, formData, signal, timeoutMs = DEFAULT_TIMEOUT_MS } = options;
   const timeoutSignal = AbortSignal.timeout(timeoutMs);
@@ -64,16 +70,26 @@ async function send(path: string, options: RequestOptions): Promise<Response> {
     body = JSON.stringify(json);
   }
 
-  let response: Response;
-  try {
-    response = await fetch(buildUrl(options.baseUrl ?? apiConfig.apiUrl, path, query), {
-      method,
-      headers,
-      body,
-      signal: signal ? AbortSignal.any([signal, timeoutSignal]) : timeoutSignal,
-    });
-  } catch (error) {
-    throw toApiError(error, timeoutSignal);
+  const url = buildUrl(options.baseUrl ?? apiConfig.apiUrl, path, query);
+  const fetchOnce = async () => {
+    try {
+      return await fetch(url, {
+        method,
+        headers,
+        body,
+        signal: signal ? AbortSignal.any([signal, timeoutSignal]) : timeoutSignal,
+      });
+    } catch (error) {
+      throw toApiError(error, timeoutSignal);
+    }
+  };
+
+  let response = await fetchOnce();
+  // Моки отключились, и запрос ушёл на сервер сайта. До обработчиков он не дошёл,
+  // поэтому повторить безопасно даже POST.
+  if (mockStatus.restart && missedMocks(response)) {
+    await mockStatus.restart();
+    response = await fetchOnce();
   }
 
   if (!response.ok) {

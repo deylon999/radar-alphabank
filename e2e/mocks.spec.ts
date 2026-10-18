@@ -78,6 +78,21 @@ test('с моками запросы идут на адрес самого са�
   expect([...apiHosts]).toEqual([new URL(page.url()).origin]);
 });
 
+test('лента грузится, когда браузер усыпил Service Worker фоновой вкладки', async ({ page }) => {
+  await page.goto('/notifications');
+  await expect(page.getByRole('figure', { name: 'Пример уведомления' })).toBeVisible();
+
+  // Проснувшись, Service Worker не помнит страницу и пропускает её запросы в сеть.
+  const cdp = await page.context().newCDPSession(page);
+  await cdp.send('ServiceWorker.enable');
+  await cdp.send('ServiceWorker.stopAllWorkers');
+
+  await page.getByRole('link', { name: 'Лента' }).first().click();
+
+  await expect(page.getByRole('article').first()).toBeVisible();
+  await expect(page.getByText(/Не удалось загрузить/)).toHaveCount(0);
+});
+
 test.describe('браузер без Service Worker', () => {
   // Так ведут себя встроенные браузеры мессенджеров и приватный режим Firefox.
   test.use({ serviceWorkers: 'block' });

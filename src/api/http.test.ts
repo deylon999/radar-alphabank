@@ -5,7 +5,7 @@ import { afterAll, afterEach, beforeAll, describe, expect, it } from 'vitest';
 import { z } from 'zod';
 
 import { ApiError } from './ApiError';
-import { apiConfig } from './config';
+import { apiConfig, mockStatus } from './config';
 import { buildUrl, request, requestVoid } from './http';
 
 const BASE = apiConfig.apiUrl;
@@ -150,5 +150,65 @@ describe('buildUrl', () => {
         none: undefined,
       }),
     ).toBe('https://api.test/api/x?q=%D1%81%D0%BA%D0%BB%D0%B0%D0%B4');
+  });
+});
+
+describe('моки отключились', () => {
+  afterEach(() => {
+    mockStatus.restart = undefined;
+  });
+
+  it('перезапускает моки и повторяет запрос, если пришёл не JSON', async () => {
+    let calls = 0;
+    server.use(
+      http.get(`${BASE}/api/items/1`, () => {
+        calls += 1;
+        return calls === 1
+          ? new HttpResponse('<!doctype html>', { headers: { 'Content-Type': 'text/html' } })
+          : HttpResponse.json({ id: '1' });
+      }),
+    );
+    let restarts = 0;
+    mockStatus.restart = () => {
+      restarts += 1;
+      return Promise.resolve();
+    };
+
+    await expect(request('/api/items/1', itemSchema)).resolves.toEqual({ id: '1' });
+    expect(restarts).toBe(1);
+    expect(calls).toBe(2);
+  });
+
+  it('не трогает ответы 204 и JSON-ошибки моков', async () => {
+    server.use(
+      http.post(`${BASE}/api/feedback`, () => new HttpResponse(null, { status: 204 })),
+      http.get(`${BASE}/api/items/2`, () =>
+        HttpResponse.json({ code: 'not_found', message: 'Нет такого' }, { status: 404 }),
+      ),
+    );
+    let restarts = 0;
+    mockStatus.restart = () => {
+      restarts += 1;
+      return Promise.resolve();
+    };
+
+    await requestVoid('/api/feedback', { method: 'POST' });
+    const error = await captureError(request('/api/items/2', itemSchema));
+
+    expect(error.status).toBe(404);
+    expect(restarts).toBe(0);
+  });
+
+  it('без моков ответ не JSON — ошибка формата, без повторов', async () => {
+    server.use(
+      http.get(
+        `${BASE}/api/items/3`,
+        () => new HttpResponse('<!doctype html>', { headers: { 'Content-Type': 'text/html' } }),
+      ),
+    );
+
+    const error = await captureError(request('/api/items/3', itemSchema));
+
+    expect(error.kind).toBe('parse');
   });
 });

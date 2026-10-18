@@ -20,10 +20,33 @@ function getSessionStorage(): MockStorage | undefined {
   }
 }
 
-export const worker = setupWorker(
+const worker = setupWorker(
   ...createHandlers({
     store: createMockStore(getSessionStorage()),
     latency: createLatency(),
     isErrorMode: () => new URLSearchParams(window.location.search).get('mock') === 'errors',
   }),
 );
+
+const START_OPTIONS = { onUnhandledFrame: 'bypass', quiet: true } as const;
+
+export async function startMocks(): Promise<void> {
+  await worker.start(START_OPTIONS);
+}
+
+let restarting: Promise<void> | undefined;
+
+/**
+ * Браузер усыпляет Service Worker, когда вкладка долго в фоне. Проснувшись, он не помнит
+ * страницу и пропускает её запросы в сеть — сайт получает HTML вместо JSON. Повторный старт
+ * снова подключает страницу. Одновременные вызовы ждут один и тот же перезапуск.
+ */
+export function restartMocks(): Promise<void> {
+  restarting ??= (async () => {
+    await worker.stop();
+    await worker.start(START_OPTIONS);
+  })().finally(() => {
+    restarting = undefined;
+  });
+  return restarting;
+}
