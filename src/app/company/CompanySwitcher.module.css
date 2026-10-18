@@ -54,6 +54,91 @@
   appearance: none;
 }
 
+/* Меню для мыши: кнопка того же вида, список — карточка с тенью под ней, по правому краю. */
+.menuRoot {
+  position: relative;
+  min-width: 0;
+}
+
+.trigger {
+  border: 0;
+  background: none;
+  font: inherit;
+  cursor: pointer;
+}
+
+.trigger:focus-visible {
+  outline: 2px solid var(--focus-color);
+  outline-offset: 2px;
+}
+
+.trigger[aria-expanded='true'] {
+  background: var(--color-light-neutral-translucent-100);
+}
+
+.chevronOpen {
+  transform: rotate(180deg);
+}
+
+.menu {
+  position: absolute;
+  top: calc(100% + var(--gap-4));
+  right: 0;
+  z-index: 30;
+  display: grid;
+  width: 360px;
+  padding: var(--gap-8) 0;
+  border-radius: var(--border-radius-12);
+  background: var(--color-light-base-bg-primary);
+  box-shadow: var(--shadow-m);
+}
+
+.item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--gap-12);
+  width: 100%;
+  padding: var(--gap-8) var(--gap-16);
+  border: 0;
+  background: none;
+  color: var(--color-light-text-primary);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.item:hover,
+.item:focus-visible {
+  background: var(--color-light-neutral-translucent-100);
+  outline: none;
+}
+
+.itemText {
+  display: grid;
+  min-width: 0;
+}
+
+.itemName {
+  overflow: hidden;
+  font-size: 16px;
+  line-height: 24px;
+  font-weight: 500;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.itemIndustry {
+  color: var(--color-light-text-secondary);
+  font-size: 14px;
+  line-height: 20px;
+}
+
+.check {
+  flex: none;
+  color: var(--color-light-text-primary);
+}
+
 .skeleton {
   width: 200px;
   max-width: 100%;

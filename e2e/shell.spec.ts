@@ -14,17 +14,41 @@ const PAGES = [
 ] as const;
 
 const companySelect = (page: Page) => page.getByRole('combobox', { name: 'Компания' });
+const companyMenuButton = (page: Page) => page.getByRole('button', { name: /^Компания: / });
+
+/** С мышью переключатель — меню, на сенсорном экране — системный список. */
+async function usesMenu(page: Page): Promise<boolean> {
+  await expect(companyMenuButton(page).or(companySelect(page))).toBeVisible();
+  return companyMenuButton(page).isVisible();
+}
+
+async function chooseCompany(page: Page, name: string) {
+  if (await usesMenu(page)) {
+    await companyMenuButton(page).click();
+    await page.getByRole('menuitemradio', { name }).click();
+  } else {
+    await companySelect(page).selectOption({ label: name });
+  }
+}
+
+async function expectCompany(page: Page, name: string) {
+  if (await usesMenu(page)) {
+    await expect(companyMenuButton(page)).toHaveAccessibleName(`Компания: ${name}`);
+  } else {
+    await expect(companySelect(page).locator('option:checked')).toHaveText(name);
+  }
+}
 
 test('выбранная компания переживает перезагрузку', async ({ page }) => {
   await page.goto('/');
   await expect(page.getByRole('link', { name: /Паводок в Заречном районе/ })).toBeVisible();
 
-  await companySelect(page).selectOption({ label: 'ООО «Кварталика»' });
+  await chooseCompany(page, 'ООО «Кварталика»');
   await expect(page.getByRole('link', { name: /Авария на подстанции/ })).toBeVisible();
 
   await page.reload();
 
-  await expect(companySelect(page)).toHaveValue('kvartalika');
+  await expectCompany(page, 'ООО «Кварталика»');
   await expect(page.getByRole('link', { name: /Авария на подстанции/ })).toBeVisible();
   await expect(page.getByRole('link', { name: /Паводок в Заречном районе/ })).toHaveCount(0);
 });
@@ -58,9 +82,18 @@ test('навигация работает с клавиатуры', async ({ pag
   await page.keyboard.press('Enter');
 
   await expect(page).toHaveURL(/\/company$/);
-  await companySelect(page).focus();
-  await page.keyboard.press('ArrowDown');
-  await expect(companySelect(page)).toHaveValue('kalveta');
+  if (await usesMenu(page)) {
+    // Стрелка открывает меню на выбранной компании, вторая — переходит к следующей.
+    await companyMenuButton(page).focus();
+    await page.keyboard.press('ArrowDown');
+    await page.keyboard.press('ArrowDown');
+    await page.keyboard.press('Enter');
+    await expect(companyMenuButton(page)).toBeFocused();
+  } else {
+    await companySelect(page).focus();
+    await page.keyboard.press('ArrowDown');
+  }
+  await expectCompany(page, 'ООО «Кальвета»');
   await expect(page.getByRole('heading', { name: 'ООО «Кальвета»' })).toBeVisible();
 });
 
@@ -108,3 +141,17 @@ for (const { path, text } of [
     expect(severe).toEqual([]);
   });
 }
+
+test('открытое меню компаний проходит axe', async ({ page }) => {
+  await page.goto('/');
+  test.skip(!(await usesMenu(page)), 'на сенсорном экране вместо меню системный список');
+
+  await companyMenuButton(page).click();
+  await expect(page.getByRole('menu', { name: 'Компания' })).toBeVisible();
+
+  const { violations } = await new AxeBuilder({ page }).analyze();
+  const severe = violations
+    .filter((violation) => violation.impact === 'serious' || violation.impact === 'critical')
+    .map((violation) => `${violation.id}: ${violation.help}`);
+  expect(severe).toEqual([]);
+});
