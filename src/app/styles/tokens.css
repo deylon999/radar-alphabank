@@ -12,3 +12,11 @@
 @import '@alfalab/core-components/vars/gaps.css';
 @import '@alfalab/core-components/vars/typography-vars.css';
 @import '@alfalab/core-components/vars/common.css';
+
+/*
+ * Тёмная тема Альфы по системной настройке: файлы библиотеки подменяют --color-light-* на
+ * --color-dark-*, поэтому компоненты и наши стили переключаются без отдельных правил.
+ */
+@import '@alfalab/core-components/themes/dark.css' (prefers-color-scheme: dark);
+@import '@alfalab/core-components/vars/colors-decorative-dark.css' (prefers-color-scheme: dark);
+@import '@alfalab/core-components/vars/colors-promo-dark.css' (prefers-color-scheme: dark);
