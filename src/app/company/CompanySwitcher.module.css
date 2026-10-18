@@ -1,12 +1,61 @@
+/* Надпись со стрелкой; заливка появляется только при наведении — как у прозрачной кнопки. */
 .root {
-  width: 280px;
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: var(--gap-4);
+  max-width: 280px;
   min-width: 0;
-  height: 48px;
+  height: 40px;
+  padding: 0 var(--gap-8) 0 var(--gap-12);
+  border-radius: var(--border-radius-8);
+  color: var(--color-light-text-primary);
+  transition: background-color 0.15s ease;
 }
 
-@media (max-width: 767px) {
-  .root {
-    width: auto;
-    flex: 1 1 auto;
-  }
+.root:hover {
+  background: var(--color-light-neutral-translucent-100);
+}
+
+/* Сам <select> невидим, поэтому фокус с клавиатуры показываем на всём переключателе. */
+.root:has(.select:focus-visible) {
+  outline: 2px solid var(--focus-color);
+  outline-offset: 2px;
+}
+
+.value {
+  overflow: hidden;
+  min-width: 0;
+  font-size: 16px;
+  line-height: 20px;
+  font-weight: 500;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.chevron {
+  flex: none;
+  color: var(--color-light-text-secondary);
+  pointer-events: none;
+}
+
+/* Нативный список растянут на весь переключатель: клик в любом месте открывает выбор. */
+.select {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  font: inherit;
+  opacity: 0;
+  cursor: pointer;
+  appearance: none;
+}
+
+.skeleton {
+  width: 200px;
+  max-width: 100%;
+  height: 40px;
 }
