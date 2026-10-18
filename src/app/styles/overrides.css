@@ -8,8 +8,8 @@ html:root {
 
   /*
    * Поля ввода при наведении: библиотека осветляет фон (10 % → 6 %), и на белой странице
-   * поле почти пропадает. Фон оставляем прежним, наведение показывает тонкая рамка.
+   * поле почти пропадает. Как в дизайн-системе Альфы — без рамок, меняется только заливка,
+   * но в другую сторону: при наведении фон чуть темнеет (10 % → 18 %).
    */
-  --form-control-hover-bg-color: var(--color-light-neutral-translucent-300);
-  --form-control-box-shadow-hover: inset 0 0 0 1px var(--color-light-neutral-translucent-500);
+  --form-control-hover-bg-color: var(--color-light-neutral-translucent-400);
 }
