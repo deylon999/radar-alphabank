@@ -177,9 +177,9 @@ describe('превью уведомления', () => {
 
     const message = await within(preview()).findByRole('figure', { name: 'Пример уведомления' });
     expect(message).toHaveTextContent('Радар · Срочно · Риск');
-    expect(message).toHaveTextContent('Паводок в Заречном районе');
+    expect(message).toHaveTextContent('ЦБ сохранил ставку 14%');
     expect(message).toHaveTextContent('Что проверить:');
-    expect(message.textContent).not.toMatch(/вероятност|уверенност|%/i);
+    expect(message.textContent).not.toMatch(/вероятност|уверенност/i);
   });
 
   it('если срочное не присылать — так и говорит', async () => {

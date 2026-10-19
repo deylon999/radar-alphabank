@@ -37,7 +37,7 @@ describe('меню компаний (мышь)', () => {
   it('показывает компании и отмечает выбранную', async () => {
     const { user } = renderApp('/');
     const button = await trigger();
-    expect(button).toHaveAccessibleName('Компания: АО «Полевея Агро»');
+    expect(button).toHaveAccessibleName('Компания: Клиент U_9250');
     expect(button).toHaveAttribute('aria-expanded', 'false');
 
     await user.click(button);
@@ -45,9 +45,10 @@ describe('меню компаний (мышь)', () => {
     const menu = screen.getByRole('menu', { name: 'Компания' });
     const items = within(menu).getAllByRole('menuitemradio');
     expect(items.map((item) => item.textContent)).toEqual([
-      'АО «Полевея Агро»',
-      'ООО «Кальвета»',
-      'ООО «Кварталика»',
+      'Клиент U_9250',
+      'Клиент U_34911',
+      'Клиент U_26030',
+      'Клиент U_1465',
     ]);
     expect(items[0]).toHaveAttribute('aria-checked', 'true');
     expect(items[0]).toHaveFocus();
@@ -58,12 +59,14 @@ describe('меню компаний (мышь)', () => {
     const { user } = renderApp('/');
     await user.click(await trigger());
 
-    await user.click(screen.getByRole('menuitemradio', { name: /Кварталика/ }));
+    await user.click(screen.getByRole('menuitemradio', { name: /U_1465/ }));
 
     expect(screen.queryByRole('menu')).toBeNull();
-    expect(await trigger()).toHaveAccessibleName('Компания: ООО «Кварталика»');
-    expect(await screen.findByRole('link', { name: /Авария на подстанции/ })).toBeInTheDocument();
-    expect(window.localStorage.getItem(SELECTED_COMPANY_STORAGE_KEY)).toBe('kvartalika');
+    expect(await trigger()).toHaveAccessibleName('Компания: Клиент U_1465');
+    expect(
+      await screen.findByRole('link', { name: /Рубль слабеет: импортные вино/ }),
+    ).toBeInTheDocument();
+    expect(window.localStorage.getItem(SELECTED_COMPANY_STORAGE_KEY)).toBe('U_1465');
   });
 
   it('работает с клавиатуры: стрелки, Enter, Esc', async () => {
@@ -72,13 +75,13 @@ describe('меню компаний (мышь)', () => {
     button.focus();
 
     await user.keyboard('{ArrowDown}');
-    expect(screen.getByRole('menuitemradio', { name: /Полевея/ })).toHaveFocus();
+    expect(screen.getByRole('menuitemradio', { name: /U_9250/ })).toHaveFocus();
     await user.keyboard('{ArrowDown}');
-    expect(screen.getByRole('menuitemradio', { name: /Кальвета/ })).toHaveFocus();
+    expect(screen.getByRole('menuitemradio', { name: /U_34911/ })).toHaveFocus();
     await user.keyboard('{End}');
-    expect(screen.getByRole('menuitemradio', { name: /Кварталика/ })).toHaveFocus();
+    expect(screen.getByRole('menuitemradio', { name: /U_1465/ })).toHaveFocus();
     await user.keyboard('{ArrowDown}');
-    expect(screen.getByRole('menuitemradio', { name: /Полевея/ })).toHaveFocus();
+    expect(screen.getByRole('menuitemradio', { name: /U_9250/ })).toHaveFocus();
 
     await user.keyboard('{Escape}');
     expect(screen.queryByRole('menu')).toBeNull();
@@ -86,7 +89,7 @@ describe('меню компаний (мышь)', () => {
 
     await user.keyboard('{Enter}{ArrowDown}{Enter}');
     await waitFor(() => {
-      expect(window.localStorage.getItem(SELECTED_COMPANY_STORAGE_KEY)).toBe('kalveta');
+      expect(window.localStorage.getItem(SELECTED_COMPANY_STORAGE_KEY)).toBe('U_34911');
     });
     expect(await trigger()).toHaveFocus();
   });

@@ -6,9 +6,9 @@ const PAGES = [
   { path: '/company', title: 'Профиль компании — Радар', heading: 'Профиль компании' },
   { path: '/notifications', title: 'Уведомления — Радар', heading: 'Уведомления' },
   {
-    path: '/insights/agro-flood',
-    title: /^Паводок в Заречном районе.* — Радар$/,
-    heading: /Паводок в Заречном районе/,
+    path: '/insights/u9250-key-rate',
+    title: /^ЦБ сохранил ставку 14%.* — Радар$/,
+    heading: /ЦБ сохранил ставку 14%/,
   },
   { path: '/no-such-page', title: 'Страница не найдена — Радар', heading: 'Страница не найдена' },
 ] as const;
@@ -41,16 +41,16 @@ async function expectCompany(page: Page, name: string) {
 
 test('выбранная компания переживает перезагрузку', async ({ page }) => {
   await page.goto('/');
-  await expect(page.getByRole('link', { name: /Паводок в Заречном районе/ })).toBeVisible();
+  await expect(page.getByRole('link', { name: /ЦБ сохранил ставку 14%/ })).toBeVisible();
 
-  await chooseCompany(page, 'ООО «Кварталика»');
-  await expect(page.getByRole('link', { name: /Авария на подстанции/ })).toBeVisible();
+  await chooseCompany(page, 'Клиент U_1465');
+  await expect(page.getByRole('link', { name: /Рубль слабеет: импортные вино/ })).toBeVisible();
 
   await page.reload();
 
-  await expectCompany(page, 'ООО «Кварталика»');
-  await expect(page.getByRole('link', { name: /Авария на подстанции/ })).toBeVisible();
-  await expect(page.getByRole('link', { name: /Паводок в Заречном районе/ })).toHaveCount(0);
+  await expectCompany(page, 'Клиент U_1465');
+  await expect(page.getByRole('link', { name: /Рубль слабеет: импортные вино/ })).toBeVisible();
+  await expect(page.getByRole('link', { name: /ЦБ сохранил ставку 14%/ })).toHaveCount(0);
 });
 
 test('разделы открываются из навигации, активный отмечен', async ({ page }) => {
@@ -93,8 +93,8 @@ test('навигация работает с клавиатуры', async ({ pag
     await companySelect(page).focus();
     await page.keyboard.press('ArrowDown');
   }
-  await expectCompany(page, 'ООО «Кальвета»');
-  await expect(page.getByRole('heading', { name: 'ООО «Кальвета»' })).toBeVisible();
+  await expectCompany(page, 'Клиент U_34911');
+  await expect(page.getByRole('heading', { name: 'Клиент U_34911' })).toBeVisible();
 });
 
 for (const { path, title, heading } of PAGES) {

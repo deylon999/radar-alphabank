@@ -1,13 +1,19 @@
 import type { Insight } from '../../schemas/insight';
 import type { NotificationSettings } from '../../schemas/notifications';
-import { agroInsights } from './insights-agro';
-import { buildingInsights } from './insights-building';
-import { retailInsights } from './insights-retail';
+import { beveragesInsights } from './insights-beverages';
+import { constructionInsights } from './insights-construction';
+import { fuelInsights } from './insights-fuel';
+import { grainInsights } from './insights-grain';
 
 export { companies, COMPANY_IDS, extractableFacts } from './companies';
 export { MOCK_NOW } from './define';
 
-export const insights: Insight[] = [...agroInsights, ...buildingInsights, ...retailInsights];
+export const insights: Insight[] = [
+  ...constructionInsights,
+  ...grainInsights,
+  ...fuelInsights,
+  ...beveragesInsights,
+];
 
 export const notificationSettings: NotificationSettings = {
   telegram: { connected: false },

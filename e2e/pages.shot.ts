@@ -20,7 +20,7 @@ const SHOTS: Shot[] = [
   },
   {
     name: 'insight',
-    path: '/insights/agro-flood',
+    path: '/insights/u9250-key-rate',
     ready: (page) => expect(page.getByRole('region', { name: 'Источники' })).toBeVisible(),
   },
   {

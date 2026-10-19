@@ -53,11 +53,13 @@ describe('лента: фильтры ↔ адрес', () => {
 
     expect(screen.getByRole('button', { name: 'Риск', pressed: true })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Срочно', pressed: true })).toBeInTheDocument();
-    expect(cardTitles()).toEqual(['Паводок в Заречном районе: вода подошла к складской зоне']);
+    expect(cardTitles()).toEqual([
+      'ЦБ сохранил ставку 14% и ужесточил риторику: кредиты не подешевеют до конца года',
+    ]);
   });
 
   it('«Сбросить» очищает фильтры и адрес', async () => {
-    const { user, router } = await openFeed('/?kind=opportunity&stage=decided');
+    const { user, router } = await openFeed('/?kind=risk&stage=decided');
 
     await user.click(screen.getByRole('button', { name: 'Сбросить' }));
 
@@ -70,18 +72,20 @@ describe('лента: фильтры ↔ адрес', () => {
   it('поиск попадает в адрес после паузы в наборе', async () => {
     const { user, router } = await openFeed();
 
-    await user.type(screen.getByRole('textbox', { name: 'Поиск по ленте' }), 'Южный');
+    await user.type(screen.getByRole('textbox', { name: 'Поиск по ленте' }), 'Процентные');
 
     await waitFor(() => {
-      expect(search(router).get('q')).toBe('Южный');
+      expect(search(router).get('q')).toBe('Процентные');
     });
     await waitFor(() => {
-      expect(cardTitles()).toEqual(['Паводок в Заречном районе: вода подошла к складской зоне']);
+      expect(cardTitles()).toEqual([
+        'ЦБ сохранил ставку 14% и ужесточил риторику: кредиты не подешевеют до конца года',
+      ]);
     });
   });
 
   it('«Очистить поиск» доступна с клавиатуры и убирает запрос из адреса', async () => {
-    const { user, router } = await openFeed('/?q=Южный');
+    const { user, router } = await openFeed('/?q=Процентные');
     const clear = screen.getByRole('button', { name: 'Очистить поиск' });
 
     clear.focus();
@@ -128,9 +132,13 @@ describe('лента: порядок, вкладки, сводка', () => {
       expect(search(router).get('tab')).toBe('watch');
     });
     await waitFor(() => {
-      expect(cardTitles()).toContain('Заморозки в Озёрной области повредили часть озимых');
+      expect(cardTitles()).toContain(
+        'Минфин готовит новый трёхлетний бюджет: банк ждёт рост госрасходов',
+      );
     });
-    expect(cardTitles()).not.toContain('Паводок в Заречном районе: вода подошла к складской зоне');
+    expect(cardTitles()).not.toContain(
+      'ЦБ сохранил ставку 14% и ужесточил риторику: кредиты не подешевеют до конца года',
+    );
   });
 
   it('сводка склоняет слова и включает фильтр по клику', async () => {
@@ -162,7 +170,8 @@ describe('лента: «Показать ещё» и «Скрыть»', () => {
 
   it('скрывает карточку сразу и возвращает по «Отменить»', async () => {
     const { user } = await openFeed();
-    const title = 'Паводок в Заречном районе: вода подошла к складской зоне';
+    const title =
+      'ЦБ сохранил ставку 14% и ужесточил риторику: кредиты не подешевеют до конца года';
 
     await user.click(screen.getByRole('button', { name: `Скрыть: ${title}` }));
 
@@ -180,9 +189,9 @@ describe('лента: «Показать ещё» и «Скрыть»', () => {
     await openFeed();
 
     const link = screen.getByRole('link', {
-      name: 'Паводок в Заречном районе: вода подошла к складской зоне',
+      name: 'ЦБ сохранил ставку 14% и ужесточил риторику: кредиты не подешевеют до конца года',
     });
-    expect(link).toHaveAttribute('href', '/insights/agro-flood');
+    expect(link).toHaveAttribute('href', '/insights/u9250-key-rate');
   });
 
   it.each([
@@ -194,7 +203,7 @@ describe('лента: «Показать ещё» и «Скрыть»', () => {
     await user.click(pick(screen.getAllByRole('article')[0] ?? document.body));
 
     await waitFor(() => {
-      expect(router.state.location.pathname).toBe('/insights/agro-flood');
+      expect(router.state.location.pathname).toBe('/insights/u9250-key-rate');
     });
   });
 
@@ -204,7 +213,7 @@ describe('лента: «Показать ещё» и «Скрыть»', () => {
 
     expect(within(card).getByText(/→/)).toHaveAttribute(
       'title',
-      'Паводок в Заречном районе → Склад «Южный-2» → Поставка упаковки',
+      'Ключевая ставка 14% → Плавающая ставка по кредиту → Процентные расходы',
     );
     expect(card.querySelector('time')).toHaveAttribute('title', expect.stringMatching(/\d{4} г\./));
   });

@@ -34,7 +34,7 @@ test('главный сценарий: со старта один клик до 
 
   await first.getByRole('link').click();
 
-  await expect(page.getByRole('heading', { level: 1 })).toHaveText(/Паводок/);
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText(/ЦБ сохранил ставку/);
   await expect(page.getByRole('region', { name: 'Что проверить' })).toContainText('0 из 3');
   await expect(page.getByRole('region', { name: 'Возможное последствие' })).toContainText(
     'Гипотеза',

@@ -5,7 +5,7 @@ test.use({ colorScheme: 'dark' });
 
 const pages = [
   { name: 'лента', path: '/', ready: 'article' },
-  { name: 'карточка инсайта', path: '/insights/agro-flood', ready: 'heading' },
+  { name: 'карточка инсайта', path: '/insights/u9250-key-rate', ready: 'heading' },
   { name: 'профиль компании', path: '/company', ready: 'heading' },
   { name: 'уведомления', path: '/notifications', ready: 'heading' },
 ] as const;

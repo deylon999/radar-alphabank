@@ -35,7 +35,7 @@ test('моки отвечают в браузере без ошибок в ко�
   const companies = await fetchFromPage(page, '/api/companies');
 
   expect(companies.status).toBe(200);
-  expect(companies.body).toHaveLength(3);
+  expect(companies.body).toHaveLength(4);
   expect(consoleErrors).toEqual([]);
 });
 
@@ -50,7 +50,7 @@ test('параметр ?mock=errors включает режим ошибок', a
 test('состояние моков переживает перезагрузку вкладки', async ({ page }) => {
   await waitForMocks(page, () => page.goto('/'));
   await page.evaluate(async (url) => {
-    await fetch(`${url}/api/insights/agro-flood`, {
+    await fetch(`${url}/api/insights/u9250-key-rate`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ status: 'read' }),
@@ -58,9 +58,9 @@ test('состояние моков переживает перезагрузк�
   }, API_URL);
 
   await waitForMocks(page, () => page.reload());
-  const insight = await fetchFromPage(page, '/api/insights/agro-flood');
+  const insight = await fetchFromPage(page, '/api/insights/u9250-key-rate');
 
-  expect(insight.body).toMatchObject({ id: 'agro-flood', status: 'read' });
+  expect(insight.body).toMatchObject({ id: 'u9250-key-rate', status: 'read' });
 });
 
 test('с моками запросы идут на адрес самого сайта, а не на localhost:8000', async ({ page }) => {

@@ -1,7 +1,7 @@
 import AxeBuilder from '@axe-core/playwright';
 import { expect, type Page, test } from '@playwright/test';
 
-const FLOOD = 'Паводок в Заречном районе: вода подошла к складской зоне';
+const FLOOD = 'ЦБ сохранил ставку 14% и ужесточил риторику: кредиты не подешевеют до конца года';
 const cards = (page: Page) => page.getByRole('article');
 
 /** На телефоне и планшете фильтры свёрнуты — раскрываем их, если кнопка видна. */
@@ -19,18 +19,20 @@ test('отфильтровал возможности, открыл карточ
   await expect(cards(page).first()).toBeVisible();
 
   await openFilters(page);
-  await page.getByRole('button', { name: 'Возможность', pressed: false }).click();
+  await page.getByRole('button', { name: 'Возможность', exact: true, pressed: false }).click();
   await expect(page).toHaveURL(/\?kind=opportunity$/);
   await expect(page.getByRole('link', { name: FLOOD })).toHaveCount(0);
 
-  const subsidy = page.getByRole('link', { name: /субсидию на модернизацию складов/ });
+  const subsidy = page.getByRole('link', { name: /Флоатеры остаются главным способом/ });
   await subsidy.click();
-  await expect(page).toHaveURL(/\/insights\/agro-subsidy$/);
-  await expect(page.getByRole('heading', { level: 1, name: /субсидию/ })).toBeVisible();
+  await expect(page).toHaveURL(/\/insights\/u9250-bonds$/);
+  await expect(page.getByRole('heading', { level: 1, name: /Флоатеры/ })).toBeVisible();
 
   await page.goBack();
   await expect(page).toHaveURL(/\?kind=opportunity$/);
-  await expect(page.getByRole('link', { name: /субсидию на модернизацию складов/ })).toBeVisible();
+  await expect(
+    page.getByRole('link', { name: /Флоатеры остаются главным способом/ }),
+  ).toBeVisible();
 });
 
 test('срочный риск — первым, с красной полосой и меткой «Срочно»', async ({ page }) => {

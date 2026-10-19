@@ -21,7 +21,7 @@ afterAll(() => {
   server.close();
 });
 
-const FLOOD = 'Паводок в Заречном районе: вода подошла к складской зоне';
+const FLOOD = 'ЦБ сохранил ставку 14% и ужесточил риторику: кредиты не подешевеют до конца года';
 
 async function openInsight(id: string) {
   const app = renderApp(`/insights/${id}`);
@@ -55,7 +55,7 @@ describe('правила продукта', () => {
 
 describe('карточка инсайта', () => {
   it('показывает разделы в порядке ТЗ', async () => {
-    await openInsight('agro-flood');
+    await openInsight('u9250-key-rate');
 
     const titles = screen.getAllByRole('heading', { level: 2 }).map((h) => h.textContent);
     expect(titles).toEqual([
@@ -72,28 +72,30 @@ describe('карточка инсайта', () => {
   });
 
   it('при открытии помечает инсайт прочитанным', async () => {
-    await openInsight('agro-flood');
+    await openInsight('u9250-key-rate');
 
     await waitFor(() => {
-      expect(store.read().insights.find((item) => item.id === 'agro-flood')?.status).toBe('read');
+      expect(store.read().insights.find((item) => item.id === 'u9250-key-rate')?.status).toBe(
+        'read',
+      );
     });
   });
 
   it('цепочка подписывает роль каждого шага и заканчивается компанией', async () => {
-    await openInsight('agro-flood');
+    await openInsight('u9250-key-rate');
     const section = screen.getByRole('region', { name: 'Почему это касается вас' });
     const steps = within(section).getAllByRole('listitem');
 
     expect(steps.map((step) => step.textContent)).toEqual([
-      'СобытиеПаводок в Заречном районе',
-      'ПлощадкаСклад «Южный-2»',
-      'ПоставкаПоставка упаковки',
-      'Ваша компанияПолевея Агро',
+      'СобытиеКлючевая ставка 14%',
+      'РынокПлавающая ставка по кредиту',
+      'ПоставкаПроцентные расходы',
+      'Ваша компанияU_9250',
     ]);
   });
 
   it('источники открываются в новой вкладке безопасно', async () => {
-    await openInsight('agro-flood');
+    await openInsight('u9250-key-rate');
     const links = within(screen.getByRole('region', { name: 'Источники' })).getAllByRole('link');
 
     expect(links).toHaveLength(3);
@@ -105,7 +107,7 @@ describe('карточка инсайта', () => {
   });
 
   it('чек-лист считает отмеченное и помнит его после повторного открытия', async () => {
-    const { user, unmount } = await openInsight('agro-flood');
+    const { user, unmount } = await openInsight('u9250-key-rate');
     const section = screen.getByRole('region', { name: 'Что проверить' });
     expect(section).toHaveTextContent('0 из 3');
 
@@ -113,12 +115,12 @@ describe('карточка инсайта', () => {
 
     expect(section).toHaveTextContent('1 из 3');
     unmount();
-    await openInsight('agro-flood');
+    await openInsight('u9250-key-rate');
     expect(screen.getByRole('region', { name: 'Что проверить' })).toHaveTextContent('1 из 3');
   });
 
   it('отзыв уходит одним нажатием, комментарий — по желанию', async () => {
-    const { user } = await openInsight('agro-flood');
+    const { user } = await openInsight('u9250-key-rate');
     const section = screen.getByRole('region', { name: 'Обратная связь' });
 
     await user.click(within(section).getByRole('button', { name: 'Полезно' }));
@@ -133,8 +135,8 @@ describe('карточка инсайта', () => {
 
     expect(await within(section).findByText('Спасибо, комментарий получен.')).toBeInTheDocument();
     expect(store.read().feedback).toEqual([
-      { insightId: 'agro-flood', useful: true },
-      { insightId: 'agro-flood', useful: true, comment: 'Нужна карта затопления' },
+      { insightId: 'u9250-key-rate', useful: true },
+      { insightId: 'u9250-key-rate', useful: true, comment: 'Нужна карта затопления' },
     ]);
   });
 

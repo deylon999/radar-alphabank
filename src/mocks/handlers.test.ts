@@ -24,7 +24,7 @@ import { COMPANY_IDS } from './fixtures';
 import { PAGE_SIZE } from './logic';
 
 const { server, store, setErrorMode } = createMockServer();
-const AGRO = COMPANY_IDS.agro;
+const MAIN = COMPANY_IDS.construction;
 
 beforeAll(() => {
   server.listen({ onUnhandledFrame: 'error' });
@@ -39,61 +39,61 @@ afterAll(() => {
 
 describe('моки ленты', () => {
   it('ставит срочные первыми, остальные — по дате обновления', async () => {
-    const { items } = await fetchInsights(AGRO, {}, null);
+    const { items } = await fetchInsights(MAIN, {}, null);
     const firstRegular = items.findIndex((item) => item.urgency !== 'urgent');
 
-    expect(items[0]?.id).toBe('agro-flood');
+    expect(items[0]?.id).toBe('u9250-key-rate');
     expect(items.slice(0, firstRegular).every((item) => item.urgency === 'urgent')).toBe(true);
     const regularDates = items.slice(firstRegular).map((item) => Date.parse(item.updatedAt));
     expect(regularDates).toEqual([...regularDates].sort((a, b) => b - a));
   });
 
   it('фильтрует по типу, связи и тексту', async () => {
-    const opportunities = await fetchInsights(AGRO, { kind: ['opportunity'] }, null);
-    const possible = await fetchInsights(AGRO, { relevance: 'possible' }, null);
-    const search = await fetchInsights(AGRO, { q: 'ЮЖНЫЙ-2' }, null);
+    const opportunities = await fetchInsights(MAIN, { kind: ['opportunity'] }, null);
+    const possible = await fetchInsights(MAIN, { relevance: 'possible' }, null);
+    const search = await fetchInsights(MAIN, { q: 'ЮАНЯХ' }, null);
 
     expect(opportunities.items.every((item) => item.kind === 'opportunity')).toBe(true);
     expect(possible.items.every((item) => item.relevance === 'possible')).toBe(true);
-    expect(search.items.map((item) => item.id)).toEqual(['agro-flood']);
+    expect(search.items.map((item) => item.id)).toEqual(['u9250-yuan']);
   });
 
   it('отдаёт ленту страницами по курсору без повторов', async () => {
-    const pages = [await fetchInsights(AGRO, {}, null)];
+    const pages = [await fetchInsights(MAIN, {}, null)];
     for (let cursor = pages[0]?.nextCursor; cursor; cursor = pages.at(-1)?.nextCursor) {
-      pages.push(await fetchInsights(AGRO, {}, cursor));
+      pages.push(await fetchInsights(MAIN, {}, cursor));
     }
 
     expect(pages.length).toBeGreaterThan(1);
     expect(pages[0]?.items).toHaveLength(PAGE_SIZE);
     const ids = pages.flatMap((page) => page.items.map((item) => item.id));
     expect(new Set(ids).size).toBe(ids.length);
-    expect(ids).toHaveLength(11);
+    expect(ids).toHaveLength(7);
   });
 
   it('у разных компаний разные ленты', async () => {
-    const agro = await fetchInsights(AGRO, {}, null);
-    const retail = await fetchInsights(COMPANY_IDS.retail, {}, null);
+    const main = await fetchInsights(MAIN, {}, null);
+    const grain = await fetchInsights(COMPANY_IDS.grain, {}, null);
 
-    expect(agro.items.every((item) => item.companyId === AGRO)).toBe(true);
-    expect(retail.items.every((item) => item.companyId === COMPANY_IDS.retail)).toBe(true);
+    expect(main.items.every((item) => item.companyId === MAIN)).toBe(true);
+    expect(grain.items.every((item) => item.companyId === COMPANY_IDS.grain)).toBe(true);
   });
 
   it('скрытый инсайт пропадает из ленты и сводки, а после отмены возвращается', async () => {
-    const before = await fetchDigest(AGRO);
-    await updateInsightStatus('agro-flood', 'dismissed');
+    const before = await fetchDigest(MAIN);
+    await updateInsightStatus('u9250-key-rate', 'dismissed');
 
-    const hidden = await fetchInsights(AGRO, {}, null);
-    expect(hidden.items.some((item) => item.id === 'agro-flood')).toBe(false);
-    expect((await fetchDigest(AGRO)).urgentRisks).toBe(before.urgentRisks - 1);
+    const hidden = await fetchInsights(MAIN, {}, null);
+    expect(hidden.items.some((item) => item.id === 'u9250-key-rate')).toBe(false);
+    expect((await fetchDigest(MAIN)).urgentRisks).toBe(before.urgentRisks - 1);
 
-    await updateInsightStatus('agro-flood', 'new');
-    expect((await fetchInsights(AGRO, {}, null)).items[0]?.id).toBe('agro-flood');
+    await updateInsightStatus('u9250-key-rate', 'new');
+    expect((await fetchInsights(MAIN, {}, null)).items[0]?.id).toBe('u9250-key-rate');
   });
 
   it('считает в сводке вкладку «Главное»: все риски вместе со срочными', async () => {
-    const digest = await fetchDigest(AGRO);
-    const main = await fetchInsights(AGRO, { relevance: 'direct', kind: ['risk'] }, null);
+    const digest = await fetchDigest(MAIN);
+    const main = await fetchInsights(MAIN, { relevance: 'direct', kind: ['risk'] }, null);
 
     expect(digest.risks).toBe(main.items.length);
 
@@ -109,7 +109,7 @@ describe('моки ленты', () => {
 
 describe('моки профиля компании', () => {
   it('описание компании превращается в факты «ждёт подтверждения»', async () => {
-    const { facts } = await describeCompany(AGRO, {
+    const { facts } = await describeCompany(MAIN, {
       text: 'Главный склад находится в Приреченске. Ок.',
       links: ['https://example.com/about'],
     });
@@ -118,14 +118,14 @@ describe('моки профиля компании', () => {
     expect(facts.every((fact) => fact.status === 'pending')).toBe(true);
     expect(facts[0]).toMatchObject({ category: 'site', source: { kind: 'text' } });
     expect(facts[1]?.source).toEqual({ kind: 'link', label: 'example.com' });
-    const company = await fetchCompany(AGRO);
+    const company = await fetchCompany(MAIN);
     expect(company.facts.map((fact) => fact.id)).toEqual(
       expect.arrayContaining(facts.map((fact) => fact.id)),
     );
   });
 
   it('отклоняет пустое описание без ссылок', async () => {
-    await expect(describeCompany(AGRO, { text: '', links: [] })).rejects.toMatchObject({
+    await expect(describeCompany(MAIN, { text: '', links: [] })).rejects.toMatchObject({
       kind: 'http',
       status: 400,
     });
@@ -135,14 +135,14 @@ describe('моки профиля компании', () => {
     const pdf = new File(['%PDF'], 'Договор.pdf', { type: 'application/pdf' });
     const image = new File(['img'], 'фото.png', { type: 'image/png' });
 
-    const { facts } = await uploadCompanyDocuments(AGRO, [pdf]);
+    const { facts } = await uploadCompanyDocuments(MAIN, [pdf]);
     expect(facts[0]?.source).toEqual({ kind: 'document', label: 'Договор.pdf' });
-    await expect(uploadCompanyDocuments(AGRO, [image])).rejects.toMatchObject({ status: 400 });
+    await expect(uploadCompanyDocuments(MAIN, [image])).rejects.toMatchObject({ status: 400 });
   });
 
   it('подтверждает и исправляет факт', async () => {
-    const confirmed = await updateFact(AGRO, 'polevea-agro-f7', { status: 'confirmed' });
-    const edited = await updateFact(AGRO, 'polevea-agro-f7', { statement: 'Новая формулировка' });
+    const confirmed = await updateFact(MAIN, 'U_9250-f4', { status: 'confirmed' });
+    const edited = await updateFact(MAIN, 'U_9250-f4', { statement: 'Новая формулировка' });
 
     expect(confirmed.status).toBe('confirmed');
     expect(edited).toMatchObject({ status: 'confirmed', statement: 'Новая формулировка' });
@@ -172,7 +172,7 @@ describe('режим ошибок', () => {
   it('все запросы получают ApiError http 500', async () => {
     setErrorMode(true);
 
-    const error: unknown = await fetchInsights(AGRO, {}, null).catch((reason: unknown) => reason);
+    const error: unknown = await fetchInsights(MAIN, {}, null).catch((reason: unknown) => reason);
 
     expect(error).toBeInstanceOf(ApiError);
     expect(error).toMatchObject({ kind: 'http', status: 500 });

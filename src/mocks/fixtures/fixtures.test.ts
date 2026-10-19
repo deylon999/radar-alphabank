@@ -20,6 +20,8 @@ const texts = (insight: Insight) => [
   ...insight.basis,
   ...insight.unknowns,
   ...insight.checks,
+  insight.bankView?.summary ?? '',
+  ...(insight.trace ?? []).map((step) => `${step.title} ${step.detail ?? ''}`),
 ];
 
 describe('фикстуры моков', () => {
@@ -33,18 +35,20 @@ describe('фикстуры моков', () => {
     expect(notificationSettingsSchema.safeParse(notificationSettings).success).toBe(true);
   });
 
-  it('три компании, у каждой 8–12 фактов, часть ждёт подтверждения', () => {
-    expect(companies).toHaveLength(3);
+  it('четыре клиента из датасета с профилем банка и фактами, часть ждёт подтверждения', () => {
+    expect(companies).toHaveLength(4);
     for (const company of companies) {
-      expect(company.facts.length).toBeGreaterThanOrEqual(8);
-      expect(company.facts.length).toBeLessThanOrEqual(12);
+      expect(company.id).toMatch(/^U_\d+$/);
+      expect(company.profile?.revenue).toBeGreaterThanOrEqual(15e9);
+      expect(company.profile?.products.length).toBeGreaterThan(0);
+      expect(company.facts.length).toBeGreaterThanOrEqual(4);
       expect(company.facts.some((fact) => fact.status === 'pending')).toBe(true);
     }
   });
 
-  it('25–30 инсайтов покрывают все типы, срочности, стадии и виды связи', () => {
-    expect(insights.length).toBeGreaterThanOrEqual(25);
-    expect(insights.length).toBeLessThanOrEqual(30);
+  it('16–24 инсайта покрывают все типы, срочности, стадии и виды связи', () => {
+    expect(insights.length).toBeGreaterThanOrEqual(16);
+    expect(insights.length).toBeLessThanOrEqual(24);
     expect(new Set(insights.map((item) => item.kind))).toEqual(new Set(INSIGHT_KINDS));
     expect(new Set(insights.map((item) => item.urgency))).toEqual(new Set(URGENCIES));
     expect(new Set(insights.map((item) => item.event.stage))).toEqual(new Set(EVENT_STAGES));
@@ -56,26 +60,32 @@ describe('фикстуры моков', () => {
   it('у каждой компании своя лента с рисками и возможностями', () => {
     for (const companyId of Object.values(COMPANY_IDS)) {
       const own = insightsOf(companyId);
-      expect(own.length).toBeGreaterThanOrEqual(5);
+      expect(own.length).toBeGreaterThanOrEqual(4);
       expect(new Set(own.map((item) => item.kind))).toEqual(new Set(INSIGHT_KINDS));
     }
     expect(new Set(insights.map((item) => item.id)).size).toBe(insights.length);
   });
 
-  it('содержит главный демо-сценарий: паводок → склад → поставка → компания', () => {
-    const flood = insights.find((item) => item.id === 'agro-flood');
+  it('содержит главный демо-сценарий: ставка → кредит → компания, оценка банка пересмотрена', () => {
+    const rate = insights.find((item) => item.id === 'u9250-key-rate');
 
-    expect(flood).toMatchObject({ kind: 'risk', urgency: 'urgent', relevance: 'direct' });
-    expect(flood?.impactPath.map((step) => step.role)).toEqual([
-      'event',
-      'asset',
-      'supply',
-      'company',
-    ]);
-    expect(flood?.unknowns.join(' ')).toMatch(/работает ли сам склад/i);
-    expect(
-      flood?.revisions.some((revision) => /склад возобновил работу/i.test(revision.note)),
-    ).toBe(true);
+    expect(rate).toMatchObject({ kind: 'risk', urgency: 'urgent', relevance: 'direct' });
+    expect(rate?.bankView?.material.publishedAt).toBe('2026-09-11T00:00:00Z');
+    expect(rate?.bankView?.supersedes?.summary).toMatch(/13,5\s?%/);
+    expect(rate?.trace?.map((step) => step.kind)).toContain('check');
+    expect(rate?.offer).toBeDefined();
+  });
+
+  it('аналитика банка — у большинства инсайтов, устаревший материал помечен', () => {
+    const withBank = insights.filter((item) => item.bankView);
+    expect(withBank.length).toBeGreaterThanOrEqual(insights.length - 2);
+    expect(insights.some((item) => !item.bankView)).toBe(true);
+    expect(withBank.some((item) => item.bankView?.material.outdated)).toBe(true);
+    expect(withBank.filter((item) => item.bankView?.supersedes).length).toBeGreaterThanOrEqual(2);
+    for (const insight of insights) {
+      expect(insight.signals?.length).toBeGreaterThan(0);
+      expect(insight.trace?.at(-1)?.kind).toBe('conclusion');
+    }
   });
 
   it('цепочка влияния заканчивается компанией, заголовок — до 90 символов', () => {

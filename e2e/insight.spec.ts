@@ -7,11 +7,9 @@ test('лента → карточка → отметить пункт → отз
   await page.goto('/?kind=risk');
   await expect(page.getByRole('article').first()).toBeVisible();
 
-  await page.getByRole('link', { name: /«ПЭТ-Пак» повышает цены/ }).click();
-  await expect(
-    page.getByRole('heading', { level: 1, name: /«ПЭТ-Пак» повышает цены/ }),
-  ).toBeVisible();
-  await expect(page).toHaveTitle(/«ПЭТ-Пак» повышает цены .* — Радар/);
+  await page.getByRole('link', { name: /Рубль слабеет к юаню/ }).click();
+  await expect(page.getByRole('heading', { level: 1, name: /Рубль слабеет к юаню/ })).toBeVisible();
+  await expect(page).toHaveTitle(/Рубль слабеет к юаню.* — Радар/);
 
   const checks = region(page, 'Что проверить');
   await expect(checks).toContainText('0 из 2');
@@ -34,29 +32,35 @@ test('лента → карточка → отметить пункт → отз
     page.getByRole('button', { name: 'Риск', pressed: true, includeHidden: true }),
   ).toBeAttached();
   // Карточка прочитана — метки «Новое» у неё больше нет.
-  const card = page.getByRole('article').filter({ hasText: '«ПЭТ-Пак» повышает цены' });
+  const card = page.getByRole('article').filter({ hasText: 'Рубль слабеет к юаню' });
   await expect(card.getByText('Новое')).toHaveCount(0);
 });
 
 test('возврат кнопкой «Назад» сохраняет позицию прокрутки ленты', async ({ page }) => {
+  // Невысокое окно: лента у клиента короткая, а проверить нужно возврат к прокрутке.
+  await page.setViewportSize({ width: page.viewportSize()?.width ?? 1280, height: 600 });
   await page.goto('/');
   await page.getByRole('button', { name: 'Показать ещё' }).click();
-  const target = page.getByRole('link', { name: /весовой контроль/ });
+  const target = page.getByRole('link', { name: /Флоатеры остаются главным способом/ });
   await target.scrollIntoViewIfNeeded();
   const scrollBefore = await page.evaluate(() => window.scrollY);
   expect(scrollBefore).toBeGreaterThan(0);
 
   await target.click();
-  await expect(page.getByRole('heading', { level: 1, name: /весовой контроль/ })).toBeVisible();
+  await expect(
+    page.getByRole('heading', { level: 1, name: /Флоатеры остаются главным способом/ }),
+  ).toBeVisible();
   expect(await page.evaluate(() => window.scrollY)).toBeLessThan(scrollBefore);
 
   await page.goBack();
-  await expect(page.getByRole('link', { name: /весовой контроль/ })).toBeVisible();
+  await expect(
+    page.getByRole('link', { name: /Флоатеры остаются главным способом/ }),
+  ).toBeVisible();
   await expect.poll(() => page.evaluate(() => window.scrollY)).toBeGreaterThan(scrollBefore - 50);
 });
 
 test('гипотеза визуально отличается от фактов', async ({ page }) => {
-  await page.goto('/insights/agro-flood');
+  await page.goto('/insights/u9250-key-rate');
   const hypothesis = region(page, 'Возможное последствие');
   await expect(hypothesis.getByText('Гипотеза')).toBeVisible();
 
@@ -74,7 +78,7 @@ test('гипотеза визуально отличается от фактов
 test('карточка с открытой формой комментария: нет нарушений axe и прокрутки вбок', async ({
   page,
 }) => {
-  await page.goto('/insights/kal-cement-kiln');
+  await page.goto('/insights/u9250-key-rate');
   await region(page, 'Обратная связь').getByRole('button', { name: 'Не полезно' }).click();
   await expect(page.getByRole('textbox', { name: /Комментарий/ })).toBeVisible();
 

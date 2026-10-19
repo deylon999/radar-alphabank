@@ -67,7 +67,7 @@
 ```json
 {
   "connected": true,
-  "companyName": "АО «Полевея Агро»",
+  "companyName": "Клиент U_9250",
   "urgentKinds": ["risk"],
   "digest": "daily",
   "digestTime": "09:00"

@@ -23,13 +23,13 @@ afterAll(() => {
   server.close();
 });
 
-const PORT_FACT = 'Экспортные партии отгружаются через порт Северобережный';
-const LEASING_FACT = 'Сельхозтехника в лизинге, платежи привязаны к ключевой ставке';
+const PORT_FACT = 'Технику на объекты доставляют по железной дороге до Тайшета';
+const LEASING_FACT = 'Спецтехника в лизинге с фиксированными платежами в рублях';
 
 function storedFact(statementStart: string) {
   return store
     .read()
-    .companies.find((company) => company.id === COMPANY_IDS.agro)
+    .companies.find((company) => company.id === COMPANY_IDS.construction)
     ?.facts.find((fact) => fact.statement.startsWith(statementStart));
 }
 
@@ -56,8 +56,8 @@ describe('профиль компании', () => {
   it('показывает шапку, плашку ожидающих изменений и факты по категориям', async () => {
     await openProfile();
 
-    expect(screen.getByRole('heading', { name: 'АО «Полевея Агро»' })).toBeInTheDocument();
-    expect(screen.getByText(/ИНН/)).toHaveTextContent('Агропромышленный холдинг · ИНН 9900000001');
+    expect(screen.getByRole('heading', { name: 'Клиент U_9250' })).toBeInTheDocument();
+    expect(screen.getByText('Строительство инженерных сооружений')).toBeInTheDocument();
     expect(banner()).toHaveTextContent('3 изменения ждут подтверждения');
     expect(screen.getByText('Чем точнее профиль, тем точнее лента.')).toBeInTheDocument();
 
@@ -65,11 +65,8 @@ describe('профиль компании', () => {
     expect(categories).toEqual([
       'Поставщики 1',
       'Клиенты 1',
-      'Площадки и склады 3',
-      'Регионы 1',
-      'Продукция 1',
       'Логистика 2',
-      'Финансы 1',
+      'Финансы 2',
       'Другое 1',
     ]);
     const logistics = screen.getByRole('region', { name: 'Логистика 2' });
@@ -121,13 +118,15 @@ describe('профиль компании', () => {
     await user.keyboard('{Enter}');
     expect(screen.getByRole('alert')).toHaveTextContent('Формулировка не может быть пустой');
 
-    await user.type(field, 'Экспорт идёт через порт Южнобережный{Enter}');
+    await user.type(field, 'Технику возят по железной дороге до Братска{Enter}');
 
-    expect(await screen.findByText('Экспорт идёт через порт Южнобережный')).toBeInTheDocument();
-    expect(storedFact('Экспорт идёт')).toMatchObject({ status: 'confirmed' });
+    expect(
+      await screen.findByText('Технику возят по железной дороге до Братска'),
+    ).toBeInTheDocument();
+    expect(storedFact('Технику возят')).toMatchObject({ status: 'confirmed' });
     expect(storedFact(PORT_FACT)).toBeUndefined();
     expect(
-      within(factRow('Экспорт идёт')).getByRole('button', { name: 'Исправить' }),
+      within(factRow('Технику возят')).getByRole('button', { name: 'Исправить' }),
     ).toHaveFocus();
   });
 
@@ -135,7 +134,7 @@ describe('профиль компании', () => {
     const { user } = await openProfile();
 
     await user.click(within(factRow(PORT_FACT)).getByRole('button', { name: 'Исправить' }));
-    await user.type(screen.getByRole('textbox', { name: 'Формулировка факта' }), ' и Мурманск');
+    await user.type(screen.getByRole('textbox', { name: 'Формулировка факта' }), ' и Братска');
     await user.keyboard('{Escape}');
 
     expect(screen.queryByRole('textbox', { name: 'Формулировка факта' })).toBeNull();
@@ -149,7 +148,8 @@ describe('профиль компании', () => {
     await user.click(screen.getByRole('button', { name: 'Подтвердить все' }));
 
     expect(await screen.findByText(/Все факты проверены/)).toBeInTheDocument();
-    const facts = store.read().companies.find((c) => c.id === COMPANY_IDS.agro)?.facts ?? [];
+    const facts =
+      store.read().companies.find((c) => c.id === COMPANY_IDS.construction)?.facts ?? [];
     expect(facts.filter((fact) => fact.status === 'pending')).toEqual([]);
     expect(screen.queryAllByText('Ждёт подтверждения')).toEqual([]);
   });
@@ -173,7 +173,7 @@ describe('профиль компании', () => {
 describe('«Расскажите о компании»', () => {
   it('пустой профиль: одна промо-плашка, кнопка ведёт в поле описания', async () => {
     store.write((db) => {
-      const agro = db.companies.find((company) => company.id === COMPANY_IDS.agro);
+      const agro = db.companies.find((company) => company.id === COMPANY_IDS.construction);
       if (agro) agro.facts = [];
     });
     const { user } = await openProfile();
@@ -193,21 +193,21 @@ describe('«Расскажите о компании»', () => {
 
     await user.type(
       within(form).getByRole('textbox', { name: 'Описание' }),
-      'Новый склад в Озёрной области принимает зерно с осени.',
+      'Новая база техники в Братске откроется весной.',
     );
-    await user.type(within(form).getByRole('textbox', { name: 'Ссылки' }), 'polevea.example.com');
+    await user.type(within(form).getByRole('textbox', { name: 'Ссылки' }), 'u9250.example.com');
     await user.click(within(form).getByRole('button', { name: 'Добавить' }));
     expect(within(form).getByRole('list', { name: 'Добавленные ссылки' })).toHaveTextContent(
-      'https://polevea.example.com',
+      'https://u9250.example.com',
     );
 
     await user.click(within(form).getByRole('button', { name: 'Разобрать материалы' }));
 
     expect(await screen.findByText('Добавлено: 2 факта. Проверьте и подтвердите')).toBeVisible();
     expect(banner()).toHaveTextContent('5 изменений ждут подтверждения');
-    expect(within(factRow('Новый склад в Озёрной')).getByText('Ждёт подтверждения')).toBeVisible();
+    expect(within(factRow('Новая база техники')).getByText('Ждёт подтверждения')).toBeVisible();
     expect(
-      within(factRow('Масло поставляется в три')).getByText(/polevea\.example\.com/),
+      within(factRow('Подрядчик по ремонту трёх мостов')).getByText(/u9250\.example\.com/),
     ).toBeVisible();
     // Принятое сервером убрано из формы — повторная отправка не задвоит факты.
     expect(within(form).getByRole('textbox', { name: 'Описание' })).toHaveValue('');
@@ -248,7 +248,7 @@ describe('«Расскажите о компании»', () => {
           source: { kind: 'document', label: 'Договор аренды.pdf' },
         };
         store.write((db) => {
-          db.companies.find((company) => company.id === COMPANY_IDS.agro)?.facts.push(fact);
+          db.companies.find((company) => company.id === COMPANY_IDS.construction)?.facts.push(fact);
         });
         return HttpResponse.json({ facts: [fact] });
       }),

@@ -27,10 +27,8 @@ describe('оболочка приложения', () => {
   it('по умолчанию выбирает первую компанию и показывает её ленту', async () => {
     renderApp('/');
 
-    expect(await companySelect()).toHaveDisplayValue('АО «Полевея Агро»');
-    expect(
-      await screen.findByRole('link', { name: /Паводок в Заречном районе/ }),
-    ).toBeInTheDocument();
+    expect(await companySelect()).toHaveDisplayValue('Клиент U_9250');
+    expect(await screen.findByRole('link', { name: /ЦБ сохранил ставку 14%/ })).toBeInTheDocument();
     await waitFor(() => {
       expect(document.title).toBe('Лента — Радар');
     });
@@ -38,30 +36,30 @@ describe('оболочка приложения', () => {
 
   it('переключение компании меняет ленту и запоминается', async () => {
     const { user } = renderApp('/');
-    await screen.findByRole('link', { name: /Паводок в Заречном районе/ });
+    await screen.findByRole('link', { name: /ЦБ сохранил ставку 14%/ });
 
-    await user.selectOptions(await companySelect(), 'ООО «Кварталика»');
+    await user.selectOptions(await companySelect(), 'Клиент U_1465');
 
-    expect(await screen.findByRole('link', { name: /Авария на подстанции/ })).toBeInTheDocument();
     expect(
-      screen.queryByRole('link', { name: /Паводок в Заречном районе/ }),
-    ).not.toBeInTheDocument();
-    expect(window.localStorage.getItem(SELECTED_COMPANY_STORAGE_KEY)).toBe('kvartalika');
+      await screen.findByRole('link', { name: /Рубль слабеет: импортные вино/ }),
+    ).toBeInTheDocument();
+    expect(screen.queryByRole('link', { name: /ЦБ сохранил ставку 14%/ })).not.toBeInTheDocument();
+    expect(window.localStorage.getItem(SELECTED_COMPANY_STORAGE_KEY)).toBe('U_1465');
   });
 
   it('восстанавливает сохранённую компанию после перезагрузки', async () => {
-    window.localStorage.setItem(SELECTED_COMPANY_STORAGE_KEY, 'kalveta');
+    window.localStorage.setItem(SELECTED_COMPANY_STORAGE_KEY, 'U_34911');
     renderApp('/company');
 
-    expect(await companySelect()).toHaveDisplayValue('ООО «Кальвета»');
-    expect(await screen.findByRole('heading', { name: 'ООО «Кальвета»' })).toBeInTheDocument();
+    expect(await companySelect()).toHaveDisplayValue('Клиент U_34911');
+    expect(await screen.findByRole('heading', { name: 'Клиент U_34911' })).toBeInTheDocument();
   });
 
   it('игнорирует неизвестную сохранённую компанию', async () => {
     window.localStorage.setItem(SELECTED_COMPANY_STORAGE_KEY, 'deleted-company');
     renderApp('/');
 
-    expect(await companySelect()).toHaveDisplayValue('АО «Полевея Агро»');
+    expect(await companySelect()).toHaveDisplayValue('Клиент U_9250');
   });
 
   it('работает, когда localStorage недоступен', async () => {
@@ -73,18 +71,18 @@ describe('оболочка приложения', () => {
     });
     const { user } = renderApp('/');
 
-    await user.selectOptions(await companySelect(), 'ООО «Кальвета»');
+    await user.selectOptions(await companySelect(), 'Клиент U_34911');
 
-    expect(await screen.findByRole('link', { name: /Цемент Озёрья/ })).toBeInTheDocument();
+    expect(await screen.findByRole('link', { name: /Экспорт урожая буксует/ })).toBeInTheDocument();
   });
 
   it('со страницы инсайта при смене компании уводит в ленту', async () => {
-    const { user, router } = renderApp('/insights/agro-flood');
+    const { user, router } = renderApp('/insights/u9250-key-rate');
     expect(
-      await screen.findByRole('heading', { level: 1, name: /Паводок в Заречном районе/ }),
+      await screen.findByRole('heading', { level: 1, name: /ЦБ сохранил ставку 14%/ }),
     ).toBeInTheDocument();
 
-    await user.selectOptions(await companySelect(), 'ООО «Кальвета»');
+    await user.selectOptions(await companySelect(), 'Клиент U_34911');
 
     await waitFor(() => {
       expect(router.state.location.pathname).toBe('/');
@@ -101,9 +99,7 @@ describe('оболочка приложения', () => {
     setErrorMode(false);
     await user.click(within(alert).getByRole('button', { name: 'Повторить' }));
 
-    expect(
-      await screen.findByRole('link', { name: /Паводок в Заречном районе/ }),
-    ).toBeInTheDocument();
+    expect(await screen.findByRole('link', { name: /ЦБ сохранил ставку 14%/ })).toBeInTheDocument();
   });
 
   it('на неизвестном адресе показывает страницу 404 со ссылкой в ленту', async () => {

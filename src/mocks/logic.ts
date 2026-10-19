@@ -3,7 +3,7 @@ import type { Digest, Insight, InsightFilters } from '../schemas/insight';
 import { typograph } from '../shared/lib/typography';
 
 /** Небольшая страница, чтобы в демо было видно «Показать ещё». */
-export const PAGE_SIZE = 6;
+export const PAGE_SIZE = 4;
 const DIGEST_PERIOD_DAYS = 7;
 
 function matchesQuery(insight: Insight, query: string): boolean {

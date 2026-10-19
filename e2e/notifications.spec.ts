@@ -50,5 +50,5 @@ test('превью показывает срочный риск компании
   await page.goto('/notifications');
   const message = page.getByRole('figure', { name: 'Пример уведомления' });
   await expect(message).toContainText('Радар · Срочно · Риск');
-  await expect(message).toContainText('Паводок в Заречном районе');
+  await expect(message).toContainText('ЦБ сохранил ставку 14%');
 });

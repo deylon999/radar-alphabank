@@ -1,7 +1,7 @@
 import AxeBuilder from '@axe-core/playwright';
 import { expect, type Page, test } from '@playwright/test';
 
-const NEW_FACT = 'Новый склад в Озёрной области принимает зерно с осени';
+const NEW_FACT = 'Новая база техники в Братске откроется весной';
 
 const pendingBanner = (page: Page) =>
   page.getByRole('heading', { level: 2, name: /ждут? подтверждения/ });
@@ -12,7 +12,7 @@ test('описал компанию → появились факты → под
 
   const form = page.getByRole('region', { name: 'Расскажите о компании' });
   await form.getByRole('textbox', { name: 'Описание' }).fill(`${NEW_FACT}.`);
-  await form.getByRole('textbox', { name: 'Ссылки' }).fill('polevea.example.com');
+  await form.getByRole('textbox', { name: 'Ссылки' }).fill('u9250.example.com');
   await form.getByRole('button', { name: 'Добавить' }).click();
   await form.getByRole('button', { name: 'Разобрать материалы' }).click();
 
@@ -36,19 +36,19 @@ test('правка факта на месте с клавиатуры', async ({
   await page.goto('/company');
   const fact = page
     .getByRole('listitem')
-    .filter({ hasText: 'Экспортные партии отгружаются через порт Северобережный' });
+    .filter({ hasText: 'Технику на объекты доставляют по железной дороге до Тайшета' });
 
   await fact.getByRole('button', { name: 'Исправить' }).click();
   const field = page.getByRole('textbox', { name: 'Формулировка факта' });
   await expect(field).toBeFocused();
   // На время правки кнопки факта спрятаны — видны только «Сохранить» и «Отменить».
   await expect(fact.getByRole('button', { name: 'Отклонить' })).toBeHidden();
-  await field.fill('Экспорт идёт через порт Южнобережный');
+  await field.fill('Технику возят по железной дороге до Братска');
   await field.press('Enter');
 
   const edited = page
     .getByRole('listitem')
-    .filter({ hasText: 'Экспорт идёт через порт Южнобережный' });
+    .filter({ hasText: 'Технику возят по железной дороге до Братска' });
   await expect(edited.getByText('Подтверждено')).toBeVisible();
   await expect(edited.getByRole('button', { name: 'Исправить' })).toBeFocused();
 });
