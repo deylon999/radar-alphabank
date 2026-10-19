@@ -5,6 +5,10 @@
   padding: var(--gap-24) var(--gap-16) calc(56px + var(--gap-32) + env(safe-area-inset-bottom, 0));
 }
 
+.withoutBottomNav {
+  padding-bottom: var(--gap-48);
+}
+
 .main:focus {
   outline: none;
 }

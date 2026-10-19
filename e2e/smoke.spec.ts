@@ -40,3 +40,20 @@ test('главный сценарий: со старта один клик до 
     'Гипотеза',
   );
 });
+
+test('вход из Альфа-Бизнеса: виджет на главной → срочный инсайт → лента Радара', async ({
+  page,
+}) => {
+  await page.goto('/business');
+  await expect(page).toHaveTitle('Альфа-Бизнес — Радар');
+  const widget = page.getByRole('region', { name: 'Радар' });
+  await expect(widget).toContainText(/С\s\d+\s\S+:\s1\sсрочный\sриск/);
+
+  await widget.getByRole('link', { name: /ЦБ сохранил ставку 14%/ }).click();
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText(/ЦБ сохранил ставку/);
+
+  await page.goto('/business');
+  await page.getByRole('link', { name: 'Открыть Радар' }).click();
+  await expect(page).toHaveURL(/\/$/);
+  await expect(page.getByRole('heading', { level: 1, name: 'Лента' })).toBeVisible();
+});

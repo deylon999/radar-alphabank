@@ -26,6 +26,33 @@
   text-decoration: none;
 }
 
+/* Возврат на главную интернет-банка — только там, где хватает места. */
+.back {
+  display: none;
+  flex: none;
+  color: var(--color-light-text-secondary);
+  font-size: 14px;
+  line-height: 20px;
+  text-decoration: none;
+}
+
+.back:hover {
+  color: var(--color-light-text-primary);
+}
+
+/* На телефоне в Радар ведёт кнопка виджета — шапке не хватает места на ссылку. */
+.businessNav {
+  display: none;
+}
+
+.radarLink {
+  color: var(--color-light-text-primary);
+  font-size: 16px;
+  line-height: 20px;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+
 .actions {
   display: flex;
   flex: 1 1 auto;
@@ -33,6 +60,18 @@
   justify-content: flex-end;
   gap: var(--gap-8);
   min-width: 0;
+}
+
+@media (min-width: 1024px) {
+  .back {
+    display: block;
+  }
+}
+
+@media (min-width: 768px) {
+  .businessNav {
+    display: flex;
+  }
 }
 
 @media (min-width: 768px) {

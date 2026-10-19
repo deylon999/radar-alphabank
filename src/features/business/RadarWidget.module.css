@@ -1,0 +1,66 @@
+.widget {
+  display: grid;
+  gap: var(--gap-12);
+  padding: var(--gap-20);
+  border: 1px solid var(--radar-card-border);
+  border-radius: var(--border-radius-16);
+  background: var(--radar-card-bg);
+}
+
+.head {
+  display: grid;
+  gap: var(--gap-2);
+}
+
+.title {
+  margin: 0;
+  font-size: 20px;
+  line-height: 24px;
+  font-weight: 700;
+}
+
+.lead,
+.digest,
+.why {
+  margin: 0;
+  font-size: 14px;
+  line-height: 20px;
+}
+
+.lead {
+  color: var(--color-light-text-secondary);
+}
+
+.digest {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Срочный инсайт: та же красная полоса, что у срочного риска в ленте. */
+.top {
+  display: grid;
+  justify-items: start;
+  gap: var(--gap-4);
+  padding: var(--gap-12) var(--gap-16);
+  border-radius: var(--border-radius-12);
+  box-shadow: inset 4px 0 0 var(--color-light-status-negative);
+  background: var(--color-light-neutral-translucent-100);
+}
+
+.topTitle {
+  margin: 0;
+  font-size: 16px;
+  line-height: 20px;
+  font-weight: 700;
+}
+
+.link {
+  color: var(--color-light-text-primary);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.labels {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--gap-4);
+}

@@ -3,7 +3,7 @@ import { matchPath, type RouteObject } from 'react-router';
 
 import { NotFoundPage } from '../../pages/not-found/NotFoundPage';
 import { PageSkeleton } from '../../shared/ui/Skeleton/PageSkeleton';
-import { AppLayout } from '../layout/AppLayout';
+import { AppLayout, BusinessLayout } from '../layout/AppLayout';
 import { RouteErrorBoundary } from './RouteErrorBoundary';
 
 /**
@@ -24,8 +24,12 @@ const loadCompany = async () => (await import('../../pages/company/CompanyPage')
 const loadNotifications = async () =>
   (await import('../../pages/notifications/NotificationsPage')).NotificationsPage;
 
+const loadBusiness = async () =>
+  (await import('../../pages/business/BusinessHomePage')).BusinessHomePage;
+
 const PAGE_LOADERS: [pattern: string, load: () => Promise<ComponentType>][] = [
   ['/', loadFeed],
+  ['/business', loadBusiness],
   ['/insights/:insightId', loadInsight],
   ['/company', loadCompany],
   ['/notifications', loadNotifications],
@@ -43,6 +47,13 @@ export function preloadPage(pathname: string): void {
 }
 
 export const routes: RouteObject[] = [
+  {
+    path: '/business',
+    Component: BusinessLayout,
+    HydrateFallback: PageSkeleton,
+    ErrorBoundary: RouteErrorBoundary,
+    children: [page(undefined, loadBusiness)],
+  },
   {
     path: '/',
     Component: AppLayout,
