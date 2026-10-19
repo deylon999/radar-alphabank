@@ -108,6 +108,20 @@ describe('лента: фильтры ↔ адрес', () => {
   });
 });
 
+describe('лента: почему касается', () => {
+  it('карточка показывает учтённые признаки компании и есть ли оценка банка', async () => {
+    await openFeed();
+    const card = screen
+      .getAllByRole('article')
+      .find((item) => item.textContent.includes('ЦБ сохранил ставку 14%'));
+
+    expect(card).toHaveTextContent(
+      'Учтено: кредит, лизинг, банковские гарантии · плавающая ставка: ключевая плюс 2,5 п. п.',
+    );
+    expect(card).toHaveTextContent('Позиция банка');
+  });
+});
+
 describe('лента: порядок, вкладки, сводка', () => {
   it('сначала срочные, затем по дате обновления', async () => {
     await openFeed();

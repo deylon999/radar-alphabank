@@ -24,6 +24,14 @@ export function shortImpactPath(insight: Insight): string {
     .join(' → ');
 }
 
+/** Признаки компании, на которых построен вывод: «кредит, лизинг · Китай». */
+export function signalSummary(insight: Insight): string {
+  return (insight.signals ?? [])
+    .slice(0, 2)
+    .map((signal) => signal.value)
+    .join(' · ');
+}
+
 /**
  * Клик по тексту, поднятому над ссылкой ради подсказок (время, «почему», цепочка), тоже
  * открывает инсайт: передаём его ссылке с теми же клавишами — Ctrl/Cmd откроет новую вкладку.
@@ -68,6 +76,8 @@ export function InsightCard({ insight, onHide }: InsightCardProps) {
   const { cardRef, linkRef } = useForwardClicksToLink();
   const { search } = useLocation();
   const chain = shortImpactPath(insight);
+  const signals = signalSummary(insight);
+  const hasBankView = insight.bankView !== undefined && !insight.bankView.material.outdated;
   const isUrgentRisk = insight.kind === 'risk' && insight.urgency === 'urgent';
 
   return (
@@ -102,8 +112,14 @@ export function InsightCard({ insight, onHide }: InsightCardProps) {
       <p className={styles.chain} title={chain}>
         {chain}
       </p>
+      {signals ? (
+        <p className={styles.chain} title={signals}>
+          Учтено: {signals}
+        </p>
+      ) : null}
       <div className={styles.bottom}>
         <span>{pluralize(insight.sources.length, pluralForms.source)}</span>
+        {hasBankView ? <span className={styles.bank}>{terms.bankPosition}</span> : null}
         {insight.status === 'new' ? <span className={styles.new}>{terms.newBadge}</span> : null}
         <ActionLink
           pseudo
