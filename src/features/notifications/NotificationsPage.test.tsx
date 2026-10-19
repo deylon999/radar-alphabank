@@ -119,8 +119,9 @@ describe('правила', () => {
 
   it('после быстрых кликов ответы сервера не возвращают промежуточные состояния', async () => {
     server.use(
+      // Задержка с запасом: все три клика должны успеть, пока первый ответ ещё в пути.
       http.put('*/api/notifications/settings', async () => {
-        await delay(30);
+        await delay(300);
       }),
     );
     const { user } = await openNotifications();
@@ -133,7 +134,8 @@ describe('правила', () => {
 
     const seen: boolean[] = [];
     const timer = setInterval(() => seen.push(opportunities.checked), 5);
-    expect(await screen.findByText('Сохранено')).toBeInTheDocument();
+    // Сохранения идут по очереди: три ответа по 300 мс.
+    expect(await screen.findByText('Сохранено', {}, { timeout: 3000 })).toBeInTheDocument();
     clearInterval(timer);
 
     expect(seen).not.toContain(false);
