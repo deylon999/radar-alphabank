@@ -7,6 +7,9 @@ import { ButtonLink } from '../../shared/ui/ButtonLink';
 import { EmptyState } from '../../shared/ui/EmptyState';
 import { QueryView } from '../../shared/ui/QueryView';
 import { PageSkeleton } from '../../shared/ui/Skeleton/PageSkeleton';
+import { AskPanel } from './Ask/AskPanel';
+import { BankOffer } from './BankOffer/BankOffer';
+import { BankView } from './BankView/BankView';
 import { Checklist } from './Checklist/Checklist';
 import { Basis, Consequence } from './Consequence/Consequence';
 import { Feedback } from './Feedback/Feedback';
@@ -14,12 +17,14 @@ import { ImpactChain } from './ImpactChain/ImpactChain';
 import { InsightHeader } from './InsightHeader/InsightHeader';
 import { RevisionHistory, Sources, Unknowns } from './InsightLists';
 import styles from './InsightView.module.css';
+import { Trace } from './Trace/Trace';
 import { useMarkInsightRead } from './useMarkInsightRead';
 import { WhatHappened } from './WhatHappened';
 
 /**
- * Разделы в порядке ТЗ. На десктопе «Что проверить» и «Обратная связь» — в правой
- * колонке, которая прилипает при прокрутке; на телефоне всё идёт одной колонкой.
+ * Разделы отвечают на вопросы кейса по порядку: что произошло → почему касается вас →
+ * как оценивает банк → последствия → что делать → на чём основан вывод. На десктопе
+ * «Что проверить», предложение банка и отзыв — в правой колонке, она прилипает при прокрутке.
  */
 function InsightContent({ insight }: { insight: Insight }) {
   return (
@@ -35,26 +40,38 @@ function InsightContent({ insight }: { insight: Insight }) {
           <ImpactChain insight={insight} />
         </div>
         <div className={styles.s3}>
-          <Consequence insight={insight} />
+          <BankView insight={insight} />
         </div>
         <div className={styles.s4}>
-          <Basis insight={insight} />
+          <Consequence insight={insight} />
         </div>
         <div className={styles.s5}>
+          <Basis insight={insight} />
+        </div>
+        <div className={styles.s6}>
           <Unknowns insight={insight} />
         </div>
-        <div className={styles.s7}>
+        <div className={styles.s8}>
+          <AskPanel insight={insight} />
+        </div>
+        <div className={styles.s10}>
           <Sources insight={insight} />
         </div>
-        <div className={styles.s8}>
+        <div className={styles.s11}>
+          <Trace insight={insight} />
+        </div>
+        <div className={styles.s12}>
           <RevisionHistory insight={insight} />
         </div>
       </div>
       <div className={styles.aside}>
-        <div className={styles.s6}>
+        <div className={styles.s7}>
           <Checklist insight={insight} />
         </div>
         <div className={styles.s9}>
+          <BankOffer insight={insight} />
+        </div>
+        <div className={styles.s13}>
           <Feedback insightId={insight.id} />
         </div>
       </div>

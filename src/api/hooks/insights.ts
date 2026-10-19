@@ -1,7 +1,8 @@
 import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
-import type { FeedbackBody, InsightFilters, InsightStatus } from '../../schemas/insight';
+import type { AskBody, FeedbackBody, InsightFilters, InsightStatus } from '../../schemas/insight';
 import {
+  askInsight,
   fetchDigest,
   fetchInsight,
   fetchInsights,
@@ -57,5 +58,12 @@ export function useUpdateInsightStatus() {
 export function useSendInsightFeedback(insightId: string) {
   return useMutation({
     mutationFn: (body: FeedbackBody) => sendInsightFeedback(insightId, body),
+  });
+}
+
+/** Уточняющий вопрос по инсайту: ответы не кешируются, каждый вопрос — новый запрос. */
+export function useAskInsight(insightId: string) {
+  return useMutation({
+    mutationFn: (body: AskBody) => askInsight(insightId, body),
   });
 }

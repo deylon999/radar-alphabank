@@ -192,4 +192,5 @@ export const pluralForms = {
   source: { one: 'источник', few: 'источника', many: 'источников' },
   fact: { one: 'факт', few: 'факта', many: 'фактов' },
   change: { one: 'изменение', few: 'изменения', many: 'изменений' },
+  step: { one: 'шаг', few: 'шага', many: 'шагов' },
 } as const;

@@ -2,6 +2,7 @@ import cn from 'classnames';
 
 import type { Insight } from '../../../schemas/insight';
 import { impactRoleLabels, terms } from '../../../shared/labels';
+import { Badge } from '../../../shared/ui/Badge/Badge';
 import { InsightSection } from '../InsightSection/InsightSection';
 import styles from './ImpactChain.module.css';
 
@@ -11,7 +12,10 @@ import styles from './ImpactChain.module.css';
  */
 export function ImpactChain({ insight }: { insight: Insight }) {
   return (
-    <InsightSection title={terms.whyItMatters}>
+    <InsightSection
+      title={terms.whyItMatters}
+      meta={<Badge tone="quiet">{terms.aiConclusion}</Badge>}
+    >
       <p className={styles.summary}>{insight.whyItMatters}</p>
       <ol className={styles.chain}>
         {insight.impactPath.map((step, index) => (
@@ -25,6 +29,19 @@ export function ImpactChain({ insight }: { insight: Insight }) {
           </li>
         ))}
       </ol>
+      {insight.signals?.length ? (
+        <div className={styles.signals}>
+          <h3 className={styles.signalsTitle}>{terms.signals}</h3>
+          <dl className={styles.signalList}>
+            {insight.signals.map((signal) => (
+              <div key={signal.label} className={styles.signal}>
+                <dt>{signal.label}</dt>
+                <dd>{signal.value}</dd>
+              </div>
+            ))}
+          </dl>
+        </div>
+      ) : null}
     </InsightSection>
   );
 }

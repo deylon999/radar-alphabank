@@ -1,4 +1,7 @@
 import {
+  type Answer,
+  answerSchema,
+  type AskBody,
   type Digest,
   digestSchema,
   type FeedbackBody,
@@ -51,4 +54,13 @@ export function updateInsightStatus(insightId: string, status: InsightStatus): P
 
 export function sendInsightFeedback(insightId: string, body: FeedbackBody): Promise<void> {
   return requestVoid(`${insightPath(insightId)}/feedback`, { method: 'POST', json: body });
+}
+
+/** Ответ готовит агент: он ходит в инструменты, поэтому таймаут больше обычного. */
+export function askInsight(insightId: string, body: AskBody): Promise<Answer> {
+  return request(`${insightPath(insightId)}/ask`, answerSchema, {
+    method: 'POST',
+    json: body,
+    timeoutMs: 60_000,
+  });
 }

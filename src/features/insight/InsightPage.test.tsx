@@ -61,14 +61,94 @@ describe('карточка инсайта', () => {
     expect(titles).toEqual([
       'Что случилось',
       'Почему это касается вас',
+      'Как оценивает Альфа-Банк',
       'Возможное последствие',
       'Основания',
       'Что неизвестно',
+      'Задать вопрос',
       'Источники',
+      'Как получен вывод',
       'История изменений',
       'Что проверить',
+      'Предложение Альфа-Банка',
       'Обратная связь',
     ]);
+  });
+
+  it('позиция банка отделена от выводов AI и показывает пересмотр оценки', async () => {
+    await openInsight('u9250-key-rate');
+    const bank = screen.getByRole('region', { name: 'Как оценивает Альфа-Банк' });
+
+    expect(within(bank).getByText('Позиция банка')).toBeInTheDocument();
+    expect(within(bank).queryByText('Вывод AI')).toBeNull();
+    expect(bank).toHaveTextContent('Ждём сохранения ставки 14,0%');
+    expect(bank).toHaveTextContent('11 сентября 2026, с. 1');
+    expect(bank).toHaveTextContent('Банк пересмотрел оценку');
+    expect(bank).toHaveTextContent('Было: Ждём ставку 13,5% на конец 2026 года');
+    for (const name of ['Почему это касается вас', 'Возможное последствие', 'Задать вопрос']) {
+      expect(
+        within(screen.getByRole('region', { name })).getByText('Вывод AI'),
+      ).toBeInTheDocument();
+    }
+  });
+
+  it('устаревший материал банка — с предупреждением, без материала — так и сказано', async () => {
+    const { unmount } = await openInsight('u9250-steel');
+    expect(screen.getByRole('note')).toHaveTextContent(
+      'Материал устарел. Обзор от 15 апреля 2021 не отражает текущую ситуацию',
+    );
+    unmount();
+
+    await openInsight('u34911-port');
+    expect(screen.getByRole('region', { name: 'Как оценивает Альфа-Банк' })).toHaveTextContent(
+      'Альфа-Банк не публиковал оценку по этой теме',
+    );
+  });
+
+  it('признаки компании и шаги агента объясняют вывод', async () => {
+    const { user } = await openInsight('u9250-key-rate');
+    const why = screen.getByRole('region', { name: 'Почему это касается вас' });
+    expect(
+      within(why).getByRole('heading', { name: 'Признаки вашей компании в выводе' }),
+    ).toBeVisible();
+    expect(why).toHaveTextContent('Продукты банкакредит, лизинг, банковские гарантии');
+
+    const trace = screen.getByRole('region', { name: 'Как получен вывод' });
+    await user.click(within(trace).getByText('Показать 5 шагов'));
+    const steps = within(trace).getAllByRole('listitem');
+    expect(steps).toHaveLength(5);
+    expect(steps[3]).toHaveTextContent(/^Проверка.*Материалы расходятся/);
+  });
+
+  it('вопрос по подсказке и свой вопрос получают ответ со ссылками на источники', async () => {
+    const { user } = await openInsight('u9250-key-rate');
+    const ask = screen.getByRole('region', { name: 'Задать вопрос' });
+
+    await user.click(within(ask).getByRole('button', { name: 'Что будет при ставке 12%?' }));
+    const answers = await within(ask).findByRole('list', { name: 'Ответы' });
+    expect(answers).toHaveTextContent('Позиция Альфа-Банка: ждём сохранения ставки 14,0%');
+    expect(answers).toHaveTextContent('Аналитика Альфа-Банка: Ключевая ставка ЦБ РФ');
+    expect(within(ask).queryByRole('button', { name: 'Что будет при ставке 12%?' })).toBeNull();
+
+    await user.type(within(ask).getByRole('textbox'), 'А что с лизингом?');
+    await user.click(within(ask).getByRole('button', { name: 'Спросить' }));
+    await waitFor(() => {
+      expect(
+        within(answers).getAllByText(/^(Что будет при ставке 12%\?|А что с лизингом\?)$/),
+      ).toHaveLength(2);
+    });
+    expect(within(ask).getByRole('textbox')).toHaveValue('');
+  });
+
+  it('предложение банка подписано и ведёт на продукт в новой вкладке', async () => {
+    await openInsight('u9250-key-rate');
+    const offer = screen.getByRole('region', { name: 'Предложение Альфа-Банка' });
+
+    expect(offer).toHaveTextContent('Процентный своп');
+    expect(within(offer).getByRole('link', { name: /Подробнее/ })).toHaveAttribute(
+      'target',
+      '_blank',
+    );
   });
 
   it('при открытии помечает инсайт прочитанным', async () => {

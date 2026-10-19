@@ -90,3 +90,37 @@
     border-right: 0;
   }
 }
+
+.signals {
+  margin-top: var(--gap-16);
+}
+
+.signalsTitle {
+  margin: 0 0 var(--gap-8);
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 700;
+}
+
+.signalList {
+  display: grid;
+  gap: var(--gap-4);
+  max-width: 75ch;
+  margin: 0;
+  font-size: 14px;
+  line-height: 20px;
+}
+
+.signal {
+  display: grid;
+  grid-template-columns: minmax(120px, 30%) minmax(0, 1fr);
+  gap: var(--gap-12);
+}
+
+.signal dt {
+  color: var(--color-light-text-secondary);
+}
+
+.signal dd {
+  margin: 0;
+}

@@ -1,0 +1,30 @@
+.offer {
+  display: grid;
+  justify-items: start;
+  gap: var(--gap-4);
+}
+
+.offer p {
+  margin: 0;
+}
+
+.title {
+  font-weight: 700;
+}
+
+.link {
+  color: var(--color-light-text-primary);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.link:hover {
+  text-decoration-thickness: 2px;
+}
+
+.external {
+  width: 16px;
+  height: 16px;
+  margin-left: var(--gap-4);
+  vertical-align: -2px;
+}

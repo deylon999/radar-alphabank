@@ -9,6 +9,7 @@ import {
   uploadCompanyDocuments,
 } from '../api/endpoints/companies';
 import {
+  askInsight,
   fetchDigest,
   fetchInsight,
   fetchInsights,
@@ -35,6 +36,26 @@ afterEach(() => {
 });
 afterAll(() => {
   server.close();
+});
+
+describe('вопрос по инсайту', () => {
+  it('отвечает со ссылками на банк, данные клиента и новость', async () => {
+    const answer = await askInsight('u9250-key-rate', { question: 'Что будет при ставке 12%?' });
+
+    expect(answer.question).toBe('Что будет при ставке 12%?');
+    expect(answer.answer).toMatch(/^Позиция Альфа-Банка: ждём сохранения ставки 14,0%/);
+    expect(answer.citations.map((citation) => citation.kind)).toEqual(['bank', 'client', 'news']);
+  });
+
+  it('не опирается на устаревший материал и отклоняет пустой вопрос', async () => {
+    const answer = await askInsight('u9250-steel', { question: 'Что с ценами на металл?' });
+    expect(answer.answer).toMatch(/^Свежей аналитики Альфа-Банка по этой теме нет/);
+    expect(answer.citations.some((citation) => citation.kind === 'bank')).toBe(false);
+
+    await expect(askInsight('u9250-key-rate', { question: '' })).rejects.toMatchObject({
+      status: 400,
+    });
+  });
 });
 
 describe('моки ленты', () => {

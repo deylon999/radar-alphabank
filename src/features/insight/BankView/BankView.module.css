@@ -1,0 +1,47 @@
+.view {
+  display: grid;
+  gap: var(--gap-8);
+  max-width: 75ch;
+}
+
+/* Цитата банка: сплошная полоса слева — это позиция банка, а не гипотеза модели. */
+.quote {
+  margin: 0;
+  padding: var(--gap-4) 0 var(--gap-4) var(--gap-16);
+  border-left: 4px solid var(--color-light-accent-secondary);
+}
+
+.quote p {
+  margin: 0;
+  font-weight: 500;
+}
+
+.view > p {
+  margin: 0;
+}
+
+.revised {
+  display: grid;
+  gap: var(--gap-4);
+  margin-top: var(--gap-8);
+  padding: var(--gap-12) var(--gap-16);
+  /* Рамка, а не серая подложка: серый вторичный текст на сером — ниже AA. */
+  border: 1px solid var(--radar-card-border);
+  border-radius: var(--border-radius-12);
+  background: var(--radar-card-bg);
+}
+
+.revised p {
+  margin: 0;
+}
+
+.revisedTitle {
+  font-weight: 700;
+}
+
+.warning {
+  margin: 0;
+  padding: var(--gap-12) var(--gap-16);
+  border-radius: var(--border-radius-12);
+  background: var(--color-light-decorative-muted-alt-yellow);
+}

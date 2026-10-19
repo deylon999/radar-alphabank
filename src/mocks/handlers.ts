@@ -10,6 +10,7 @@ import {
 } from '../schemas/company';
 import {
   eventStageSchema,
+  askBodySchema,
   feedbackBodySchema,
   insightKindSchema,
   relevanceSchema,
@@ -21,6 +22,7 @@ import { typograph } from '../shared/lib/typography';
 import type { MockDb, MockStore } from './db';
 import { extractableFacts, MOCK_NOW, TELEGRAM_DEMO_LINK, TELEGRAM_DEMO_USERNAME } from './fixtures';
 import {
+  answerQuestion,
   compareInsights,
   computeDigest,
   extractTextFacts,
@@ -267,6 +269,18 @@ export function createHandlers({ store, latency, isErrorMode }: MockHandlerOptio
           db.feedback.push({ ...body, insightId: params.insightId });
         });
         return new HttpResponse(null, { status: 204 });
+      },
+    ),
+
+    http.post<{ insightId: string }>(
+      `${API}/insights/:insightId/ask`,
+      async ({ params, request }) => {
+        const failure = await prelude();
+        if (failure) return failure;
+        const body = await readJson(request, askBodySchema);
+        if (!body) return error(400, 'Вопрос — от 1 до 500 символов');
+        const insight = store.read().insights.find((item) => item.id === params.insightId);
+        return insight ? HttpResponse.json(answerQuestion(insight, body.question)) : notFound();
       },
     ),
 

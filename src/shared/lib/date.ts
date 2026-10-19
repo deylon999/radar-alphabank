@@ -8,6 +8,12 @@ const shortDayMonthYear = new Intl.DateTimeFormat('ru-RU', {
   year: 'numeric',
 });
 const longDayMonth = new Intl.DateTimeFormat('ru-RU', { day: 'numeric', month: 'long' });
+const longDate = new Intl.DateTimeFormat('ru-RU', {
+  day: 'numeric',
+  month: 'long',
+  year: 'numeric',
+  timeZone: 'UTC',
+});
 const fullDateTime = new Intl.DateTimeFormat('ru-RU', {
   day: 'numeric',
   month: 'long',
@@ -47,6 +53,11 @@ export function formatRelativeDate(iso: string, now: Date = new Date()): string 
 /** «18 октября» — для сводки «С 18 октября: …». */
 export function formatDayMonth(iso: string): string {
   return longDayMonth.format(new Date(iso));
+}
+
+/** Дата материала без времени: «11 сентября 2026». Материалы датируются днём, без пояса. */
+export function formatLongDate(iso: string): string {
+  return stripDots(longDate.format(new Date(iso)));
 }
 
 /** Полная дата для подсказки: «18 октября 2026 г. в 14:20». */

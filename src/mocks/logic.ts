@@ -1,5 +1,5 @@
 import type { FactCategory, ProfileFact } from '../schemas/company';
-import type { Digest, Insight, InsightFilters } from '../schemas/insight';
+import type { Answer, Citation, Digest, Insight, InsightFilters } from '../schemas/insight';
 import { typograph } from '../shared/lib/typography';
 
 /** Небольшая страница, чтобы в демо было видно «Показать ещё». */
@@ -118,4 +118,63 @@ export function extractTextFacts(text: string, makeId: () => string): ProfileFac
       status: 'pending',
       source: { kind: 'text', label: 'Описание компании' },
     }));
+}
+
+/** «У компании…» → «у компании…» после двоеточия; аббревиатуры («ЦБ», «U_9250») не трогаем. */
+function lowerFirst(text: string): string {
+  const [first = '', second = ''] = text;
+  return second === second.toLocaleLowerCase('ru-RU')
+    ? first.toLocaleLowerCase('ru-RU') + text.slice(1)
+    : text;
+}
+
+const dayMonthYear = new Intl.DateTimeFormat('ru-RU', {
+  day: 'numeric',
+  month: 'long',
+  year: 'numeric',
+  timeZone: 'UTC',
+});
+
+/**
+ * Упрощённый ответ на уточняющий вопрос: собирается из полей инсайта и всегда ссылается на
+ * них. Настоящий ответ готовит агент бэкенда по аналитике банка и данным клиента.
+ */
+export function answerQuestion(insight: Insight, question: string): Answer {
+  const citations: Citation[] = [];
+  const parts: string[] = [];
+  const bank = insight.bankView;
+
+  if (bank && !bank.material.outdated) {
+    const date = dayMonthYear.format(new Date(bank.material.publishedAt)).replace(/\s?г\.$/, '');
+    parts.push(`Позиция Альфа-Банка: ${lowerFirst(bank.summary.replace(/\.$/, ''))}.`);
+    citations.push({
+      kind: 'bank',
+      label: `${bank.material.title}, ${date}${bank.material.page ? `, с. ${String(bank.material.page)}` : ''}`,
+    });
+  } else {
+    parts.push(
+      'Свежей аналитики Альфа-Банка по этой теме нет, поэтому ответ опирается на новости.',
+    );
+  }
+  parts.push(`Для вашей компании: ${lowerFirst(insight.whyItMatters.replace(/\.$/, ''))}.`);
+  parts.push(
+    `Возможное последствие (гипотеза): ${lowerFirst(insight.consequence.replace(/\.$/, ''))}.`,
+  );
+  const firstCheck = insight.checks[0];
+  if (firstCheck) {
+    parts.push(`Что сделать в первую очередь: ${lowerFirst(firstCheck.replace(/\.$/, ''))}.`);
+  }
+
+  if (insight.signals?.length) {
+    citations.push({
+      kind: 'client',
+      label: insight.signals.map((signal) => `${signal.label}: ${signal.value}`).join('; '),
+    });
+  }
+  const source = insight.sources[0];
+  if (source) {
+    citations.push({ kind: 'news', label: source.title, url: source.url });
+  }
+
+  return { question: typograph(question.trim()), answer: typograph(parts.join(' ')), citations };
 }

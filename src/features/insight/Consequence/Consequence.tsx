@@ -10,7 +10,10 @@ import styles from './Consequence.module.css';
  */
 export function Consequence({ insight }: { insight: Insight }) {
   return (
-    <InsightSection title={terms.consequence}>
+    <InsightSection
+      title={terms.consequence}
+      meta={<Badge tone="quiet">{terms.aiConclusion}</Badge>}
+    >
       <div className={styles.hypothesis}>
         <Badge tone="quiet">{terms.hypothesis}</Badge>
         <p className={styles.text}>{insight.consequence}</p>

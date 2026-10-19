@@ -1,0 +1,36 @@
+.details {
+  max-width: 75ch;
+}
+
+.summary {
+  width: fit-content;
+  cursor: pointer;
+  text-decoration: underline;
+  text-decoration-style: dashed;
+  text-underline-offset: 4px;
+}
+
+.steps {
+  display: grid;
+  gap: var(--gap-12);
+  margin: var(--gap-12) 0 0;
+  padding: 0;
+  list-style: none;
+  counter-reset: step;
+}
+
+.step {
+  display: grid;
+  grid-template-columns: 88px minmax(0, 1fr);
+  gap: var(--gap-12);
+}
+
+.kind {
+  color: var(--color-light-text-secondary);
+  font-size: 14px;
+  line-height: 24px;
+}
+
+.detail {
+  display: block;
+}
