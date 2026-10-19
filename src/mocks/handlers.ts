@@ -18,6 +18,7 @@ import {
   urgencySchema,
 } from '../schemas/insight';
 import { notificationSettingsSchema } from '../schemas/notifications';
+import { userRoleSchema } from '../schemas/user';
 import { typograph } from '../shared/lib/typography';
 import type { MockDb, MockStore } from './db';
 import { extractableFacts, MOCK_NOW, TELEGRAM_DEMO_LINK, TELEGRAM_DEMO_USERNAME } from './fixtures';
@@ -216,7 +217,9 @@ export function createHandlers({ store, latency, isErrorMode }: MockHandlerOptio
         const urgency = readEnumList(query, 'urgency', urgencySchema);
         const stage = readEnumList(query, 'stage', eventStageSchema);
         const relevance = readEnumList(query, 'relevance', relevanceSchema);
-        if (!kind || !urgency || !stage || !relevance || relevance.length > 1) {
+        // Роль в моках порядок не меняет, но неизвестное значение — ошибка, как по договору.
+        const role = readEnumList(query, 'role', userRoleSchema);
+        if (!kind || !urgency || !stage || !relevance || relevance.length > 1 || !role) {
           return error(400, 'Неверные параметры фильтра');
         }
         const items = filterInsights(

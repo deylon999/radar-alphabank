@@ -9,15 +9,17 @@ import {
   sendInsightFeedback,
   updateInsightStatus,
 } from '../endpoints/insights';
+import { useUserRole } from '../../shared/lib/userRole';
 import { queryKeys } from '../queryKeys';
 
 const FIRST_PAGE: string | null = null;
 
 /** Лента с подгрузкой «Показать ещё» по курсору. */
 export function useInsightFeed(companyId: string, filters: InsightFilters) {
+  const [role] = useUserRole();
   return useInfiniteQuery({
-    queryKey: queryKeys.insights.list(companyId, filters),
-    queryFn: ({ pageParam, signal }) => fetchInsights(companyId, filters, pageParam, signal),
+    queryKey: [...queryKeys.insights.list(companyId, filters), { role }],
+    queryFn: ({ pageParam, signal }) => fetchInsights(companyId, filters, pageParam, signal, role),
     initialPageParam: FIRST_PAGE,
     getNextPageParam: (lastPage) => lastPage.nextCursor,
   });

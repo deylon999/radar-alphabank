@@ -6,12 +6,14 @@ import { QueryView } from '../../shared/ui/QueryView';
 import { PageSkeleton } from '../../shared/ui/Skeleton/PageSkeleton';
 import { useToast } from '../../shared/ui/Toast/toastContext';
 import styles from './CompanyProfile.module.css';
+import { BankData } from './BankData/BankData';
 import { CompanySummary } from './CompanySummary';
 import { DescribeForm } from './DescribeForm/DescribeForm';
 import { FactList } from './FactList/FactList';
 import { useFactActions } from './FactList/useFactActions';
 import { PendingBanner } from './PendingBanner/PendingBanner';
 import { ProfileIntro } from './ProfileIntro/ProfileIntro';
+import { RoleField } from './RoleField/RoleField';
 
 function ProfileContent({ company }: { company: Company }) {
   const actions = useFactActions(company.id);
@@ -34,6 +36,11 @@ function ProfileContent({ company }: { company: Company }) {
         <div className={styles.summary}>
           <CompanySummary company={company} />
         </div>
+        {company.profile ? (
+          <div className={styles.bankData}>
+            <BankData profile={company.profile} />
+          </div>
+        ) : null}
         {isEmpty ? null : (
           <div className={styles.banner}>
             <PendingBanner
@@ -60,6 +67,9 @@ function ProfileContent({ company }: { company: Company }) {
         </section>
       </div>
       <div className={styles.aside}>
+        <div className={styles.role}>
+          <RoleField />
+        </div>
         {isEmpty ? (
           <div className={styles.promo}>
             <ProfileIntro />
@@ -73,7 +83,10 @@ function ProfileContent({ company }: { company: Company }) {
   );
 }
 
-/** Профиль компании: шапка, подтверждение изменений, факты и форма «Расскажите о компании». */
+/**
+ * Профиль компании: шапка, данные банка, роль пользователя, подтверждение изменений, факты
+ * и форма «Расскажите о компании».
+ */
 export function CompanyProfile({ companyId }: { companyId: string }) {
   const query = useCompany(companyId);
   return (

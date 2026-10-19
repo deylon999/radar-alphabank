@@ -1,0 +1,84 @@
+.root {
+  display: grid;
+  gap: var(--gap-12);
+  min-width: 0;
+}
+
+.title {
+  margin: 0;
+  font-size: 16px;
+  line-height: 24px;
+  font-weight: 700;
+}
+
+.subtitle {
+  margin: var(--gap-8) 0 0;
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 700;
+}
+
+.rows {
+  display: grid;
+  gap: var(--gap-8);
+  margin: 0;
+  font-size: 14px;
+  line-height: 20px;
+}
+
+.row {
+  display: grid;
+  grid-template-columns: minmax(120px, 34%) minmax(0, 1fr);
+  gap: var(--gap-12);
+}
+
+.row dt {
+  color: var(--color-light-text-secondary);
+}
+
+.row dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+.products {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--gap-4);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.counterparties {
+  display: grid;
+  margin: 0;
+  padding: 0;
+  border: 1px solid var(--radar-card-border);
+  border-radius: var(--border-radius-12);
+  background: var(--radar-card-bg);
+  list-style: none;
+  font-size: 14px;
+  line-height: 20px;
+}
+
+.counterparty {
+  display: grid;
+  gap: var(--gap-2);
+  padding: var(--gap-12) var(--gap-16);
+}
+
+.counterparty + .counterparty {
+  border-top: 1px solid var(--color-light-neutral-translucent-300);
+}
+
+.name {
+  overflow-wrap: anywhere;
+}
+
+.muted {
+  margin: 0;
+  color: var(--color-light-text-secondary);
+  font-size: 14px;
+  line-height: 20px;
+}

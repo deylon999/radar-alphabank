@@ -4,6 +4,7 @@ import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it } from
 
 import { COMPANY_IDS } from '../../mocks/fixtures';
 import type { ProfileFact } from '../../schemas/company';
+import { USER_ROLE_STORAGE_KEY } from '../../shared/lib/userRole';
 import { createMockServer } from '../../test/mockServer';
 import { renderApp } from '../../test/renderApp';
 
@@ -61,7 +62,9 @@ describe('профиль компании', () => {
     expect(banner()).toHaveTextContent('3 изменения ждут подтверждения');
     expect(screen.getByText('Чем точнее профиль, тем точнее лента.')).toBeInTheDocument();
 
-    const categories = screen.getAllByRole('heading', { level: 3 }).map((h) => h.textContent);
+    const categories = within(screen.getByRole('region', { name: 'Факты о компании' }))
+      .getAllByRole('heading', { level: 3 })
+      .map((h) => h.textContent);
     expect(categories).toEqual([
       'Поставщики 1',
       'Клиенты 1',
@@ -72,6 +75,36 @@ describe('профиль компании', () => {
     const logistics = screen.getByRole('region', { name: 'Логистика 2' });
     expect(within(logistics).getAllByRole('listitem')[1]).toHaveTextContent('Ждёт подтверждения');
     expect(within(factRow(PORT_FACT)).getByText(/Ссылка · example\.com/)).toBeInTheDocument();
+  });
+
+  it('показывает данные банка: признаки, продукты, ВЭД и контрагентов', async () => {
+    await openProfile();
+    const bank = screen.getByRole('region', { name: 'Данные банка о компании' });
+
+    expect(bank).toHaveTextContent('ОКВЭД 42.99');
+    expect(bank).toHaveTextContent('Иркутск, Иркутская область');
+    expect(bank).toHaveTextContent('Выручка за год62,3 млрд ₽');
+    expect(bank).toHaveTextContent('Внешняя торговляКитай');
+    expect(bank).toHaveTextContent('Группа компаний22 компании');
+    expect(
+      within(within(bank).getByRole('list', { name: 'Продукты банка' }))
+        .getAllByRole('listitem')
+        .map((item) => item.textContent),
+    ).toEqual(['Расчётный счёт', 'Кредиты', 'Лизинг', 'Банковские гарантии', 'Зарплатный проект']);
+    expect(within(bank).getByRole('heading', { name: 'Крупные контрагенты' })).toBeVisible();
+    expect(bank).toHaveTextContent(
+      'U_4909 · Производство электроэнергииПлатит вам · 6,5 млрд ₽ · 28 платежей',
+    );
+  });
+
+  it('роль пользователя выбирается в профиле и запоминается', async () => {
+    const { user } = await openProfile();
+    const role = screen.getByRole('combobox', { name: 'Роль в компании' });
+    expect(role).toHaveValue('ceo');
+
+    await user.selectOptions(role, 'Финансовый директор');
+
+    expect(window.localStorage.getItem(USER_ROLE_STORAGE_KEY)).toBe('cfo');
   });
 
   it('«Подтвердить» меняет статус факта и число в плашке', async () => {

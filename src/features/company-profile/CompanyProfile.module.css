@@ -1,5 +1,6 @@
 /*
- * Телефон и планшет: одна колонка «шапка → промо → подтверждение → форма → факты».
+ * Телефон и планшет: одна колонка «шапка → данные банка → роль → промо → подтверждение →
+ * форма → факты».
  * Колонки раскрываются через display: contents, порядок задаёт order — как в ленте.
  */
 .layout {
@@ -17,20 +18,29 @@
   order: 1;
 }
 
-.promo {
+.bankData {
   order: 2;
+  min-width: 0;
 }
 
-.banner {
+.role {
   order: 3;
 }
 
-.form {
+.promo {
   order: 4;
 }
 
-.facts {
+.banner {
   order: 5;
+}
+
+.form {
+  order: 6;
+}
+
+.facts {
+  order: 7;
   min-width: 0;
 }
 
@@ -65,6 +75,7 @@
     min-width: 0;
   }
 
+  .aside .role,
   .aside .form {
     padding: var(--gap-20);
     border: 1px solid var(--radar-card-border);

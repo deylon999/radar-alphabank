@@ -73,7 +73,10 @@ export function CompanyMenu({ company, companies, onSelect }: CompanyMenuProps) 
                   onMenuKeyDown(event, index);
                 }}
               >
-                <span className={styles.itemName}>{item.name}</span>
+                <span className={styles.itemText}>
+                  <span className={styles.itemName}>{item.name}</span>
+                  <span className={styles.itemIndustry}>{item.industry}</span>
+                </span>
                 {checked ? <CheckmarkMIcon aria-hidden="true" className={styles.check} /> : null}
               </button>
             );

@@ -129,11 +129,26 @@
   background: var(--color-light-neutral-translucent-200);
 }
 
-.itemName {
+.itemText {
+  display: grid;
+  min-width: 0;
+  padding: var(--gap-8) 0;
+  text-align: left;
+}
+
+.itemName,
+.itemIndustry {
   overflow: hidden;
   min-width: 0;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+/* Отрасль под ID: данные обезличены, и по одному номеру клиента не узнать. */
+.itemIndustry {
+  color: var(--color-light-text-secondary);
+  font-size: 14px;
+  line-height: 20px;
 }
 
 .check {

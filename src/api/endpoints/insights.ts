@@ -12,6 +12,7 @@ import {
   insightSchema,
   type InsightStatus,
 } from '../../schemas/insight';
+import type { UserRole } from '../../schemas/user';
 import { request, requestVoid } from '../http';
 
 const insightPath = (insightId: string) => `/api/insights/${encodeURIComponent(insightId)}`;
@@ -21,6 +22,7 @@ export function fetchInsights(
   filters: InsightFilters,
   cursor: string | null,
   signal?: AbortSignal,
+  role?: UserRole,
 ): Promise<InsightList> {
   return request(`/api/companies/${encodeURIComponent(companyId)}/insights`, insightListSchema, {
     signal,
@@ -30,6 +32,7 @@ export function fetchInsights(
       stage: filters.stage,
       relevance: filters.relevance,
       q: filters.q?.trim(),
+      role,
       cursor,
     },
   });

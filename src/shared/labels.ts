@@ -193,4 +193,6 @@ export const pluralForms = {
   fact: { one: 'факт', few: 'факта', many: 'фактов' },
   change: { one: 'изменение', few: 'изменения', many: 'изменений' },
   step: { one: 'шаг', few: 'шага', many: 'шагов' },
+  company: { one: 'компания', few: 'компании', many: 'компаний' },
+  payment: { one: 'платёж', few: 'платежа', many: 'платежей' },
 } as const;

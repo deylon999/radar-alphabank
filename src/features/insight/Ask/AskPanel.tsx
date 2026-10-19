@@ -5,6 +5,7 @@ import { useId, useState } from 'react';
 import { useAskInsight } from '../../../api/hooks/insights';
 import type { Answer, Insight } from '../../../schemas/insight';
 import { citationKindLabels, terms } from '../../../shared/labels';
+import { useUserRole } from '../../../shared/lib/userRole';
 import { Badge } from '../../../shared/ui/Badge/Badge';
 import { InsightSection } from '../InsightSection/InsightSection';
 import sectionStyles from '../InsightSection/InsightSection.module.css';
@@ -51,6 +52,7 @@ function AnswerItem({ answer }: { answer: Answer }) {
  */
 export function AskPanel({ insight }: { insight: Insight }) {
   const ask = useAskInsight(insight.id);
+  const [role] = useUserRole();
   const [question, setQuestion] = useState('');
   const [answers, setAnswers] = useState<Answer[]>([]);
   const inputId = useId();
@@ -61,7 +63,7 @@ export function AskPanel({ insight }: { insight: Insight }) {
       return;
     }
     ask.mutate(
-      { question: trimmed },
+      { question: trimmed, role },
       {
         onSuccess: (answer) => {
           setAnswers((current) => [answer, ...current]);

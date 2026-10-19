@@ -54,7 +54,7 @@ export function DescribeForm({ companyId, onDone }: DescribeFormProps) {
             block
             minRows={4}
             maxLength={TEXT_LIMIT}
-            placeholder="Например: склад «Южный-2» в Заречном районе отгружает упаковку на маслозавод"
+            placeholder="Например: технику закупаем в Китае, половина выручки — дорожные госконтракты"
             value={form.text}
             disabled={form.isProcessing}
             onChange={(_, { value }) => {

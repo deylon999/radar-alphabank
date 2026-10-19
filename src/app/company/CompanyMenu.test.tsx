@@ -45,10 +45,10 @@ describe('меню компаний (мышь)', () => {
     const menu = screen.getByRole('menu', { name: 'Компания' });
     const items = within(menu).getAllByRole('menuitemradio');
     expect(items.map((item) => item.textContent)).toEqual([
-      'Клиент U_9250',
-      'Клиент U_34911',
-      'Клиент U_26030',
-      'Клиент U_1465',
+      'Клиент U_9250Строительство инженерных сооружений',
+      'Клиент U_34911Оптовая торговля зерном',
+      'Клиент U_26030Оптовая торговля моторным топливом',
+      'Клиент U_1465Оптовая торговля напитками',
     ]);
     expect(items[0]).toHaveAttribute('aria-checked', 'true');
     expect(items[0]).toHaveFocus();

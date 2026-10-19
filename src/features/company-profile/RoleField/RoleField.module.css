@@ -1,0 +1,18 @@
+.root {
+  display: grid;
+  gap: var(--gap-8);
+}
+
+.title {
+  margin: 0;
+  font-size: 16px;
+  line-height: 24px;
+  font-weight: 700;
+}
+
+.muted {
+  margin: 0;
+  color: var(--color-light-text-secondary);
+  font-size: 14px;
+  line-height: 20px;
+}

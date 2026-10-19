@@ -55,7 +55,7 @@ export function SearchField({ value, onChange }: SearchFieldProps) {
         id={inputId}
         size={40}
         block
-        placeholder="Склад, поставщик, регион"
+        placeholder="Ставка, курс, экспорт"
         leftAddons={<MagnifierMIcon aria-hidden="true" />}
         value={draft}
         onChange={(_, { value: next }) => {
