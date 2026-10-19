@@ -2,16 +2,26 @@
  * Русские подписи всех enum и словарь терминов интерфейса.
  * Одинаковые вещи называются одинаково на всех экранах — берите подписи только отсюда.
  */
-import type { FactCategory, FactSourceKind, FactStatus } from '../schemas/company';
 import type {
+  BankProduct,
+  FactCategory,
+  FactSourceKind,
+  FactStatus,
+  PaymentDirection,
+  Relationship,
+} from '../schemas/company';
+import type {
+  CitationKind,
   EventStage,
   ImpactRole,
   InsightKind,
   InsightStatus,
   Relevance,
+  TraceStepKind,
   Urgency,
 } from '../schemas/insight';
 import type { DigestFrequency } from '../schemas/notifications';
+import type { UserRole } from '../schemas/user';
 
 export const insightKindLabels: Record<InsightKind, string> = {
   risk: 'Риск',
@@ -88,6 +98,49 @@ export const digestFrequencyLabels: Record<DigestFrequency, string> = {
   off: 'Не присылать',
 };
 
+export const bankProductLabels: Record<BankProduct, string> = {
+  settlement: 'Расчётный счёт',
+  loan: 'Кредиты',
+  leasing: 'Лизинг',
+  guarantee: 'Банковские гарантии',
+  deposit: 'Депозиты',
+  payroll: 'Зарплатный проект',
+  factoring: 'Факторинг',
+};
+
+export const relationshipLabels: Record<Relationship, string> = {
+  client: 'Клиент банка',
+  prospect: 'Потенциальный клиент',
+  closed: 'Бывший клиент',
+};
+
+export const paymentDirectionLabels: Record<PaymentDirection, string> = {
+  incoming: 'Платит вам',
+  outgoing: 'Получает от вас',
+};
+
+export const userRoleLabels: Record<UserRole, string> = {
+  owner: 'Собственник',
+  ceo: 'Генеральный директор',
+  cfo: 'Финансовый директор',
+  accountant: 'Главный бухгалтер',
+  treasurer: 'Руководитель казначейства',
+  other: 'Другая роль',
+};
+
+export const traceStepKindLabels: Record<TraceStepKind, string> = {
+  plan: 'План',
+  tool: 'Данные',
+  check: 'Проверка',
+  conclusion: 'Вывод',
+};
+
+export const citationKindLabels: Record<CitationKind, string> = {
+  news: 'Новость',
+  bank: 'Аналитика Альфа-Банка',
+  client: 'Данные клиента',
+};
+
 /** Словарь терминов: заголовки разделов и повторяющиеся подписи. */
 export const terms = {
   productName: 'Радар',
@@ -116,6 +169,19 @@ export const terms = {
   urgentRules: 'Срочные уведомления',
   digest: 'Сводка',
   notificationPreview: 'Так будет выглядеть уведомление',
+  bankView: 'Как оценивает Альфа-Банк',
+  bankPosition: 'Позиция банка',
+  aiConclusion: 'Вывод AI',
+  bankRevised: 'Банк пересмотрел оценку',
+  materialOutdated: 'Материал устарел',
+  noBankView: 'Альфа-Банк не публиковал оценку по этой теме',
+  signals: 'Признаки вашей компании в выводе',
+  trace: 'Как получен вывод',
+  ask: 'Задать вопрос',
+  offer: 'Предложение Альфа-Банка',
+  clientProfile: 'Данные банка о компании',
+  counterparties: 'Крупные контрагенты',
+  userRole: 'Ваша роль',
 } as const;
 
 /** Формы слов для склонения с числом (см. shared/lib/plural). */

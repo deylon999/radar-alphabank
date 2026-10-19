@@ -1,6 +1,7 @@
 import { z } from 'zod';
 
 import { isoDateTimeSchema } from './common';
+import { userRoleSchema } from './user';
 
 export const INSIGHT_KINDS = ['risk', 'opportunity'] as const;
 export const URGENCIES = ['urgent', 'important', 'info'] as const;
@@ -16,6 +17,9 @@ export const IMPACT_ROLES = [
   'market',
   'company',
 ] as const;
+
+export const TRACE_STEP_KINDS = ['plan', 'tool', 'check', 'conclusion'] as const;
+export const CITATION_KINDS = ['news', 'bank', 'client'] as const;
 
 export const insightKindSchema = z.enum(INSIGHT_KINDS);
 export const urgencySchema = z.enum(URGENCIES);
@@ -44,6 +48,44 @@ export const insightEventSchema = z.object({
   place: z.string().min(1).optional(),
 });
 
+/** Аналитический материал банка: на него ссылается позиция банка. */
+export const bankMaterialSchema = z.object({
+  id: z.string().min(1),
+  title: z.string().min(1),
+  publishedAt: isoDateTimeSchema,
+  page: z.number().int().positive().optional(),
+  /** Материал устарел для текущей ситуации — интерфейс предупреждает об этом. */
+  outdated: z.boolean().optional(),
+});
+
+/** Позиция Альфа-Банка: выжимка из его аналитики, а не вывод модели. */
+export const bankViewSchema = z.object({
+  summary: z.string().min(1),
+  material: bankMaterialSchema,
+  /** Прежняя оценка, которую банк пересмотрел более свежим материалом. */
+  supersedes: z.object({ summary: z.string().min(1), material: bankMaterialSchema }).optional(),
+});
+
+/** Признак клиента, повлиявший на вывод: «Кредиты в Альфа-Банке — есть». */
+export const clientSignalSchema = z.object({
+  label: z.string().min(1),
+  value: z.string().min(1),
+});
+
+/** Шаг агента: из них собирается «Как получен вывод». */
+export const traceStepSchema = z.object({
+  kind: z.enum(TRACE_STEP_KINDS),
+  title: z.string().min(1),
+  detail: z.string().min(1).optional(),
+});
+
+/** Продукт банка, уместный в контексте инсайта, — подписывается как предложение банка. */
+export const bankOfferSchema = z.object({
+  title: z.string().min(1),
+  description: z.string().min(1),
+  url: z.url(),
+});
+
 export const revisionSchema = z.object({
   at: isoDateTimeSchema,
   note: z.string().min(1),
@@ -69,6 +111,11 @@ export const insightSchema = z.object({
   createdAt: isoDateTimeSchema,
   updatedAt: isoDateTimeSchema,
   revisions: z.array(revisionSchema),
+  bankView: bankViewSchema.optional(),
+  signals: z.array(clientSignalSchema).optional(),
+  trace: z.array(traceStepSchema).optional(),
+  offer: bankOfferSchema.optional(),
+  suggestedQuestions: z.array(z.string().min(1)).max(4).optional(),
 });
 
 export const insightListSchema = z.object({
@@ -92,6 +139,24 @@ export const feedbackBodySchema = z.object({
   comment: z.string().trim().min(1).max(2000).optional(),
 });
 
+export const askBodySchema = z.object({
+  question: z.string().trim().min(1).max(500),
+  role: userRoleSchema.optional(),
+});
+
+/** Ссылка ответа на источник: новость, материал банка или данные клиента. */
+export const citationSchema = z.object({
+  kind: z.enum(CITATION_KINDS),
+  label: z.string().min(1),
+  url: z.url().optional(),
+});
+
+export const answerSchema = z.object({
+  question: z.string().min(1),
+  answer: z.string().min(1),
+  citations: z.array(citationSchema),
+});
+
 export type InsightKind = z.infer<typeof insightKindSchema>;
 export type Urgency = z.infer<typeof urgencySchema>;
 export type EventStage = z.infer<typeof eventStageSchema>;
@@ -105,6 +170,16 @@ export type InsightList = z.infer<typeof insightListSchema>;
 export type Digest = z.infer<typeof digestSchema>;
 export type UpdateInsightBody = z.infer<typeof updateInsightBodySchema>;
 export type FeedbackBody = z.infer<typeof feedbackBodySchema>;
+export type BankMaterial = z.infer<typeof bankMaterialSchema>;
+export type BankView = z.infer<typeof bankViewSchema>;
+export type ClientSignal = z.infer<typeof clientSignalSchema>;
+export type TraceStep = z.infer<typeof traceStepSchema>;
+export type TraceStepKind = TraceStep['kind'];
+export type BankOffer = z.infer<typeof bankOfferSchema>;
+export type AskBody = z.infer<typeof askBodySchema>;
+export type Citation = z.infer<typeof citationSchema>;
+export type CitationKind = Citation['kind'];
+export type Answer = z.infer<typeof answerSchema>;
 
 /** Фильтры ленты: значения одного фильтра объединяются через «или», разные — через «и». */
 export interface InsightFilters {
