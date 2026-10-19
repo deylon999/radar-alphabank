@@ -2,24 +2,26 @@ import { Link, useLocation, useNavigate } from 'react-router';
 
 import type { Insight } from '../../../schemas/insight';
 import { eventStageLabels, insightKindLabels, terms } from '../../../shared/labels';
-import { readFeedReturn } from '../../../shared/lib/feedReturn';
+import { readReturnState, returnPaths } from '../../../shared/lib/returnState';
 import { InsightLabels } from '../../../shared/ui/InsightLabels';
 import { PageTitle } from '../../../shared/ui/PageTitle';
 import { RelativeTime } from '../../../shared/ui/RelativeTime';
 import styles from './InsightHeader.module.css';
 
 /**
- * «Лента» в крошках: если пришли из ленты — шаг назад по истории, чтобы вернулись фильтры
- * и позиция прокрутки. В href — адрес ленты с фильтрами для «открыть в новой вкладке».
+ * Раздел в крошках — тот, откуда пришли: «Лента» или «Обзор». Если пришли оттуда — шаг назад
+ * по истории, чтобы вернулись фильтры и позиция прокрутки. В href — адрес раздела с параметрами
+ * для «открыть в новой вкладке».
  */
-function FeedCrumb() {
+function BackCrumb() {
   const location = useLocation();
   const navigate = useNavigate();
-  const from = readFeedReturn(location.state);
+  const from = readReturnState(location.state);
+  const section = from?.from ?? 'feed';
 
   return (
     <Link
-      to={`/${from?.feedSearch ?? ''}`}
+      to={`${returnPaths[section]}${from?.search ?? ''}`}
       onClick={(event) => {
         const plainClick =
           event.button === 0 && !event.metaKey && !event.ctrlKey && !event.shiftKey;
@@ -29,7 +31,7 @@ function FeedCrumb() {
         }
       }}
     >
-      {terms.feed}
+      {terms[section]}
     </Link>
   );
 }
@@ -40,7 +42,7 @@ export function InsightHeader({ insight }: { insight: Insight }) {
       <nav aria-label="Хлебные крошки">
         <ol className={styles.crumbs}>
           <li>
-            <FeedCrumb />
+            <BackCrumb />
           </li>
           <li aria-current="page">{insightKindLabels[insight.kind]}</li>
         </ol>

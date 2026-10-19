@@ -5,7 +5,7 @@ import { Link, useLocation } from 'react-router';
 
 import type { Insight } from '../../../schemas/insight';
 import { eventStageLabels, pluralForms, terms } from '../../../shared/labels';
-import { feedReturnState } from '../../../shared/lib/feedReturn';
+import { returnState } from '../../../shared/lib/returnState';
 import { pluralize } from '../../../shared/lib/plural';
 import { InsightLabels } from '../../../shared/ui/InsightLabels';
 import { RelativeTime } from '../../../shared/ui/RelativeTime';
@@ -99,7 +99,7 @@ export function InsightCard({ insight, onHide }: InsightCardProps) {
         <Link
           ref={linkRef}
           to={`/insights/${insight.id}`}
-          state={feedReturnState(search)}
+          state={returnState('feed', search)}
           className={styles.link}
           data-card-link=""
         >

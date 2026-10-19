@@ -17,6 +17,7 @@ import type {
   InsightKind,
   InsightStatus,
   Relevance,
+  Topic,
   TraceStepKind,
   Urgency,
 } from '../schemas/insight';
@@ -67,6 +68,15 @@ export const impactRoleLabels: Record<ImpactRole, string> = {
   counterparty: 'Контрагент',
   market: 'Рынок',
   company: 'Ваша компания',
+};
+
+export const topicLabels: Record<Topic, string> = {
+  financing: 'Ставка и кредиты',
+  currency: 'Курс рубля',
+  costs: 'Цены и издержки',
+  demand: 'Спрос и заказы',
+  regulation: 'Госрегулирование',
+  logistics: 'Логистика и экспорт',
 };
 
 export const factCategoryLabels: Record<FactCategory, string> = {
@@ -145,6 +155,9 @@ export const citationKindLabels: Record<CitationKind, string> = {
 export const terms = {
   productName: 'Радар',
   feed: 'Лента',
+  overview: 'Обзор',
+  byTopic: 'По темам',
+  byBankMaterial: 'По материалам банка',
   insight: 'Инсайт',
   companyProfile: 'Профиль компании',
   notifications: 'Уведомления',
@@ -189,6 +202,9 @@ export const pluralForms = {
   risk: { one: 'риск', few: 'риска', many: 'рисков' },
   urgentRisk: { one: 'срочный риск', few: 'срочных риска', many: 'срочных рисков' },
   opportunity: { one: 'возможность', few: 'возможности', many: 'возможностей' },
+  urgent: { one: 'срочный', few: 'срочных', many: 'срочных' },
+  /** «учтён в 1 выводе», «в 3 выводах». */
+  insightIn: { one: 'выводе', few: 'выводах', many: 'выводах' },
   source: { one: 'источник', few: 'источника', many: 'источников' },
   fact: { one: 'факт', few: 'факта', many: 'фактов' },
   change: { one: 'изменение', few: 'изменения', many: 'изменений' },

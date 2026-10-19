@@ -1,3 +1,4 @@
+import { BarChartMIcon } from '@alfalab/icons-glyph/BarChartMIcon';
 import { BellMIcon } from '@alfalab/icons-glyph/BellMIcon';
 import { ListBulletedMIcon } from '@alfalab/icons-glyph/ListBulletedMIcon';
 import { OfficeMIcon } from '@alfalab/icons-glyph/OfficeMIcon';
@@ -17,6 +18,7 @@ export interface NavItem {
 
 export const NAV_ITEMS: readonly NavItem[] = [
   { to: '/', label: terms.feed, Icon: ListBulletedMIcon, end: true, alsoActiveFor: ['/insights/'] },
+  { to: '/overview', label: terms.overview, Icon: BarChartMIcon },
   { to: '/company', label: terms.companyProfile, Icon: OfficeMIcon },
   { to: '/notifications', label: terms.notifications, Icon: BellMIcon },
 ];

@@ -57,3 +57,33 @@ test('вход из Альфа-Бизнеса: виджет на главной 
   await expect(page).toHaveURL(/\/$/);
   await expect(page.getByRole('heading', { level: 1, name: 'Лента' })).toBeVisible();
 });
+
+test('обзор: разрезы по темам и по материалам банка, возврат из инсайта', async ({ page }) => {
+  await page.goto('/');
+  await page
+    .getByRole('navigation', { name: 'Основная навигация' })
+    .locator('visible=true')
+    .getByRole('link', { name: 'Обзор' })
+    .click();
+
+  const first = page.getByRole('region').first();
+  await expect(first.getByRole('heading', { level: 2 })).toHaveText('Ставка и кредиты');
+
+  await page.getByRole('tab', { name: 'По материалам банка' }).click();
+  await expect(page).toHaveURL(/\/overview\?view=bank$/);
+  await expect(page.getByRole('region').last()).toContainText('Материал устарел');
+
+  await page
+    .getByRole('link', { name: /ЦБ сохранил ставку 14%/ })
+    .first()
+    .click();
+  await page
+    .getByRole('navigation', { name: 'Хлебные крошки' })
+    .getByRole('link', { name: 'Обзор' })
+    .click();
+  await expect(page).toHaveURL(/\/overview\?view=bank$/);
+  await expect(page.getByRole('tab', { name: 'По материалам банка' })).toHaveAttribute(
+    'aria-selected',
+    'true',
+  );
+});

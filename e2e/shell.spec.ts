@@ -3,6 +3,8 @@ import { expect, type Page, test } from '@playwright/test';
 
 const PAGES = [
   { path: '/', title: 'Лента — Радар', heading: 'Лента' },
+  { path: '/overview', title: 'Обзор — Радар', heading: 'Обзор' },
+  { path: '/overview?view=bank', title: 'Обзор — Радар', heading: 'Обзор' },
   { path: '/company', title: 'Профиль компании — Радар', heading: 'Профиль компании' },
   { path: '/notifications', title: 'Уведомления — Радар', heading: 'Уведомления' },
   {
