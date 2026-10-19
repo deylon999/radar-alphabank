@@ -4,9 +4,9 @@ import { defineFacts } from './define';
 
 /**
  * Клиенты из обезличенного датасета кейса (df_Uid_data_hack.csv) — выручка от 15 млрд ₽.
- * Признаки профиля взяты из данных как есть. Контрагенты — тоже компании датасета, а суммы
- * платежей синтетические: файла платежей в моках нет. Факты — то, что пользователь мог
- * рассказать о компании сам; с данными банка они не спорят.
+ * Признаки профиля взяты из данных как есть. Контрагенты — по два крупнейших получателя и
+ * плательщика из df_Uid_payment_hack.csv без переводов самому себе; отрасль — если контрагент
+ * есть в датасете компаний. Факты — то, что пользователь мог рассказать о компании сам.
  */
 export const COMPANY_IDS = {
   construction: 'U_9250',
@@ -44,25 +44,28 @@ export const companies: Company[] = [
       group: { id: 'group_133188_sb', companies: 22 },
       counterparties: [
         {
-          id: 'U_158',
+          id: 'U_9972',
           direction: 'outgoing',
-          amount: 2_748_000_000,
-          payments: 64,
-          industry: 'Оптовая торговля машинами и оборудованием',
+          amount: 799_650_000,
+          payments: 32,
         },
         {
-          id: 'U_3125',
+          id: 'U_151404',
           direction: 'outgoing',
-          amount: 1_120_500_000,
-          payments: 131,
-          industry: 'Производство строительных изделий из бетона',
+          amount: 684_267_000,
+          payments: 364,
         },
         {
-          id: 'U_4909',
+          id: 'U_130843',
           direction: 'incoming',
-          amount: 6_538_000_000,
-          payments: 28,
-          industry: 'Производство электроэнергии',
+          amount: 27_671_000,
+          payments: 2,
+        },
+        {
+          id: 'U_29399',
+          direction: 'incoming',
+          amount: 4_266_000,
+          payments: 5,
         },
       ],
     },
@@ -122,25 +125,28 @@ export const companies: Company[] = [
       foreignTrade: { countries: ['ОАЭ', 'Алжир', 'Индия'] },
       counterparties: [
         {
-          id: 'U_30698',
+          id: 'U_4754',
           direction: 'outgoing',
-          amount: 3_904_000_000,
-          payments: 212,
-          industry: 'Выращивание зерновых и масличных культур',
+          amount: 588_353_000,
+          payments: 266,
         },
         {
-          id: 'U_120022',
+          id: 'U_153112',
           direction: 'outgoing',
-          amount: 1_655_000_000,
-          payments: 87,
-          industry: 'Выращивание зерновых и масличных культур',
+          amount: 558_397_000,
+          payments: 35,
         },
         {
-          id: 'U_377',
-          direction: 'outgoing',
-          amount: 284_000_000,
-          payments: 46,
-          industry: 'Хранение и складирование',
+          id: 'U_231389',
+          direction: 'incoming',
+          amount: 10_045_000,
+          payments: 1,
+        },
+        {
+          id: 'U_238493',
+          direction: 'incoming',
+          amount: 706_000,
+          payments: 2,
         },
       ],
     },
@@ -186,25 +192,29 @@ export const companies: Company[] = [
       foreignTrade: { countries: ['Грузия', 'Латвия', 'Польша'] },
       counterparties: [
         {
-          id: 'U_768',
-          direction: 'incoming',
-          amount: 4_891_400_000,
-          payments: 140,
-          industry: 'Перевозка грузов спецтранспортом',
-        },
-        {
-          id: 'U_1188',
-          direction: 'incoming',
-          amount: 1_114_300_000,
-          payments: 463,
-          industry: 'Перевозка грузов спецтранспортом',
-        },
-        {
-          id: 'U_1142',
+          id: 'U_55096',
           direction: 'outgoing',
-          amount: 526_000_000,
-          payments: 40,
-          industry: 'Хранение и складирование',
+          amount: 1_428_664_000,
+          payments: 57,
+        },
+        {
+          id: 'U_201949',
+          direction: 'outgoing',
+          amount: 844_774_000,
+          payments: 103,
+        },
+        {
+          id: 'U_196945',
+          direction: 'incoming',
+          amount: 6_671_673_000,
+          payments: 150,
+          industry: 'Строительство железных дорог и метро',
+        },
+        {
+          id: 'U_186926',
+          direction: 'incoming',
+          amount: 458_679_000,
+          payments: 74,
         },
       ],
     },
@@ -243,25 +253,31 @@ export const companies: Company[] = [
       group: { id: 'group_134460_sb', companies: 215 },
       counterparties: [
         {
-          id: 'U_2521',
-          direction: 'incoming',
-          amount: 7_313_000_000,
-          payments: 981,
-          industry: 'Розничная торговля продуктами',
-        },
-        {
-          id: 'U_3665',
-          direction: 'incoming',
-          amount: 2_160_000_000,
-          payments: 526,
-          industry: 'Оптовая торговля продуктами и напитками',
-        },
-        {
-          id: 'U_377',
+          id: 'U_46045',
           direction: 'outgoing',
-          amount: 842_000_000,
-          payments: 19,
-          industry: 'Хранение и складирование',
+          amount: 5_436_510_000,
+          payments: 99,
+          industry: 'Торговля оптовая напитками',
+        },
+        {
+          id: 'U_58777',
+          direction: 'outgoing',
+          amount: 64_530_000,
+          payments: 56,
+          industry: 'Деятельность рекламных агентств прочая',
+        },
+        {
+          id: 'U_104090',
+          direction: 'incoming',
+          amount: 2_979_637_000,
+          payments: 227,
+        },
+        {
+          id: 'U_139642',
+          direction: 'incoming',
+          amount: 1_082_236_000,
+          payments: 300,
+          industry: 'Торговля розничная текстильными изделиями в специализированных магазинах',
         },
       ],
     },
