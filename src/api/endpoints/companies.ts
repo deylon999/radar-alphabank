@@ -13,8 +13,9 @@ import { request } from '../http';
 
 const companyPath = (companyId: string) => `/api/companies/${encodeURIComponent(companyId)}`;
 
-export function fetchCompanies(signal?: AbortSignal): Promise<Company[]> {
-  return request('/api/companies', companyListSchema, { signal });
+/** Клиенты: без `query` — крупнейшие по выручке, с ним — поиск по ID, отрасли и региону. */
+export function fetchCompanies(query: string, signal?: AbortSignal): Promise<Company[]> {
+  return request('/api/companies', companyListSchema, { signal, query: { q: query.trim() } });
 }
 
 export function fetchCompany(companyId: string, signal?: AbortSignal): Promise<Company> {

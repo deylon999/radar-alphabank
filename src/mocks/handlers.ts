@@ -24,6 +24,7 @@ import type { MockDb, MockStore } from './db';
 import { extractableFacts, MOCK_NOW, TELEGRAM_DEMO_LINK, TELEGRAM_DEMO_USERNAME } from './fixtures';
 import {
   answerQuestion,
+  searchCompanies,
   compareInsights,
   computeDigest,
   extractTextFacts,
@@ -111,8 +112,11 @@ export function createHandlers({ store, latency, isErrorMode }: MockHandlerOptio
   }
 
   return [
-    http.get(`${API}/companies`, async () => {
-      return (await prelude()) ?? HttpResponse.json(store.read().companies);
+    http.get(`${API}/companies`, async ({ request }) => {
+      const failure = await prelude();
+      if (failure) return failure;
+      const query = new URL(request.url).searchParams.get('q') ?? '';
+      return HttpResponse.json(searchCompanies(store.read().companies, query));
     }),
 
     http.get<{ companyId: string }>(`${API}/companies/:companyId`, async ({ params }) => {

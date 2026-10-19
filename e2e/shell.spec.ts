@@ -13,30 +13,19 @@ const PAGES = [
   { path: '/no-such-page', title: 'Страница не найдена — Радар', heading: 'Страница не найдена' },
 ] as const;
 
-const companySelect = (page: Page) => page.getByRole('combobox', { name: 'Компания' });
-const companyMenuButton = (page: Page) => page.getByRole('button', { name: /^Компания: / });
+const companyButton = (page: Page) => page.getByRole('button', { name: /^Компания: / });
 
-/** С мышью переключатель — меню, на сенсорном экране — системный список. */
-async function usesMenu(page: Page): Promise<boolean> {
-  await expect(companyMenuButton(page).or(companySelect(page))).toBeVisible();
-  return companyMenuButton(page).isVisible();
-}
-
+/** Выбор клиента: кнопка в шапке открывает панель с поиском. */
 async function chooseCompany(page: Page, name: string) {
-  if (await usesMenu(page)) {
-    await companyMenuButton(page).click();
-    await page.getByRole('menuitemradio', { name }).click();
-  } else {
-    await companySelect(page).selectOption({ label: name });
-  }
+  await companyButton(page).click();
+  await page
+    .getByRole('dialog', { name: 'Выбор клиента' })
+    .getByRole('button', { name: new RegExp(`^${name}(?!\\d)`) })
+    .click();
 }
 
 async function expectCompany(page: Page, name: string) {
-  if (await usesMenu(page)) {
-    await expect(companyMenuButton(page)).toHaveAccessibleName(`Компания: ${name}`);
-  } else {
-    await expect(companySelect(page).locator('option:checked')).toHaveText(name);
-  }
+  await expect(companyButton(page)).toHaveAccessibleName(`Компания: ${name}`);
 }
 
 test('выбранная компания переживает перезагрузку', async ({ page }) => {
@@ -82,17 +71,16 @@ test('навигация работает с клавиатуры', async ({ pag
   await page.keyboard.press('Enter');
 
   await expect(page).toHaveURL(/\/company$/);
-  if (await usesMenu(page)) {
-    // Стрелка открывает меню на выбранной компании, вторая — переходит к следующей.
-    await companyMenuButton(page).focus();
-    await page.keyboard.press('ArrowDown');
-    await page.keyboard.press('ArrowDown');
-    await page.keyboard.press('Enter');
-    await expect(companyMenuButton(page)).toBeFocused();
-  } else {
-    await companySelect(page).focus();
-    await page.keyboard.press('ArrowDown');
-  }
+  // Enter открывает поиск, стрелка ведёт к результату, Enter выбирает — фокус на кнопке.
+  await companyButton(page).focus();
+  await page.keyboard.press('Enter');
+  await page.keyboard.type('зерн');
+  await expect(
+    page.getByRole('dialog').getByRole('button', { name: /^Клиент U_9250/ }),
+  ).toHaveCount(0);
+  await page.keyboard.press('ArrowDown');
+  await page.keyboard.press('Enter');
+  await expect(companyButton(page)).toBeFocused();
   await expectCompany(page, 'Клиент U_34911');
   await expect(page.getByRole('heading', { name: 'Клиент U_34911' })).toBeVisible();
 });
@@ -142,13 +130,15 @@ for (const { path, text } of [
   });
 }
 
-test('открытое меню компаний проходит axe', async ({ page }) => {
+test('открытый выбор клиента проходит axe и помещается в экран', async ({ page }) => {
   await page.goto('/');
-  test.skip(!(await usesMenu(page)), 'на сенсорном экране вместо меню системный список');
+  await companyButton(page).click();
+  const picker = page.getByRole('dialog', { name: 'Выбор клиента' });
+  await expect(picker.getByRole('list', { name: 'Клиенты' })).toBeVisible();
 
-  await companyMenuButton(page).click();
-  await expect(page.getByRole('menu', { name: 'Компания' })).toBeVisible();
-
+  const box = await picker.boundingBox();
+  const width = page.viewportSize()?.width ?? 0;
+  expect(box && box.x >= 0 && box.x + box.width <= width).toBe(true);
   const { violations } = await new AxeBuilder({ page }).analyze();
   const severe = violations
     .filter((violation) => violation.impact === 'serious' || violation.impact === 'critical')

@@ -7,7 +7,7 @@ import type { InsightFilters } from '../schemas/insight';
 export const queryKeys = {
   companies: {
     all: ['companies'] as const,
-    list: () => [...queryKeys.companies.all, 'list'] as const,
+    list: (query = '') => [...queryKeys.companies.all, 'list', query.trim()] as const,
     detail: (companyId: string) => [...queryKeys.companies.all, 'detail', companyId] as const,
   },
   insights: {

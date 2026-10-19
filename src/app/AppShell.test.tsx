@@ -1,6 +1,7 @@
 import { screen, waitFor, within } from '@testing-library/react';
 import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 
+import { chooseClient, companyButton } from '../test/clientPicker';
 import { createMockServer } from '../test/mockServer';
 import { renderApp } from '../test/renderApp';
 import { SELECTED_COMPANY_STORAGE_KEY } from './company/SelectedCompanyProvider';
@@ -21,13 +22,11 @@ afterAll(() => {
   server.close();
 });
 
-const companySelect = () => screen.findByRole('combobox', { name: 'Компания' });
-
 describe('оболочка приложения', () => {
   it('по умолчанию выбирает первую компанию и показывает её ленту', async () => {
     renderApp('/');
 
-    expect(await companySelect()).toHaveDisplayValue('Клиент U_9250');
+    expect(await companyButton()).toHaveAccessibleName('Компания: Клиент U_9250');
     expect(await screen.findByRole('link', { name: /ЦБ сохранил ставку 14%/ })).toBeInTheDocument();
     await waitFor(() => {
       expect(document.title).toBe('Лента — Радар');
@@ -38,7 +37,7 @@ describe('оболочка приложения', () => {
     const { user } = renderApp('/');
     await screen.findByRole('link', { name: /ЦБ сохранил ставку 14%/ });
 
-    await user.selectOptions(await companySelect(), 'Клиент U_1465');
+    await chooseClient(user, 'Клиент U_1465');
 
     expect(
       await screen.findByRole('link', { name: /Рубль слабеет: импортные вино/ }),
@@ -51,7 +50,7 @@ describe('оболочка приложения', () => {
     window.localStorage.setItem(SELECTED_COMPANY_STORAGE_KEY, 'U_34911');
     renderApp('/company');
 
-    expect(await companySelect()).toHaveDisplayValue('Клиент U_34911');
+    expect(await companyButton()).toHaveAccessibleName('Компания: Клиент U_34911');
     expect(await screen.findByRole('heading', { name: 'Клиент U_34911' })).toBeInTheDocument();
   });
 
@@ -59,7 +58,7 @@ describe('оболочка приложения', () => {
     window.localStorage.setItem(SELECTED_COMPANY_STORAGE_KEY, 'deleted-company');
     renderApp('/');
 
-    expect(await companySelect()).toHaveDisplayValue('Клиент U_9250');
+    expect(await companyButton()).toHaveAccessibleName('Компания: Клиент U_9250');
   });
 
   it('работает, когда localStorage недоступен', async () => {
@@ -71,7 +70,7 @@ describe('оболочка приложения', () => {
     });
     const { user } = renderApp('/');
 
-    await user.selectOptions(await companySelect(), 'Клиент U_34911');
+    await chooseClient(user, 'Клиент U_34911');
 
     expect(await screen.findByRole('link', { name: /Экспорт урожая буксует/ })).toBeInTheDocument();
   });
@@ -82,7 +81,7 @@ describe('оболочка приложения', () => {
       await screen.findByRole('heading', { level: 1, name: /ЦБ сохранил ставку 14%/ }),
     ).toBeInTheDocument();
 
-    await user.selectOptions(await companySelect(), 'Клиент U_34911');
+    await chooseClient(user, 'Клиент U_34911');
 
     await waitFor(() => {
       expect(router.state.location.pathname).toBe('/');

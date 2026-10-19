@@ -1,4 +1,4 @@
-import type { FactCategory, ProfileFact } from '../schemas/company';
+import type { Company, FactCategory, ProfileFact } from '../schemas/company';
 import type { Answer, Citation, Digest, Insight, InsightFilters } from '../schemas/insight';
 import { typograph } from '../shared/lib/typography';
 
@@ -177,4 +177,33 @@ export function answerQuestion(insight: Insight, question: string): Answer {
   }
 
   return { question: typograph(question.trim()), answer: typograph(parts.join(' ')), citations };
+}
+
+export const COMPANY_SEARCH_LIMIT = 20;
+
+/**
+ * Поиск клиента: по ID, отрасли, коду ОКВЭД, региону и городу. Без запроса — крупнейшие
+ * по выручке. Регистр и «ё» не важны.
+ */
+export function searchCompanies(companies: readonly Company[], query: string): Company[] {
+  const normalize = (text: string) => text.toLocaleLowerCase('ru-RU').replaceAll('ё', 'е');
+  const words = normalize(query).split(/\s+/).filter(Boolean);
+  const byRevenue = [...companies].sort(
+    (a, b) => (b.profile?.revenue ?? 0) - (a.profile?.revenue ?? 0),
+  );
+  const matches = byRevenue.filter((company) => {
+    const haystack = normalize(
+      [
+        company.id,
+        company.name,
+        company.industry,
+        company.profile?.okved.code ?? '',
+        company.profile?.okved.name ?? '',
+        company.profile?.region ?? '',
+        company.profile?.city ?? '',
+      ].join(' '),
+    );
+    return words.every((word) => haystack.includes(word));
+  });
+  return matches.slice(0, COMPANY_SEARCH_LIMIT);
 }

@@ -9,8 +9,7 @@ export type CompanySelection =
   | {
       status: 'ready';
       company: Company;
-      companies: Company[];
-      selectCompany: (companyId: string) => void;
+      selectCompany: (company: Company) => void;
     };
 
 export const SelectedCompanyContext = createContext<CompanySelection | null>(null);

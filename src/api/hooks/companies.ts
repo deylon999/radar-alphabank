@@ -1,4 +1,4 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import type {
   Company,
@@ -15,17 +15,20 @@ import {
 } from '../endpoints/companies';
 import { queryKeys } from '../queryKeys';
 
-export function useCompanies() {
+/** Список клиентов. Пока идёт новый поиск, показываются прежние результаты. */
+export function useCompanies(query = '') {
   return useQuery({
-    queryKey: queryKeys.companies.list(),
-    queryFn: ({ signal }) => fetchCompanies(signal),
+    queryKey: queryKeys.companies.list(query),
+    queryFn: ({ signal }) => fetchCompanies(query, signal),
+    placeholderData: keepPreviousData,
   });
 }
 
-export function useCompany(companyId: string) {
+export function useCompany(companyId: string, { enabled = true }: { enabled?: boolean } = {}) {
   return useQuery({
     queryKey: queryKeys.companies.detail(companyId),
     queryFn: ({ signal }) => fetchCompany(companyId, signal),
+    enabled,
   });
 }
 
