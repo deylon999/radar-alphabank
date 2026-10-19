@@ -11,6 +11,8 @@ import {
   insightListSchema,
   insightSchema,
   type InsightStatus,
+  type Overview,
+  overviewSchema,
 } from '../../schemas/insight';
 import type { UserRole } from '../../schemas/user';
 import { request, requestVoid } from '../http';
@@ -40,6 +42,12 @@ export function fetchInsights(
 
 export function fetchDigest(companyId: string, signal?: AbortSignal): Promise<Digest> {
   return request(`/api/companies/${encodeURIComponent(companyId)}/digest`, digestSchema, {
+    signal,
+  });
+}
+
+export function fetchOverview(companyId: string, signal?: AbortSignal): Promise<Overview> {
+  return request(`/api/companies/${encodeURIComponent(companyId)}/overview`, overviewSchema, {
     signal,
   });
 }

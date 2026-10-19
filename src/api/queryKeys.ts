@@ -16,6 +16,7 @@ export const queryKeys = {
     list: (companyId: string, filters: InsightFilters) =>
       [...queryKeys.insights.lists(companyId), filters] as const,
     digest: (companyId: string) => [...queryKeys.insights.all, 'digest', companyId] as const,
+    overview: (companyId: string) => [...queryKeys.insights.all, 'overview', companyId] as const,
     detail: (insightId: string) => [...queryKeys.insights.all, 'detail', insightId] as const,
   },
   notifications: {

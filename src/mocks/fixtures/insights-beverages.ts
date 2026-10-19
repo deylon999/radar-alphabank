@@ -7,6 +7,7 @@ const COMPANY = 'U_1465';
 export const beveragesInsights = defineInsights(COMPANY_IDS.beverages, [
   {
     id: 'u1465-ruble',
+    topic: 'currency',
     kind: 'risk',
     urgency: 'urgent',
     relevance: 'direct',
@@ -69,6 +70,7 @@ export const beveragesInsights = defineInsights(COMPANY_IDS.beverages, [
   },
   {
     id: 'u1465-consumption',
+    topic: 'demand',
     kind: 'risk',
     urgency: 'important',
     relevance: 'direct',
@@ -118,6 +120,7 @@ export const beveragesInsights = defineInsights(COMPANY_IDS.beverages, [
   },
   {
     id: 'u1465-wages',
+    topic: 'costs',
     kind: 'risk',
     urgency: 'important',
     relevance: 'direct',
@@ -171,6 +174,7 @@ export const beveragesInsights = defineInsights(COMPANY_IDS.beverages, [
   },
   {
     id: 'u1465-food-retail',
+    topic: 'demand',
     kind: 'opportunity',
     urgency: 'info',
     relevance: 'direct',
@@ -212,6 +216,7 @@ export const beveragesInsights = defineInsights(COMPANY_IDS.beverages, [
   },
   {
     id: 'u1465-trade-result',
+    topic: 'demand',
     kind: 'risk',
     urgency: 'info',
     relevance: 'possible',

@@ -7,6 +7,7 @@ const COMPANY = 'U_34911';
 export const grainInsights = defineInsights(COMPANY_IDS.grain, [
   {
     id: 'u34911-export',
+    topic: 'logistics',
     kind: 'risk',
     urgency: 'urgent',
     relevance: 'direct',
@@ -82,6 +83,7 @@ export const grainInsights = defineInsights(COMPANY_IDS.grain, [
   },
   {
     id: 'u34911-ruble',
+    topic: 'currency',
     kind: 'opportunity',
     urgency: 'important',
     relevance: 'direct',
@@ -134,6 +136,7 @@ export const grainInsights = defineInsights(COMPANY_IDS.grain, [
   },
   {
     id: 'u34911-credit',
+    topic: 'financing',
     kind: 'risk',
     urgency: 'important',
     relevance: 'direct',
@@ -186,6 +189,7 @@ export const grainInsights = defineInsights(COMPANY_IDS.grain, [
   },
   {
     id: 'u34911-cb-meeting',
+    topic: 'financing',
     kind: 'risk',
     urgency: 'info',
     relevance: 'possible',
@@ -226,6 +230,7 @@ export const grainInsights = defineInsights(COMPANY_IDS.grain, [
   },
   {
     id: 'u34911-port',
+    topic: 'logistics',
     kind: 'opportunity',
     urgency: 'info',
     relevance: 'possible',

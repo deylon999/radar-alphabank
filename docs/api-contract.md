@@ -48,6 +48,7 @@
 | PATCH | `/api/companies/:id/facts/:factId` | `ProfileFact`                                      |
 | GET   | `/api/companies/:id/insights`      | `{ items: Insight[], nextCursor: string \| null }` |
 | GET   | `/api/companies/:id/digest`        | `Digest`                                           |
+| GET   | `/api/companies/:id/overview`      | `Overview` — выводы по темам и материалам банка    |
 | GET   | `/api/insights/:id`                | `Insight`                                          |
 | PATCH | `/api/insights/:id`                | `Insight`                                          |
 | POST  | `/api/insights/:id/feedback`       | `204 No Content`                                   |
@@ -90,6 +91,7 @@
       "urgency": "important",
       "relevance": "direct",
       "status": "new",
+      "topic": "financing",
       "title": "ЦБ сохранил ставку 14% и дал жёсткий сигнал: кредиты не подешевеют до конца года",
       "whyItMatters": "У компании кредиты, лизинг и гарантии в Альфа-Банке — стоимость обслуживания долга останется высокой",
       "event": {
@@ -169,6 +171,7 @@
 - `basis` — только установленные факты; `unknowns` и `checks` могут быть пустыми.
 - `sources` — минимум один источник с издателем, датой и ссылкой.
 - `title` — до ~90 символов: в ленте он обрезается после двух строк.
+- `topic` — одна тема на вывод (список — в «Enum»): по ней строится разрез «По темам» в обзоре.
 - `bankView` — необязательное. Есть, только если тема есть в аналитике банка. `material` —
   материал, из которого взята оценка: название, дата, страница.
   - `supersedes` — прежняя оценка банка, которую пересмотрел более свежий материал.
@@ -193,6 +196,48 @@
 - `risks` — **все** риски с даты `since`, включая срочные. Так число совпадает с лентой при фильтре «Риски».
 - `urgentRisks` — срочные риски (они же входят в `risks`).
 - Скрытые (`dismissed`) инсайты не считаются. В моках период — 7 дней.
+
+### Обзор: `GET /api/companies/:id/overview`
+
+Все актуальные выводы компании в двух разрезах — для страницы «Обзор».
+
+```json
+{
+  "topics": [
+    {
+      "topic": "financing",
+      "insights": [
+        {
+          "id": "u9250-key-rate",
+          "kind": "risk",
+          "urgency": "urgent",
+          "relevance": "direct",
+          "status": "new",
+          "title": "ЦБ сохранил ставку 14% и ужесточил риторику: кредиты не подешевеют до конца года",
+          "updatedAt": "2026-10-18T09:20:00Z"
+        }
+      ]
+    }
+  ],
+  "materials": [
+    {
+      "material": {
+        "id": "policy-rate-2026-09-11",
+        "title": "Ключевая ставка ЦБ РФ: ставка без изменения на 14,0%, риторика стала жёстче",
+        "publishedAt": "2026-09-11T00:00:00Z"
+      },
+      "insights": [{ "id": "u9250-key-rate", "…": "те же поля, что выше" }]
+    }
+  ]
+}
+```
+
+- Входят обе вкладки ленты (`direct` и `possible`), скрытые (`dismissed`) — нет.
+- `topics` — только темы, где есть выводы. Порядок: больше срочных рисков → больше рисков →
+  больше выводов. Внутри темы — как в ленте: срочные первыми, затем по `updatedAt`.
+- `materials` — материалы из `bankView.material` (без `page`), по которым есть выводы.
+  Свежие сверху, `outdated` — в конце. `supersedes` в разрез не входит.
+- Пустые группы не передаются; если выводов нет — пустые массивы.
 
 ### Статус инсайта: `PATCH /api/insights/:id`
 
@@ -347,6 +392,12 @@ type ProfileFact = {
 |                               | `resolved`     | Ситуация разрешилась      |
 | `Insight.relevance`           | `direct`       | Прямая связь              |
 |                               | `possible`     | Возможная связь           |
+| `Insight.topic`               | `financing`    | Ставка и кредиты          |
+|                               | `currency`     | Курс рубля                |
+|                               | `costs`        | Цены и издержки           |
+|                               | `demand`       | Спрос и заказы            |
+|                               | `regulation`   | Госрегулирование          |
+|                               | `logistics`    | Логистика и экспорт       |
 | `Insight.status`              | `new`          | Новое                     |
 |                               | `read`         | Прочитано                 |
 |                               | `dismissed`    | Скрыто                    |

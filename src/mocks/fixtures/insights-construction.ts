@@ -11,6 +11,7 @@ const COMPANY = 'U_9250';
 export const constructionInsights = defineInsights(COMPANY_IDS.construction, [
   {
     id: 'u9250-key-rate',
+    topic: 'financing',
     kind: 'risk',
     urgency: 'urgent',
     relevance: 'direct',
@@ -107,6 +108,7 @@ export const constructionInsights = defineInsights(COMPANY_IDS.construction, [
   },
   {
     id: 'u9250-yuan',
+    topic: 'currency',
     kind: 'risk',
     urgency: 'important',
     relevance: 'direct',
@@ -166,6 +168,7 @@ export const constructionInsights = defineInsights(COMPANY_IDS.construction, [
   },
   {
     id: 'u9250-budget',
+    topic: 'demand',
     kind: 'opportunity',
     urgency: 'important',
     relevance: 'possible',
@@ -224,6 +227,7 @@ export const constructionInsights = defineInsights(COMPANY_IDS.construction, [
   },
   {
     id: 'u9250-bonds',
+    topic: 'financing',
     kind: 'opportunity',
     urgency: 'info',
     relevance: 'direct',
@@ -286,6 +290,7 @@ export const constructionInsights = defineInsights(COMPANY_IDS.construction, [
   },
   {
     id: 'u9250-steel',
+    topic: 'costs',
     kind: 'risk',
     urgency: 'info',
     relevance: 'possible',
@@ -333,6 +338,7 @@ export const constructionInsights = defineInsights(COMPANY_IDS.construction, [
   },
   {
     id: 'u9250-investment',
+    topic: 'demand',
     kind: 'risk',
     urgency: 'important',
     relevance: 'direct',
@@ -382,6 +388,7 @@ export const constructionInsights = defineInsights(COMPANY_IDS.construction, [
   },
   {
     id: 'u9250-expectations',
+    topic: 'costs',
     kind: 'risk',
     urgency: 'info',
     relevance: 'direct',

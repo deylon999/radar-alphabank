@@ -6,6 +6,7 @@ import {
   fetchDigest,
   fetchInsight,
   fetchInsights,
+  fetchOverview,
   sendInsightFeedback,
   updateInsightStatus,
 } from '../endpoints/insights';
@@ -32,6 +33,13 @@ export function useDigest(companyId: string) {
   });
 }
 
+export function useOverview(companyId: string) {
+  return useQuery({
+    queryKey: queryKeys.insights.overview(companyId),
+    queryFn: ({ signal }) => fetchOverview(companyId, signal),
+  });
+}
+
 export function useInsight(insightId: string) {
   return useQuery({
     queryKey: queryKeys.insights.detail(insightId),
@@ -39,7 +47,7 @@ export function useInsight(insightId: string) {
   });
 }
 
-/** Прочитано / скрыто / вернуть в ленту. Обновляет карточку, ленты и сводку компании. */
+/** Прочитано / скрыто / вернуть в ленту. Обновляет карточку, ленты, сводку и обзор компании. */
 export function useUpdateInsightStatus() {
   const queryClient = useQueryClient();
   return useMutation({
@@ -52,6 +60,7 @@ export function useUpdateInsightStatus() {
       return Promise.all([
         queryClient.invalidateQueries({ queryKey: queryKeys.insights.lists(insight.companyId) }),
         queryClient.invalidateQueries({ queryKey: queryKeys.insights.digest(insight.companyId) }),
+        queryClient.invalidateQueries({ queryKey: queryKeys.insights.overview(insight.companyId) }),
       ]);
     },
   });

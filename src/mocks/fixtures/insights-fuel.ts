@@ -7,6 +7,7 @@ const COMPANY = 'U_26030';
 export const fuelInsights = defineInsights(COMPANY_IDS.fuel, [
   {
     id: 'u26030-gasoline',
+    topic: 'regulation',
     kind: 'risk',
     urgency: 'urgent',
     relevance: 'direct',
@@ -65,6 +66,7 @@ export const fuelInsights = defineInsights(COMPANY_IDS.fuel, [
   },
   {
     id: 'u26030-refining',
+    topic: 'costs',
     kind: 'risk',
     urgency: 'important',
     relevance: 'direct',
@@ -111,6 +113,7 @@ export const fuelInsights = defineInsights(COMPANY_IDS.fuel, [
   },
   {
     id: 'u26030-leasing',
+    topic: 'financing',
     kind: 'risk',
     urgency: 'important',
     relevance: 'direct',
@@ -172,6 +175,7 @@ export const fuelInsights = defineInsights(COMPANY_IDS.fuel, [
   },
   {
     id: 'u26030-export',
+    topic: 'currency',
     kind: 'opportunity',
     urgency: 'info',
     relevance: 'possible',

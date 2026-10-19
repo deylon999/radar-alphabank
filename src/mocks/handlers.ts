@@ -27,6 +27,7 @@ import {
   searchCompanies,
   compareInsights,
   computeDigest,
+  computeOverview,
   extractTextFacts,
   filterInsights,
   paginate,
@@ -242,6 +243,15 @@ export function createHandlers({ store, latency, isErrorMode }: MockHandlerOptio
       if (!findCompany(db, params.companyId)) return notFound();
       const own = db.insights.filter((insight) => insight.companyId === params.companyId);
       return HttpResponse.json(computeDigest(own, MOCK_NOW));
+    }),
+
+    http.get<{ companyId: string }>(`${API}/companies/:companyId/overview`, async ({ params }) => {
+      const failure = await prelude();
+      if (failure) return failure;
+      const db = store.read();
+      if (!findCompany(db, params.companyId)) return notFound();
+      const own = db.insights.filter((insight) => insight.companyId === params.companyId);
+      return HttpResponse.json(computeOverview(own));
     }),
 
     http.get<{ insightId: string }>(`${API}/insights/:insightId`, async ({ params }) => {

@@ -18,6 +18,16 @@ export const IMPACT_ROLES = [
   'company',
 ] as const;
 
+/** Тема вывода — разрез обзора: «Ставка и кредиты», «Курс рубля»… */
+export const TOPICS = [
+  'financing',
+  'currency',
+  'costs',
+  'demand',
+  'regulation',
+  'logistics',
+] as const;
+
 export const TRACE_STEP_KINDS = ['plan', 'tool', 'check', 'conclusion'] as const;
 export const CITATION_KINDS = ['news', 'bank', 'client'] as const;
 
@@ -27,6 +37,7 @@ export const eventStageSchema = z.enum(EVENT_STAGES);
 export const relevanceSchema = z.enum(RELEVANCES);
 export const insightStatusSchema = z.enum(INSIGHT_STATUSES);
 export const impactRoleSchema = z.enum(IMPACT_ROLES);
+export const topicSchema = z.enum(TOPICS);
 
 export const impactStepSchema = z.object({
   label: z.string().min(1),
@@ -98,6 +109,7 @@ export const insightSchema = z.object({
   urgency: urgencySchema,
   relevance: relevanceSchema,
   status: insightStatusSchema,
+  topic: topicSchema,
   title: z.string().min(1),
   whyItMatters: z.string().min(1),
   event: insightEventSchema,
@@ -132,6 +144,27 @@ export const digestSchema = z.object({
   opportunities: z.number().int().nonnegative(),
 });
 
+/** Инсайт в обзоре: только то, что нужно для строки со ссылкой. */
+export const insightBriefSchema = insightSchema.pick({
+  id: true,
+  kind: true,
+  urgency: true,
+  relevance: true,
+  status: true,
+  title: true,
+  updatedAt: true,
+});
+
+const overviewGroup = { insights: z.array(insightBriefSchema).min(1) };
+
+/** Все актуальные выводы по компании в двух разрезах: по темам и по материалам банка. */
+export const overviewSchema = z.object({
+  topics: z.array(z.object({ topic: topicSchema, ...overviewGroup })),
+  materials: z.array(
+    z.object({ material: bankMaterialSchema.omit({ page: true }), ...overviewGroup }),
+  ),
+});
+
 export const updateInsightBodySchema = z.object({ status: insightStatusSchema });
 
 export const feedbackBodySchema = z.object({
@@ -163,11 +196,14 @@ export type EventStage = z.infer<typeof eventStageSchema>;
 export type Relevance = z.infer<typeof relevanceSchema>;
 export type InsightStatus = z.infer<typeof insightStatusSchema>;
 export type ImpactRole = z.infer<typeof impactRoleSchema>;
+export type Topic = z.infer<typeof topicSchema>;
 export type ImpactStep = z.infer<typeof impactStepSchema>;
 export type Source = z.infer<typeof sourceSchema>;
 export type Insight = z.infer<typeof insightSchema>;
 export type InsightList = z.infer<typeof insightListSchema>;
 export type Digest = z.infer<typeof digestSchema>;
+export type InsightBrief = z.infer<typeof insightBriefSchema>;
+export type Overview = z.infer<typeof overviewSchema>;
 export type UpdateInsightBody = z.infer<typeof updateInsightBodySchema>;
 export type FeedbackBody = z.infer<typeof feedbackBodySchema>;
 export type BankMaterial = z.infer<typeof bankMaterialSchema>;

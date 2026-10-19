@@ -13,6 +13,7 @@ import {
   fetchDigest,
   fetchInsight,
   fetchInsights,
+  fetchOverview,
   updateInsightStatus,
 } from '../api/endpoints/insights';
 import {
@@ -21,7 +22,7 @@ import {
   saveNotificationSettings,
 } from '../api/endpoints/notifications';
 import { createMockServer } from '../test/mockServer';
-import { COMPANY_IDS } from './fixtures';
+import { COMPANY_IDS, insights } from './fixtures';
 import { PAGE_SIZE } from './logic';
 
 const { server, store, setErrorMode } = createMockServer();
@@ -125,6 +126,36 @@ describe('моки ленты', () => {
 
   it('возвращает 404 для неизвестного инсайта', async () => {
     await expect(fetchInsight('missing')).rejects.toMatchObject({ kind: 'http', status: 404 });
+  });
+});
+
+describe('моки обзора', () => {
+  it('каждый вывод — ровно в одной теме, темы со срочными рисками первыми', async () => {
+    const { topics } = await fetchOverview(MAIN);
+    const ids = topics.flatMap((group) => group.insights.map((insight) => insight.id));
+    const own = insights.filter((insight) => insight.companyId === MAIN);
+
+    expect(ids.toSorted()).toEqual(own.map((insight) => insight.id).toSorted());
+    expect(topics[0]?.topic).toBe('financing');
+    expect(topics[0]?.insights[0]).toMatchObject({ kind: 'risk', urgency: 'urgent' });
+  });
+
+  it('материалы банка — свежие сверху, устаревший в конце', async () => {
+    const { materials } = await fetchOverview(MAIN);
+    const dates = materials
+      .filter((group) => !group.material.outdated)
+      .map((group) => Date.parse(group.material.publishedAt));
+
+    expect(dates).toEqual(dates.toSorted((a, b) => b - a));
+    expect(materials.at(-1)?.material).toMatchObject({ id: 'russian-steel-1q21', outdated: true });
+  });
+
+  it('скрытый вывод пропадает из обзора', async () => {
+    await updateInsightStatus('u9250-key-rate', 'dismissed');
+    const { topics, materials } = await fetchOverview(MAIN);
+    const all = [...topics, ...materials].flatMap((group) => group.insights);
+
+    expect(all.map((insight) => insight.id)).not.toContain('u9250-key-rate');
   });
 });
 

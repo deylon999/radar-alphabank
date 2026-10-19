@@ -1,5 +1,14 @@
 import type { Company, FactCategory, ProfileFact } from '../schemas/company';
-import type { Answer, Citation, Digest, Insight, InsightFilters } from '../schemas/insight';
+import {
+  type Answer,
+  type Citation,
+  type Digest,
+  type Insight,
+  type InsightBrief,
+  type InsightFilters,
+  type Overview,
+  TOPICS,
+} from '../schemas/insight';
 import { typograph } from '../shared/lib/typography';
 
 /** Небольшая страница, чтобы в демо было видно «Показать ещё». */
@@ -96,6 +105,67 @@ const CATEGORY_RULES: [FactCategory, RegExp][] = [
   ['product', /продукц|ассортимент|выпуска|производ/i],
   ['region', /област|край|район|регион|город/i],
 ];
+
+const toBrief = ({
+  id,
+  kind,
+  urgency,
+  relevance,
+  status,
+  title,
+  updatedAt,
+}: Insight): InsightBrief => ({
+  id,
+  kind,
+  urgency,
+  relevance,
+  status,
+  title,
+  updatedAt,
+});
+
+function riskWeight(insights: readonly InsightBrief[]): [urgent: number, risks: number] {
+  const risks = insights.filter((insight) => insight.kind === 'risk');
+  return [risks.filter((insight) => insight.urgency === 'urgent').length, risks.length];
+}
+
+/**
+ * Обзор: скрытые не входят. Темы — сначала с большим числом срочных рисков, потом рисков
+ * вообще, потом больших; материалы — свежие сверху, устаревшие в конце.
+ */
+export function computeOverview(items: readonly Insight[]): Overview {
+  const active = items.filter((insight) => insight.status !== 'dismissed').sort(compareInsights);
+
+  const topics = TOPICS.map((topic) => ({
+    topic,
+    insights: active.filter((insight) => insight.topic === topic).map(toBrief),
+  }))
+    .filter((group) => group.insights.length > 0)
+    .sort((a, b) => {
+      const [urgentA, risksA] = riskWeight(a.insights);
+      const [urgentB, risksB] = riskWeight(b.insights);
+      return urgentB - urgentA || risksB - risksA || b.insights.length - a.insights.length;
+    });
+
+  const materials = new Map<string, Overview['materials'][number]>();
+  for (const insight of active) {
+    if (!insight.bankView) continue;
+    const { id, title, publishedAt, outdated } = insight.bankView.material;
+    const material = { id, title, publishedAt, ...(outdated ? { outdated } : {}) };
+    const group = materials.get(material.id) ?? { material, insights: [] };
+    group.insights.push(toBrief(insight));
+    materials.set(material.id, group);
+  }
+
+  return {
+    topics,
+    materials: [...materials.values()].sort(
+      (a, b) =>
+        Number(a.material.outdated ?? false) - Number(b.material.outdated ?? false) ||
+        Date.parse(b.material.publishedAt) - Date.parse(a.material.publishedAt),
+    ),
+  };
+}
 
 export function guessFactCategory(statement: string): FactCategory {
   return CATEGORY_RULES.find(([, rule]) => rule.test(statement))?.[0] ?? 'other';
