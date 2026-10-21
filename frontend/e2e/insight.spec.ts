@@ -93,3 +93,28 @@ test('карточка с открытой формой комментария: 
       .map((violation) => `${violation.id}: ${violation.help}`),
   ).toEqual([]);
 });
+
+test('вопрос агенту: шаги видны по ходу, у ответа — «Как агент искал ответ», axe чисто', async ({
+  page,
+}) => {
+  await page.goto('/insights/u9250-key-rate');
+  const ask = page.getByRole('region', { name: 'Задать вопрос' });
+
+  await ask.getByRole('button', { name: 'Что будет при ставке 12%?' }).click();
+
+  await expect(ask.getByRole('status')).toHaveText('Агент готовит ответ — обычно до 30 секунд');
+  await expect(
+    ask.getByRole('list', { name: 'Шаги агента' }).getByRole('listitem').first(),
+  ).toContainText('План');
+  const { violations } = await new AxeBuilder({ page }).include('section').analyze();
+  expect(
+    violations.filter(
+      (violation) => violation.impact === 'serious' || violation.impact === 'critical',
+    ),
+  ).toEqual([]);
+
+  const answers = ask.getByRole('list', { name: 'Ответы' });
+  await expect(answers).toContainText('Позиция Альфа-Банка');
+  await expect(answers.getByText(/^Как агент искал ответ · 5\sшагов$/)).toBeVisible();
+  await expect(ask.getByRole('status')).toHaveCount(0);
+});
