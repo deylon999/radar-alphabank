@@ -10,5 +10,5 @@ model NoContentResponse {
     statusCode: 204;
 
     @header("Cache-Control")
-    cache_control: "no-store";
+    cacheControl: "no-store";
 }

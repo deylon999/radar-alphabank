@@ -16,11 +16,11 @@ using AlfaHackathonApi.Auth.Errors;
 namespace AlfaHackathonApi.Auth;
 
 const regenerateRecoveryCodesSuccessOperationExample = #{
-    parameters: #{ body: sensitiveActionRequestExample, csrf_token: csrfTokenExample },
+    parameters: #{ body: sensitiveActionRequestExample, csrfToken: csrfTokenExample },
     returnType: #{
         statusCode: 200,
         contentType: "application/json",
-        cache_control: "no-store",
+        cacheControl: "no-store",
         body: recoveryCodesResponseExample
     }
 };

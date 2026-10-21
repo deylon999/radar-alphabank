@@ -15,11 +15,11 @@ using AlfaHackathonApi.Auth.Errors;
 namespace AlfaHackathonApi.Auth;
 
 const setupTotpSuccessOperationExample = #{
-    parameters: #{ csrf_token: csrfTokenExample },
+    parameters: #{ csrfToken: csrfTokenExample },
     returnType: #{
         statusCode: 200,
         contentType: "application/json",
-        cache_control: "no-store",
+        cacheControl: "no-store",
         body: totpSetupResponseExample
     }
 };

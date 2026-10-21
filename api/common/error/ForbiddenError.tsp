@@ -17,7 +17,7 @@ model ReauthenticationRequiredDetails {
 const invalidCsrfExample: ForbiddenError<InvalidCsrfDetails> = #{
     statusCode: 403,
     contentType: "application/problem+json",
-    cache_control: "no-store",
+    cacheControl: "no-store",
     body: #{
         type: "/problems/invalid-csrf-token",
         title: "Invalid CSRF token",
@@ -29,7 +29,7 @@ const invalidCsrfExample: ForbiddenError<InvalidCsrfDetails> = #{
 const reauthenticationRequiredExample: ForbiddenError<ReauthenticationRequiredDetails> = #{
     statusCode: 403,
     contentType: "application/problem+json",
-    cache_control: "no-store",
+    cacheControl: "no-store",
     body: #{
         type: "/problems/reauthentication-required",
         title: "Reauthentication required",

@@ -13,7 +13,7 @@ model OkResponse<TBody> {
     contentType: "application/json";
 
     @header("Cache-Control")
-    cache_control: "no-store";
+    cacheControl: "no-store";
 
     @body
     body: TBody;

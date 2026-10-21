@@ -15,20 +15,20 @@ using AlfaHackathonApi.Auth.Errors;
 namespace AlfaHackathonApi.Auth;
 
 const disableTotpSuccessOperationExample = #{
-    parameters: #{ body: sensitiveActionRequestExample, csrf_token: csrfTokenExample },
+    parameters: #{ body: sensitiveActionRequestExample, csrfToken: csrfTokenExample },
     returnType: #{
         statusCode: 204,
-        cache_control: "no-store",
-        set_cookie: sessionCookieExample
+        cacheControl: "no-store",
+        setCookie: sessionCookieExample
     }
 };
 
 const disableTotpWithRecoveryOperationExample = #{
-    parameters: #{ body: sensitiveActionWithRecoveryRequestExample, csrf_token: csrfTokenExample },
+    parameters: #{ body: sensitiveActionWithRecoveryRequestExample, csrfToken: csrfTokenExample },
     returnType: #{
         statusCode: 204,
-        cache_control: "no-store",
-        set_cookie: sessionCookieExample
+        cacheControl: "no-store",
+        setCookie: sessionCookieExample
     }
 };
 
@@ -63,7 +63,7 @@ op disableTotp(
         @doc("Обновлённая cookie текущей сессии.")
         @header("Set-Cookie")
         @example(sessionCookieExample)
-        set_cookie: string;
+        setCookie: string;
     }
     | BadRequestError
     | ValidationError<AuthValidationIssue>

@@ -27,7 +27,7 @@ union SecondFactorVerification {
         code: string;
     },
 
-    recovery_code: {
+    recoveryCode: {
         @doc("Одноразовый резервный код.")
         method: "recovery_code";
 

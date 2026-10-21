@@ -14,19 +14,19 @@ using AlfaHackathonApi.Auth.Errors;
 namespace AlfaHackathonApi.Auth;
 
 const revokeOtherSessionOperationExample = #{
-    parameters: #{ id: "1bb885f8-4646-4332-a7f1-fc418d21cc8e", csrf_token: csrfTokenExample },
+    parameters: #{ id: "1bb885f8-4646-4332-a7f1-fc418d21cc8e", csrfToken: csrfTokenExample },
     returnType: #{
         statusCode: 204,
-        cache_control: "no-store"
+        cacheControl: "no-store"
     }
 };
 
 const revokeCurrentSessionOperationExample = #{
-    parameters: #{ id: "23d90edf-885d-4ea4-8878-15b5965f962d", csrf_token: csrfTokenExample },
+    parameters: #{ id: "23d90edf-885d-4ea4-8878-15b5965f962d", csrfToken: csrfTokenExample },
     returnType: #{
         statusCode: 204,
-        cache_control: "no-store",
-        set_cookie: clearedSessionCookieExample
+        cacheControl: "no-store",
+        setCookie: clearedSessionCookieExample
     }
 };
 
@@ -58,7 +58,7 @@ op revokeSession(
         @doc("Удаление cookie, только если завершена текущая сессия.")
         @header("Set-Cookie")
         @example(clearedSessionCookieExample)
-        set_cookie?: string;
+        setCookie?: string;
     }
     | BadRequestError
     | UnauthorizedError

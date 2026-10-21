@@ -16,21 +16,21 @@ using AlfaHackathonApi.Auth.Errors;
 namespace AlfaHackathonApi.Auth;
 
 const reauthenticateSuccessOperationExample = #{
-    parameters: #{ body: reauthenticateRequestExample, csrf_token: csrfTokenExample },
+    parameters: #{ body: reauthenticateRequestExample, csrfToken: csrfTokenExample },
     returnType: #{
         statusCode: 200,
         contentType: "application/json",
-        cache_control: "no-store",
+        cacheControl: "no-store",
         body: reauthenticationResponseExample
     }
 };
 
 const reauthenticateWithTotpOperationExample = #{
-    parameters: #{ body: reauthenticateWithTotpRequestExample, csrf_token: csrfTokenExample },
+    parameters: #{ body: reauthenticateWithTotpRequestExample, csrfToken: csrfTokenExample },
     returnType: #{
         statusCode: 200,
         contentType: "application/json",
-        cache_control: "no-store",
+        cacheControl: "no-store",
         body: reauthenticationResponseExample
     }
 };

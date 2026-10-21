@@ -5,7 +5,7 @@ namespace AlfaHackathonApi.Errors;
 const badRequestExample: BadRequestError = #{
     statusCode: 400,
     contentType: "application/problem+json",
-    cache_control: "no-store",
+    cacheControl: "no-store",
     body: #{
         type: "/problems/malformed-request",
         title: "Malformed request",

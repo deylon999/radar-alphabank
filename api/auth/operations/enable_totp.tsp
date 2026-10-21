@@ -16,12 +16,12 @@ using AlfaHackathonApi.Auth.Errors;
 namespace AlfaHackathonApi.Auth;
 
 const enableTotpSuccessOperationExample = #{
-    parameters: #{ body: verifyTotpRequestExample, csrf_token: csrfTokenExample },
+    parameters: #{ body: verifyTotpRequestExample, csrfToken: csrfTokenExample },
     returnType: #{
         statusCode: 200,
         contentType: "application/json",
-        cache_control: "no-store",
-        set_cookie: sessionCookieExample,
+        cacheControl: "no-store",
+        setCookie: sessionCookieExample,
         body: recoveryCodesResponseExample
     }
 };
@@ -59,7 +59,7 @@ op enableTotp(
         @doc("Cookie текущей сессии: Secure, HttpOnly, SameSite=Lax, Path=/, без Domain.")
         @header("Set-Cookie")
         @example(sessionCookieExample)
-        set_cookie: string;
+        setCookie: string;
     }
     | BadRequestError
     | ValidationError<AuthValidationIssue>

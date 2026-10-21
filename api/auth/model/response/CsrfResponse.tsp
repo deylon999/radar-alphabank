@@ -2,7 +2,7 @@ namespace AlfaHackathonApi.Auth;
 
 const csrfResponseExample: CsrfResponse = #{
     token: "8cc5dfe6-47f8-48e8-a1a0-c4b8c6b279f1",
-    header_name: "X-CSRF-TOKEN"
+    headerName: "X-CSRF-TOKEN"
 };
 
 @doc("CSRF-токен для текущей анонимной или аутентифицированной сессии.")
@@ -13,5 +13,5 @@ model CsrfResponse {
     token: string;
 
     @doc("Название заголовка для изменяющих запросов.")
-    header_name: "X-CSRF-TOKEN";
+    headerName: "X-CSRF-TOKEN";
 }

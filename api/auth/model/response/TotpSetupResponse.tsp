@@ -2,8 +2,8 @@ namespace AlfaHackathonApi.Auth;
 
 const totpSetupResponseExample: TotpSetupResponse = #{
     secret: "JBSWY3DPEHPK3PXPJBSWY3DPEHPK3PXP",
-    provisioning_uri: "otpauth://totp/Alfa%20Hackathon:ivan%40example.com?secret=JBSWY3DPEHPK3PXPJBSWY3DPEHPK3PXP&issuer=Alfa%20Hackathon&algorithm=SHA1&digits=6&period=30",
-    expires_at: utcDateTime.fromISO("2026-10-18T10:35:00Z")
+    provisioningUri: "otpauth://totp/Alfa%20Hackathon:ivan%40example.com?secret=JBSWY3DPEHPK3PXPJBSWY3DPEHPK3PXP&issuer=Alfa%20Hackathon&algorithm=SHA1&digits=6&period=30",
+    expiresAt: utcDateTime.fromISO("2026-10-18T10:35:00Z")
 };
 
 @doc("Данные первоначальной настройки TOTP. Все значения в примере демонстрационные.")
@@ -17,8 +17,8 @@ model TotpSetupResponse {
     @doc("URI для QR-кода Google Authenticator или другого совместимого приложения. Содержит тот же секрет.")
     @secret
     @minLength(1)
-    provisioning_uri: string;
+    provisioningUri: string;
 
     @doc("Окончание пятиминутной настройки. До подтверждения первого кода 2FA выключена.")
-    expires_at: utcDateTime;
+    expiresAt: utcDateTime;
 }

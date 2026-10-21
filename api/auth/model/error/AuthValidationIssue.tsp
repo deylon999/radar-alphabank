@@ -7,7 +7,7 @@ namespace AlfaHackathonApi.Auth.Errors;
 const credentialsValidationExample: ValidationError<AuthValidationIssue> = #{
     statusCode: 422,
     contentType: "application/problem+json",
-    cache_control: "no-store",
+    cacheControl: "no-store",
     body: #{
         type: "/problems/validation-failed",
         title: "Validation failed",
@@ -30,7 +30,7 @@ const passwordValidationExample: ValidationError<AuthValidationIssue> = #{
         status: 422,
         errors: #[
             #{
-                field: "new_password",
+                field: "newPassword",
                 title: "OUT_OF_RANGE",
                 description: "New password must contain between 15 and 255 characters."
             }
@@ -87,14 +87,14 @@ union AuthValidationIssue {
     },
 
     password: {
-        field: "password" | "new_password";
+        field: "password" | "newPassword";
         title: "REQUIRED" | "MUST_NOT_BE_NULL" | "INVALID_TYPE"
             | "MUST_NOT_BE_EMPTY" | "OUT_OF_RANGE" | "COMPROMISED_PASSWORD";
         description: string;
     },
 
-    second_factor: {
-        field: "second_factor" | "second_factor.method" | "second_factor.code" | "method" | "code";
+    secondFactor: {
+        field: "secondFactor" | "secondFactor.method" | "secondFactor.code" | "method" | "code";
         title: "REQUIRED" | "MUST_NOT_BE_NULL" | "INVALID_TYPE"
             | "MUST_NOT_BE_EMPTY" | "OUT_OF_RANGE" | "MUST_MATCH_PATTERN"
             | "INVALID_ENUM_VALUE";

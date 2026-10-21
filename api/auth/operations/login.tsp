@@ -16,23 +16,23 @@ using AlfaHackathonApi.Auth.Errors;
 namespace AlfaHackathonApi.Auth;
 
 const loginSuccessOperationExample = #{
-    parameters: #{ body: loginRequestExample, csrf_token: csrfTokenExample, session: sessionCookieValueExample },
+    parameters: #{ body: loginRequestExample, csrfToken: csrfTokenExample, session: sessionCookieValueExample },
     returnType: #{
         statusCode: 200,
         contentType: "application/json",
-        cache_control: "no-store",
-        set_cookie: sessionCookieExample,
+        cacheControl: "no-store",
+        setCookie: sessionCookieExample,
         body: authenticatedLoginExample
     }
 };
 
 const loginMfaRequiredOperationExample = #{
-    parameters: #{ body: loginRequestExample, csrf_token: csrfTokenExample, session: sessionCookieValueExample },
+    parameters: #{ body: loginRequestExample, csrfToken: csrfTokenExample, session: sessionCookieValueExample },
     returnType: #{
         statusCode: 200,
         contentType: "application/json",
-        cache_control: "no-store",
-        set_cookie: sessionCookieExample,
+        cacheControl: "no-store",
+        setCookie: sessionCookieExample,
         body: mfaRequiredExample
     }
 };
@@ -47,7 +47,7 @@ const loginMfaRequiredOperationExample = #{
     Без 2FA вход завершается сразу, id сессии меняется.
     С 2FA сохраняется только ожидание второго фактора на 5 минут,
     пользователь ещё не считается вошедшим. Следующий шаг — POST /auth/login/2fa.
-    Ожидание привязано к cookie, user_id и company_id для продолжения не принимаются.
+    Ожидание привязано к cookie, userId и companyId для продолжения не принимаются.
     Если пользователь уже вошёл, возвращается 409: сначала нужно выйти.
     Cookie меняется, поэтому дальше нужен новый CSRF-токен, в том числе перед вторым шагом.
     """)
@@ -71,7 +71,7 @@ op login(
         @doc("Cookie текущей сессии: Secure, HttpOnly, SameSite=Lax, Path=/, без Domain.")
         @header("Set-Cookie")
         @example(sessionCookieExample)
-        set_cookie: string;
+        setCookie: string;
     }
     | BadRequestError
     | ValidationError<AuthValidationIssue>

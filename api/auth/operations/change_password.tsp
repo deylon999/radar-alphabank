@@ -15,11 +15,11 @@ using AlfaHackathonApi.Auth.Errors;
 namespace AlfaHackathonApi.Auth;
 
 const changePasswordSuccessOperationExample = #{
-    parameters: #{ body: changePasswordRequestExample, csrf_token: csrfTokenExample },
+    parameters: #{ body: changePasswordRequestExample, csrfToken: csrfTokenExample },
     returnType: #{
         statusCode: 204,
-        cache_control: "no-store",
-        set_cookie: sessionCookieExample
+        cacheControl: "no-store",
+        setCookie: sessionCookieExample
     }
 };
 
@@ -51,7 +51,7 @@ op changePassword(
         @doc("Обновлённая cookie текущей сессии.")
         @header("Set-Cookie")
         @example(sessionCookieExample)
-        set_cookie: string;
+        setCookie: string;
     }
     | BadRequestError
     | ValidationError<AuthValidationIssue>

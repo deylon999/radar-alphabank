@@ -56,7 +56,7 @@ model TotpSetupExpiredDetails {
 const invalidCredentialsExample: UnauthorizedError<InvalidCredentialsDetails> = #{
     statusCode: 401,
     contentType: "application/problem+json",
-    cache_control: "no-store",
+    cacheControl: "no-store",
     body: #{
         type: "/problems/invalid-credentials",
         title: "Invalid credentials",
@@ -70,7 +70,7 @@ const invalidCredentialsOperationExample = #{ returnType: invalidCredentialsExam
 const pendingLoginRequiredExample: UnauthorizedError<PendingLoginRequiredDetails> = #{
     statusCode: 401,
     contentType: "application/problem+json",
-    cache_control: "no-store",
+    cacheControl: "no-store",
     body: #{
         type: "/problems/pending-login-required",
         title: "Pending login required",
@@ -84,7 +84,7 @@ const pendingLoginRequiredOperationExample = #{ returnType: pendingLoginRequired
 const invalidSecondFactorExample: UnauthorizedError<InvalidSecondFactorDetails> = #{
     statusCode: 401,
     contentType: "application/problem+json",
-    cache_control: "no-store",
+    cacheControl: "no-store",
     body: #{
         type: "/problems/invalid-second-factor",
         title: "Invalid second factor",
@@ -98,7 +98,7 @@ const invalidSecondFactorOperationExample = #{ returnType: invalidSecondFactorEx
 const invalidReauthenticationExample: UnauthorizedError<InvalidReauthenticationDetails> = #{
     statusCode: 401,
     contentType: "application/problem+json",
-    cache_control: "no-store",
+    cacheControl: "no-store",
     body: #{
         type: "/problems/invalid-reauthentication",
         title: "Reauthentication failed",
@@ -112,7 +112,7 @@ const invalidReauthenticationOperationExample = #{ returnType: invalidReauthenti
 const emailAlreadyExistsExample: ConflictError<EmailAlreadyExistsDetails> = #{
     statusCode: 409,
     contentType: "application/problem+json",
-    cache_control: "no-store",
+    cacheControl: "no-store",
     body: #{
         type: "/problems/email-already-exists",
         title: "Email already exists",
@@ -126,7 +126,7 @@ const emailAlreadyExistsOperationExample = #{ returnType: emailAlreadyExistsExam
 const twoFactorAlreadyEnabledExample: ConflictError<TwoFactorAlreadyEnabledDetails> = #{
     statusCode: 409,
     contentType: "application/problem+json",
-    cache_control: "no-store",
+    cacheControl: "no-store",
     body: #{
         type: "/problems/two-factor-already-enabled",
         title: "Two-factor authentication already enabled",
@@ -140,7 +140,7 @@ const twoFactorAlreadyEnabledOperationExample = #{ returnType: twoFactorAlreadyE
 const twoFactorNotEnabledExample: ConflictError<TwoFactorNotEnabledDetails> = #{
     statusCode: 409,
     contentType: "application/problem+json",
-    cache_control: "no-store",
+    cacheControl: "no-store",
     body: #{
         type: "/problems/two-factor-not-enabled",
         title: "Two-factor authentication not enabled",
@@ -154,7 +154,7 @@ const twoFactorNotEnabledOperationExample = #{ returnType: twoFactorNotEnabledEx
 const totpSetupExpiredExample: ConflictError<TotpSetupExpiredDetails> = #{
     statusCode: 409,
     contentType: "application/problem+json",
-    cache_control: "no-store",
+    cacheControl: "no-store",
     body: #{
         type: "/problems/totp-setup-expired",
         title: "TOTP setup expired",

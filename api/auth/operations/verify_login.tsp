@@ -16,24 +16,24 @@ using AlfaHackathonApi.Auth.Errors;
 namespace AlfaHackathonApi.Auth;
 
 const verifyLoginTotpOperationExample = #{
-    parameters: #{ body: totpVerificationExample, csrf_token: csrfTokenExample, session: sessionCookieValueExample },
+    parameters: #{ body: totpVerificationExample, csrfToken: csrfTokenExample, session: sessionCookieValueExample },
     returnType: #{
         statusCode: 200,
         contentType: "application/json",
-        cache_control: "no-store",
-        set_cookie: sessionCookieExample,
-        body: #{ ...authenticatedLoginExample, user: #{ ...authenticatedUserExample, two_factor_enabled: true } }
+        cacheControl: "no-store",
+        setCookie: sessionCookieExample,
+        body: #{ ...authenticatedLoginExample, user: #{ ...authenticatedUserExample, twoFactorEnabled: true } }
     }
 };
 
 const verifyLoginRecoveryOperationExample = #{
-    parameters: #{ body: recoveryVerificationExample, csrf_token: csrfTokenExample, session: sessionCookieValueExample },
+    parameters: #{ body: recoveryVerificationExample, csrfToken: csrfTokenExample, session: sessionCookieValueExample },
     returnType: #{
         statusCode: 200,
         contentType: "application/json",
-        cache_control: "no-store",
-        set_cookie: sessionCookieExample,
-        body: #{ ...authenticatedLoginExample, user: #{ ...authenticatedUserExample, two_factor_enabled: true } }
+        cacheControl: "no-store",
+        setCookie: sessionCookieExample,
+        body: #{ ...authenticatedLoginExample, user: #{ ...authenticatedUserExample, twoFactorEnabled: true } }
     }
 };
 
@@ -69,7 +69,7 @@ op verifyLoginSecondFactor(
         @doc("Cookie текущей сессии: Secure, HttpOnly, SameSite=Lax, Path=/, без Domain.")
         @header("Set-Cookie")
         @example(sessionCookieExample)
-        set_cookie: string;
+        setCookie: string;
     }
     | BadRequestError
     | ValidationError<AuthValidationIssue>

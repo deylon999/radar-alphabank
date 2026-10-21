@@ -18,8 +18,8 @@ const getCsrfTokenSuccessOperationExample = #{
     returnType: #{
         statusCode: 200,
         contentType: "application/json",
-        cache_control: "no-store",
-        set_cookie: sessionCookieExample,
+        cacheControl: "no-store",
+        setCookie: sessionCookieExample,
         body: csrfResponseExample
     }
 };
@@ -48,5 +48,5 @@ op getCsrfToken(
         @doc("Устанавливается, если создана новая анонимная сессия.")
         @header("Set-Cookie")
         @example(sessionCookieExample)
-        set_cookie?: string;
+        setCookie?: string;
     };

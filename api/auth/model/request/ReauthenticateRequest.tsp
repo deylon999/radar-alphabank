@@ -8,7 +8,7 @@ const reauthenticateRequestExample: ReauthenticateRequest = #{
 
 const reauthenticateWithTotpRequestExample: ReauthenticateRequest = #{
     ...reauthenticateRequestExample,
-    second_factor: totpVerificationExample
+    secondFactor: totpVerificationExample
 };
 
 @doc("Повторное подтверждение личности для текущей сессии.")
@@ -22,5 +22,5 @@ model ReauthenticateRequest {
     password: string;
 
     @doc("Обязателен при включённой 2FA. Отсутствие второго фактора не отключает проверку на сервере.")
-    second_factor?: SecondFactorVerification;
+    secondFactor?: SecondFactorVerification;
 }

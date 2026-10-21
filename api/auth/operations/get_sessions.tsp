@@ -18,7 +18,7 @@ const getSessionsSuccessOperationExample = #{
     returnType: #{
         statusCode: 200,
         contentType: "application/json",
-        cache_control: "no-store",
+        cacheControl: "no-store",
         body: sessionsResponseExample
     }
 };

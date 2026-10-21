@@ -5,7 +5,7 @@ namespace AlfaHackathonApi.Errors;
 const conflictExample: ConflictError = #{
     statusCode: 409,
     contentType: "application/problem+json",
-    cache_control: "no-store",
+    cacheControl: "no-store",
     body: #{
         type: "/problems/invalid-security-state",
         title: "Invalid security state",

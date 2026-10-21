@@ -12,5 +12,5 @@ model CsrfParameters {
     @header("X-CSRF-TOKEN")
     @minLength(1)
     @example(csrfTokenExample)
-    csrf_token: string;
+    csrfToken: string;
 }

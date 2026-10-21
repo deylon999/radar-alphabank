@@ -5,7 +5,7 @@ namespace AlfaHackathonApi.Errors;
 const notFoundExample: NotFoundError = #{
     statusCode: 404,
     contentType: "application/problem+json",
-    cache_control: "no-store",
+    cacheControl: "no-store",
     body: #{
         type: "/problems/session-not-found",
         title: "Session not found",

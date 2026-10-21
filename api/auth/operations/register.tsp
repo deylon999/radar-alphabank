@@ -16,11 +16,11 @@ using AlfaHackathonApi.Auth.Errors;
 namespace AlfaHackathonApi.Auth;
 
 const registerSuccessOperationExample = #{
-    parameters: #{ body: registerRequestExample, csrf_token: csrfTokenExample, session: sessionCookieValueExample },
+    parameters: #{ body: registerRequestExample, csrfToken: csrfTokenExample, session: sessionCookieValueExample },
     returnType: #{
         statusCode: 201,
         contentType: "application/json",
-        cache_control: "no-store",
+        cacheControl: "no-store",
         body: registerResponseExample
     }
 };

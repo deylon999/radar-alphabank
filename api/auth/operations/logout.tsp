@@ -14,11 +14,11 @@ using AlfaHackathonApi.Auth.Errors;
 namespace AlfaHackathonApi.Auth;
 
 const logoutSuccessOperationExample = #{
-    parameters: #{ csrf_token: csrfTokenExample },
+    parameters: #{ csrfToken: csrfTokenExample },
     returnType: #{
         statusCode: 204,
-        cache_control: "no-store",
-        set_cookie: clearedSessionCookieExample
+        cacheControl: "no-store",
+        setCookie: clearedSessionCookieExample
     }
 };
 
@@ -44,7 +44,7 @@ op logout(
         @doc("Удаляет session cookie, Path и атрибуты те же.")
         @header("Set-Cookie")
         @example(clearedSessionCookieExample)
-        set_cookie: string;
+        setCookie: string;
     }
     | UnauthorizedError
     | ForbiddenError<InvalidCsrfDetails>;

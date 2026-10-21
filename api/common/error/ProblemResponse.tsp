@@ -14,7 +14,7 @@ model ProblemResponse<Status extends int32, TBody = ProblemDetails<Status>> {
     contentType: "application/problem+json";
 
     @header("Cache-Control")
-    cache_control: "no-store";
+    cacheControl: "no-store";
 
     @body
     body: TBody;

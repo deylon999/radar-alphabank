@@ -14,10 +14,10 @@ using AlfaHackathonApi.Auth.Errors;
 namespace AlfaHackathonApi.Auth;
 
 const revokeOtherSessionsSuccessOperationExample = #{
-    parameters: #{ csrf_token: csrfTokenExample },
+    parameters: #{ csrfToken: csrfTokenExample },
     returnType: #{
         statusCode: 204,
-        cache_control: "no-store"
+        cacheControl: "no-store"
     }
 };
 
@@ -26,7 +26,7 @@ const revokeOtherSessionsSuccessOperationExample = #{
 @summary("Завершение остальных сессий")
 @doc("""
     Завершает все сессии текущего пользователя, кроме текущей.
-    user_id, company_id и признак текущей сессии от клиента не принимаются.
+    userId, companyId и признак текущей сессии от клиента не принимаются.
     Текущая сессия и cookie сохраняются. Если других сессий нет, тоже возвращается 204.
     Новые входы с правильными учётными данными после этого возможны.
     """)

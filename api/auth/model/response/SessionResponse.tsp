@@ -8,8 +8,8 @@ const currentSessionExample: SessionResponse = #{
     id: "23d90edf-885d-4ea4-8878-15b5965f962d",
     browser: "Chrome",
     os: "Linux",
-    authenticated_at: utcDateTime.fromISO("2026-10-18T10:00:00Z"),
-    last_accessed_at: utcDateTime.fromISO("2026-10-18T10:30:00Z"),
+    authenticatedAt: utcDateTime.fromISO("2026-10-18T10:00:00Z"),
+    lastAccessedAt: utcDateTime.fromISO("2026-10-18T10:30:00Z"),
     current: true
 };
 
@@ -17,8 +17,8 @@ const otherSessionExample: SessionResponse = #{
     id: "1bb885f8-4646-4332-a7f1-fc418d21cc8e",
     browser: "Safari",
     os: "iOS",
-    authenticated_at: utcDateTime.fromISO("2026-10-18T09:00:00Z"),
-    last_accessed_at: utcDateTime.fromISO("2026-10-18T10:20:00Z"),
+    authenticatedAt: utcDateTime.fromISO("2026-10-18T09:00:00Z"),
+    lastAccessedAt: utcDateTime.fromISO("2026-10-18T10:20:00Z"),
     current: false
 };
 
@@ -35,10 +35,10 @@ model SessionResponse {
     os: string | null;
 
     @doc("Время завершения входа.")
-    authenticated_at: utcDateTime;
+    authenticatedAt: utcDateTime;
 
     @doc("Последнее обращение, использующее сессию.")
-    last_accessed_at: utcDateTime;
+    lastAccessedAt: utcDateTime;
 
     @doc("Текущая ли это сессия. Определяется сервером по запросу.")
     current: boolean;

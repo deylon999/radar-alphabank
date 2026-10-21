@@ -5,7 +5,7 @@ namespace AlfaHackathonApi.Errors;
 const unauthorizedExample: UnauthorizedError = #{
     statusCode: 401,
     contentType: "application/problem+json",
-    cache_control: "no-store",
+    cacheControl: "no-store",
     body: #{
         type: "/problems/authentication-required",
         title: "Authentication required",

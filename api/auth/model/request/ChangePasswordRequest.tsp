@@ -1,7 +1,7 @@
 namespace AlfaHackathonApi.Auth;
 
 const changePasswordRequestExample: ChangePasswordRequest = #{
-    new_password: "Another long company passphrase"
+    newPassword: "Another long company passphrase"
 };
 
 @doc("Новый пароль после успешного повторного подтверждения личности.")
@@ -11,5 +11,5 @@ model ChangePasswordRequest {
     @secret
     @minLength(15)
     @maxLength(255)
-    new_password: string;
+    newPassword: string;
 }

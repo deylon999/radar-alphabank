@@ -8,8 +8,8 @@ namespace AlfaHackathonApi.Errors;
 const tooManyRequestsExample: TooManyRequestsError = #{
     statusCode: 429,
     contentType: "application/problem+json",
-    cache_control: "no-store",
-    retry_after: 35,
+    cacheControl: "no-store",
+    retryAfter: 35,
     body: #{
         type: "/problems/too-many-attempts",
         title: "Too many attempts",
@@ -29,5 +29,5 @@ model TooManyRequestsError {
     @doc("Минимальное время ожидания в секундах. Повторная попытка после ожидания не гарантирует вход.")
     @header("Retry-After")
     @minValue(1)
-    retry_after: int32;
+    retryAfter: int32;
 }
