@@ -1,6 +1,6 @@
 import type { z } from 'zod';
 
-import { apiErrorBodySchema } from '../../schemas/common';
+import { problemDetailsSchema } from '../../schemas/common';
 import {
   type Answer,
   answerSchema,
@@ -21,7 +21,15 @@ import {
 } from '../../schemas/insight';
 import type { UserRole } from '../../schemas/user';
 import { ApiError } from '../ApiError';
-import { isEventStream, parseJson, request, requestVoid, send, toApiError } from '../http';
+import {
+  isEventStream,
+  parseJson,
+  problemError,
+  request,
+  requestVoid,
+  send,
+  toApiError,
+} from '../http';
 import { readEventStream } from '../sse';
 
 const insightPath = (insightId: string) => `/api/insights/${encodeURIComponent(insightId)}`;
@@ -126,7 +134,7 @@ export async function askInsight(
       } else if (event === 'answer') {
         return parseEvent(answerSchema, data);
       } else if (event === 'error') {
-        throw new ApiError({ kind: 'http', message: parseEvent(apiErrorBodySchema, data).message });
+        throw problemError(parseEvent(problemDetailsSchema, data));
       }
     }
   } catch (error) {

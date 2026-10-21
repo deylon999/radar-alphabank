@@ -17,6 +17,7 @@ beforeAll(() => {
 });
 afterEach(() => {
   server.resetHandlers();
+  mockStatus.restart = undefined;
 });
 afterAll(() => {
   server.close();
@@ -74,7 +75,7 @@ describe('request', () => {
     expect(error.isRetryable).toBe(true);
   });
 
-  it('передаёт статус и сообщение сервера в ApiError http', async () => {
+  it('понимает и прежний формат { message }', async () => {
     server.use(
       http.get(`${BASE}/api/item`, () =>
         HttpResponse.json({ message: 'Компания не найдена' }, { status: 404 }),
@@ -85,6 +86,49 @@ describe('request', () => {
 
     expect(error).toMatchObject({ kind: 'http', status: 404, message: 'Компания не найдена' });
     expect(error.isRetryable).toBe(false);
+  });
+
+  it('читает Problem Details: текст из detail, тип и ошибки полей', async () => {
+    const problem = (body: object, status: number) =>
+      HttpResponse.json(body, {
+        status,
+        headers: { 'Content-Type': 'application/problem+json' },
+      });
+    server.use(
+      http.post(`${BASE}/api/login`, () =>
+        problem(
+          {
+            type: '/problems/validation-failed',
+            title: 'Проверьте поля',
+            status: 422,
+            detail: 'Email указан неверно',
+            errors: [{ field: 'email', title: 'invalid_format', description: 'Нет символа @' }],
+          },
+          422,
+        ),
+      ),
+      http.get(`${BASE}/api/item`, () =>
+        problem({ type: '/problems/not-found', title: 'Компания не найдена', status: 404 }, 404),
+      ),
+    );
+    let restarts = 0;
+    mockStatus.restart = () => {
+      restarts += 1;
+      return Promise.resolve();
+    };
+
+    const invalid = await captureError(request('/api/login', itemSchema, { method: 'POST' }));
+    const missing = await captureError(request('/api/item', itemSchema));
+
+    expect(invalid).toMatchObject({
+      kind: 'http',
+      status: 422,
+      message: 'Email указан неверно',
+      problemType: '/problems/validation-failed',
+      issues: [{ field: 'email', title: 'invalid_format', description: 'Нет символа @' }],
+    });
+    expect(missing).toMatchObject({ status: 404, message: 'Компания не найдена' });
+    expect(restarts).toBe(0);
   });
 
   it('считает ошибки 5xx повторяемыми', async () => {

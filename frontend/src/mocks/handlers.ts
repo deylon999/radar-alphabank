@@ -45,7 +45,21 @@ export interface MockHandlerOptions {
 
 const API = '*/api';
 
-const error = (status: number, message: string) => HttpResponse.json({ message }, { status });
+/** Ошибки — в формате Problem Details, как в спецификации `api/`. */
+const PROBLEMS: Record<number, { type: string; title: string }> = {
+  400: { type: '/problems/malformed-request', title: 'Некорректный запрос' },
+  404: { type: '/problems/not-found', title: 'Не найдено' },
+  500: { type: '/problems/internal-error', title: 'Ошибка сервера' },
+};
+
+const error = (status: number, detail: string) =>
+  HttpResponse.json(
+    { ...(PROBLEMS[status] ?? { type: 'about:blank', title: 'Ошибка' }), status, detail },
+    {
+      status,
+      headers: { 'Content-Type': 'application/problem+json', 'Cache-Control': 'no-store' },
+    },
+  );
 const notFound = () => error(404, 'Не найдено');
 
 async function readJson<Schema extends z.ZodType>(
