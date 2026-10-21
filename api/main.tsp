@@ -9,6 +9,8 @@ import "./companies";
 import "./join-requests";
 import "./members";
 import "./facts";
+import "./insights";
+import "./metrics";
 
 using TypeSpec.Http;
 using TypeSpec.OpenAPI;

@@ -18,5 +18,4 @@ const badRequestOperationExample = #{ returnType: badRequestExample };
 
 @error
 @doc("Ошибка: некорректный JSON или параметр запроса.")
-@example(badRequestExample)
 model BadRequestError<TBody = ProblemDetails<400>> is ProblemResponse<400, TBody>;
