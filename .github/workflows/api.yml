@@ -1,0 +1,52 @@
+name: api
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+concurrency:
+  group: api-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # Как у бота: PR без изменений в api/ задачу пропускают, и обязательная проверка не висит.
+  changes:
+    runs-on: ubuntu-latest
+    outputs:
+      api: ${{ steps.diff.outputs.api }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - id: diff
+        run: |
+          if [ "${{ github.event_name }}" != "pull_request" ]; then
+            echo "api=true" >> "$GITHUB_OUTPUT"
+          elif git diff --name-only "origin/${{ github.base_ref }}...HEAD" | grep -qE '^(api/|\.github/workflows/api\.yml)'; then
+            echo "api=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "api=false" >> "$GITHUB_OUTPUT"
+          fi
+
+  spec:
+    needs: changes
+    if: needs.changes.outputs.api == 'true'
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: api
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: api/package-lock.json
+      - run: npm ci
+      - run: sh compile.sh
+      - uses: actions/upload-artifact@v4
+        with:
+          name: openapi
+          path: api/tsp-output/schema/openapi.yaml
+          retention-days: 7
