@@ -1,0 +1,18 @@
+name: pr-title
+
+on:
+  pull_request:
+    types: [opened, edited, synchronize, reopened]
+
+jobs:
+  conventional:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Заголовок PR в формате Conventional Commits
+        env:
+          TITLE: ${{ github.event.pull_request.title }}
+        run: |
+          if ! printf '%s' "$TITLE" | grep -Eq '^(feat|fix|refactor|perf|test|docs|style|build|ci|chore|revert)(\([a-z0-9-]+\))?!?: .{1,72}$'; then
+            echo "::error::Заголовок «$TITLE» не по правилам. Пример: feat(frontend): поиск клиента в шапке. См. CONTRIBUTING.md"
+            exit 1
+          fi
