@@ -50,6 +50,20 @@ describe('вопрос по инсайту', () => {
     expect(answer.citations.map((citation) => citation.kind)).toEqual(['bank', 'client', 'news']);
   });
 
+  it('шлёт шаги агента потоком до ответа; на устаревшем материале — предупреждает', async () => {
+    const steps: string[] = [];
+    await askInsight(
+      'u9250-steel',
+      { question: 'Что с ценами на металл?' },
+      { onStep: (step) => steps.push(`${step.kind}: ${step.title}`) },
+    );
+
+    expect(steps[0]).toMatch(/^plan: /);
+    expect(steps.at(-1)).toMatch(
+      /^check: Материал банка устарел\s—\sв ответе на него не\sопираюсь$/,
+    );
+  });
+
   it('не опирается на устаревший материал и отклоняет пустой вопрос', async () => {
     const answer = await askInsight('u9250-steel', { question: 'Что с ценами на металл?' });
     expect(answer.answer).toMatch(/^Свежей аналитики Альфа-Банка по этой теме нет/);

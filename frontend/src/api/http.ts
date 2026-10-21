@@ -18,6 +18,8 @@ export interface RequestOptions {
   timeoutMs?: number;
   /** Базовый адрес; по умолчанию VITE_API_URL. */
   baseUrl?: string;
+  /** Заголовок Accept; по умолчанию JSON. */
+  accept?: string;
 }
 
 export function buildUrl(baseUrl: string, path: string, query: RequestOptions['query']): string {
@@ -33,8 +35,12 @@ export function buildUrl(baseUrl: string, path: string, query: RequestOptions['q
   return url.toString();
 }
 
-function toApiError(error: unknown, timeoutSignal: AbortSignal): ApiError {
-  if (timeoutSignal.aborted) {
+export function toApiError(error: unknown, timeoutSignal?: AbortSignal): ApiError {
+  if (error instanceof ApiError) {
+    return error;
+  }
+  const isTimeout = error instanceof DOMException && error.name === 'TimeoutError';
+  if (timeoutSignal?.aborted || isTimeout) {
     return new ApiError({ kind: 'timeout', message: 'Сервер не ответил вовремя', cause: error });
   }
   if (error instanceof DOMException && error.name === 'AbortError') {
@@ -52,16 +58,20 @@ async function readErrorMessage(response: Response): Promise<string> {
   }
 }
 
-/** Моки отвечают JSON или 204. Что-то другое — ответ сервера сайта, мимо моков. */
-function missedMocks(response: Response): boolean {
-  const isJson = response.headers.get('Content-Type')?.includes('application/json') ?? false;
-  return response.status !== 204 && !isJson;
+export function isEventStream(response: Response): boolean {
+  return response.headers.get('Content-Type')?.includes('text/event-stream') ?? false;
 }
 
-async function send(path: string, options: RequestOptions): Promise<Response> {
+/** Моки отвечают JSON, потоком событий или 204. Что-то другое — ответ сервера сайта. */
+function missedMocks(response: Response): boolean {
+  const isJson = response.headers.get('Content-Type')?.includes('application/json') ?? false;
+  return response.status !== 204 && !isJson && !isEventStream(response);
+}
+
+export async function send(path: string, options: RequestOptions): Promise<Response> {
   const { method = 'GET', query, json, formData, signal, timeoutMs = DEFAULT_TIMEOUT_MS } = options;
   const timeoutSignal = AbortSignal.timeout(timeoutMs);
-  const headers = new Headers({ Accept: 'application/json' });
+  const headers = new Headers({ Accept: options.accept ?? 'application/json' });
   let body: BodyInit | undefined;
   if (formData) {
     body = formData;
@@ -108,7 +118,14 @@ export async function request<Schema extends z.ZodType>(
   schema: Schema,
   options: RequestOptions = {},
 ): Promise<z.infer<Schema>> {
-  const response = await send(path, options);
+  return parseJson(await send(path, options), schema);
+}
+
+/** Тело ответа как JSON, проверенный схемой. */
+export async function parseJson<Schema extends z.ZodType>(
+  response: Response,
+  schema: Schema,
+): Promise<z.infer<Schema>> {
   let payload: unknown;
   try {
     payload = await response.json();
