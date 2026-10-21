@@ -1,0 +1,75 @@
+# Бот
+
+Telegram-бот «Радара»: привязка аккаунта и уведомления — срочные инсайты и сводка.
+
+## Запуск
+
+Все команды — из каталога `bot/`.
+
+```sh
+cd bot
+cp .env.example .env   # вписать BOT_TOKEN от @BotFather
+go run ./cmd/bot
+```
+
+Бот сам читает `.env` из текущей папки. Переменные, уже заданные в окружении, важнее файла.
+
+Нужен Go 1.24+.
+
+## Docker
+
+```sh
+docker compose up -d --build   # собрать и запустить в фоне
+docker compose logs -f         # логи
+docker compose down            # остановить
+```
+
+Переменные берутся из `.env` рядом с `compose.yaml`; в образ файл не попадает. Образ — около
+16 МБ: статический бинарник в `distroless/static`, процесс работает не от root. Без Compose:
+
+```sh
+docker build -t radar-bot .
+docker run -d --restart unless-stopped --env-file .env radar-bot
+```
+
+Боту не нужен входящий порт: он сам ходит в Telegram и в бэкенд. На сервер достаточно Docker
+и доступа наружу к `api.telegram.org`. Запускайте одну копию: две копии с одним токеном мешают
+друг другу получать сообщения.
+
+`POST /dev/deliveries` в контейнере — только для отладки: `DEV_ADDR=0.0.0.0:8081` и
+`-p 127.0.0.1:8081:8081`. На сервере оставьте `DEV_ADDR` пустым.
+
+## Переменные окружения
+
+| Переменная  | По умолчанию            | Что это                                             |
+| ----------- | ----------------------- | --------------------------------------------------- |
+| `BOT_TOKEN` | —                       | токен бота от @BotFather, обязателен                |
+| `SITE_URL`  | `http://localhost:5173` | адрес сайта, на него ведут ссылки в боте            |
+| `LOG_LEVEL` | `info`                  | `debug`, `info`, `warn`, `error`                    |
+| `DEV_ADDR`  | —                       | адрес для `POST /dev/deliveries`, пусто — выключено |
+
+Кнопки «Открыть в Радаре» Telegram принимает только с публичным адресом. Если `SITE_URL`
+указывает на `localhost`, бот ставит ссылку прямо в текст сообщения.
+
+Договор с бэкендом — [`frontend/docs/bot-api.md`](../frontend/docs/bot-api.md).
+
+## Без бэкенда
+
+Пока бэкенда нет, бот ходит в заглушку `internal/backend/fake.go`. Проверить привязку можно
+ссылками `https://t.me/<бот>?start=valid-code`, `expired-code` и `used-code`.
+
+Прислать себе уведомление (нужен `DEV_ADDR=127.0.0.1:8081` и привязанный чат):
+
+```sh
+curl -X POST 127.0.0.1:8081/dev/deliveries                         # срочный инсайт
+curl -X POST 127.0.0.1:8081/dev/deliveries -d '{"kind":"digest"}'  # сводка
+```
+
+```powershell
+Invoke-RestMethod -Method Post http://127.0.0.1:8081/dev/deliveries
+Invoke-RestMethod -Method Post http://127.0.0.1:8081/dev/deliveries -Body '{"kind":"digest"}'
+```
+
+В теле можно передать свой `insight` или `digest` в формате `frontend/docs/bot-api.md`, а `chatId` —
+чтобы отправить в один чат. Без `chatId` доставка уходит во все привязанные чаты. Бот
+забирает очередь раз в 10 секунд.

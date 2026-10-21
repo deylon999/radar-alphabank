@@ -1,0 +1,49 @@
+name: bot
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+concurrency:
+  group: bot-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # Обязательная проверка не должна висеть на PR, где бот не менялся: такие PR её пропускают,
+  # а пропущенная задача засчитывается как пройденная.
+  changes:
+    runs-on: ubuntu-latest
+    outputs:
+      bot: ${{ steps.diff.outputs.bot }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - id: diff
+        run: |
+          if [ "${{ github.event_name }}" != "pull_request" ]; then
+            echo "bot=true" >> "$GITHUB_OUTPUT"
+          elif git diff --name-only "origin/${{ github.base_ref }}...HEAD" | grep -qE '^(bot/|\.github/workflows/bot\.yml)'; then
+            echo "bot=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "bot=false" >> "$GITHUB_OUTPUT"
+          fi
+
+  bot:
+    needs: changes
+    if: needs.changes.outputs.bot == 'true'
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: bot
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: bot/go.mod
+          cache-dependency-path: bot/go.sum
+      - run: go vet ./...
+      - run: test -z "$(gofmt -l .)"
+      - run: go test ./...
+      - run: go build ./cmd/bot
