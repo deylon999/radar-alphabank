@@ -5,6 +5,7 @@ const PAGES = [
   { path: '/', title: 'Лента — Радар', heading: 'Лента' },
   { path: '/overview', title: 'Обзор — Радар', heading: 'Обзор' },
   { path: '/overview?view=bank', title: 'Обзор — Радар', heading: 'Обзор' },
+  { path: '/quality', title: 'Качество выводов — Радар', heading: 'Качество выводов' },
   { path: '/company', title: 'Профиль компании — Радар', heading: 'Профиль компании' },
   { path: '/notifications', title: 'Уведомления — Радар', heading: 'Уведомления' },
   {

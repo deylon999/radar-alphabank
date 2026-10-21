@@ -214,7 +214,7 @@ describe('карточка инсайта', () => {
     await user.click(within(section).getByRole('button', { name: 'Добавить комментарий' }));
 
     expect(await within(section).findByText('Спасибо, комментарий получен.')).toBeInTheDocument();
-    expect(store.read().feedback).toEqual([
+    expect(store.read().feedback.slice(-2)).toMatchObject([
       { insightId: 'u9250-key-rate', useful: true },
       { insightId: 'u9250-key-rate', useful: true, comment: 'Нужна карта затопления' },
     ]);

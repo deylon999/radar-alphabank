@@ -1,0 +1,232 @@
+.layout {
+  display: grid;
+  gap: var(--gap-16);
+}
+
+.intro {
+  max-width: 720px;
+  margin: calc(-1 * var(--gap-8)) 0 var(--gap-12);
+  color: var(--color-light-text-secondary);
+  font-size: 16px;
+  line-height: 22px;
+}
+
+.demoNote {
+  max-width: 720px;
+  margin: 0 0 var(--gap-16);
+  padding: var(--gap-8) var(--gap-12);
+  border-left: 2px solid var(--color-light-neutral-translucent-500);
+  color: var(--color-light-text-secondary);
+  font-size: 14px;
+  line-height: 20px;
+}
+
+.muted {
+  margin: 0;
+  color: var(--color-light-text-secondary);
+  font-size: 14px;
+  line-height: 20px;
+}
+
+/* Плитки: по пять в ряд на десктопе, по две на телефоне. */
+.tiles {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: var(--gap-12);
+  margin: 0;
+}
+
+.tile,
+.section {
+  padding: var(--gap-16);
+  border: 1px solid var(--radar-card-border);
+  border-radius: var(--border-radius-12);
+  background: var(--radar-card-bg);
+}
+
+.tile {
+  display: grid;
+  align-content: start;
+  gap: var(--gap-4);
+}
+
+.tileLabel,
+.tileNote {
+  color: var(--color-light-text-secondary);
+  font-size: 14px;
+  line-height: 20px;
+}
+
+.tileValue {
+  margin: 0;
+  font-size: 28px;
+  line-height: 32px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.tileNote {
+  margin: 0;
+}
+
+.section {
+  display: grid;
+  gap: var(--gap-12);
+  min-width: 0;
+}
+
+.sectionTitle {
+  margin: 0;
+  font-size: 18px;
+  line-height: 24px;
+  font-weight: 700;
+}
+
+.columns {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--gap-16);
+}
+
+@media (min-width: 1024px) {
+  .columns {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-items: start;
+  }
+}
+
+/* Полнота: подпись и число в строку, под ними тонкая полоса с долей. */
+.meters {
+  display: grid;
+  gap: var(--gap-12);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.meter {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: var(--gap-4) var(--gap-12);
+  font-size: 14px;
+  line-height: 20px;
+}
+
+.meterValue {
+  color: var(--color-light-text-secondary);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.meterTrack {
+  grid-column: 1 / -1;
+  height: 8px;
+  border-radius: var(--border-radius-4);
+  background: var(--color-light-neutral-translucent-100);
+  overflow: hidden;
+}
+
+.meterFill {
+  display: block;
+  height: 100%;
+  border-radius: var(--border-radius-4);
+  background: var(--color-light-accent-secondary);
+}
+
+.table {
+  width: 100%;
+  table-layout: fixed;
+  border-collapse: collapse;
+  font-size: 14px;
+  line-height: 20px;
+  font-variant-numeric: tabular-nums;
+}
+
+.table th,
+.table td {
+  padding: var(--gap-8) 0 var(--gap-8) var(--gap-8);
+  border-bottom: 1px solid var(--color-light-neutral-translucent-300);
+  text-align: right;
+  vertical-align: top;
+}
+
+.table th:first-child {
+  width: 40%;
+  padding-left: 0;
+  text-align: left;
+}
+
+.table thead th {
+  color: var(--color-light-text-secondary);
+  font-weight: 500;
+}
+
+.table tbody th {
+  font-weight: 500;
+}
+
+.table tbody th .share {
+  font-weight: 400;
+}
+
+.table tbody tr:last-child > * {
+  border-bottom: 0;
+}
+
+/* Доля — второй строкой: так таблица помещается в 360 px без прокрутки. */
+.share {
+  display: block;
+  color: var(--color-light-text-secondary);
+  white-space: nowrap;
+}
+
+.recent {
+  display: grid;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.recentItem {
+  display: grid;
+  gap: var(--gap-4);
+  padding: var(--gap-10) 0;
+}
+
+.recentItem + .recentItem {
+  border-top: 1px solid var(--color-light-neutral-translucent-300);
+}
+
+.recentItem:first-child {
+  padding-top: 0;
+}
+
+.recentText {
+  margin: 0;
+  font-size: 16px;
+  line-height: 22px;
+}
+
+.recentMeta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--gap-4) var(--gap-8);
+  color: var(--color-light-text-secondary);
+  font-size: 14px;
+  line-height: 18px;
+}
+
+.recentLink {
+  min-width: 0;
+  color: var(--color-light-text-secondary);
+}
+
+.recentLink:hover {
+  color: var(--color-light-text-primary);
+}
+
+.recentTime {
+  margin-left: auto;
+  white-space: nowrap;
+}

@@ -1,5 +1,5 @@
 import { Tab, Tabs } from '@alfalab/core-components/tabs/modern';
-import { useSearchParams } from 'react-router';
+import { Link, useSearchParams } from 'react-router';
 
 import { useOverview } from '../../api/hooks/insights';
 import { useSelectedCompany } from '../../app/company/selectedCompanyContext';
@@ -83,6 +83,9 @@ export function OverviewPage() {
           {view === 'bank' ? content : null}
         </Tab>
       </Tabs>
+      <p className={styles.qualityLink}>
+        <Link to="/quality">Как мы проверяем качество выводов</Link>
+      </p>
     </>
   );
 }

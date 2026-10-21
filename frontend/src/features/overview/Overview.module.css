@@ -170,3 +170,17 @@
   font-variant-numeric: tabular-nums;
   white-space: nowrap;
 }
+
+.qualityLink {
+  margin: var(--gap-24) 0 0;
+  font-size: 14px;
+  line-height: 20px;
+}
+
+.qualityLink a {
+  color: var(--color-light-text-secondary);
+}
+
+.qualityLink a:hover {
+  color: var(--color-light-text-primary);
+}

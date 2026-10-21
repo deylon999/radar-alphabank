@@ -20,6 +20,7 @@ function page(path: string | undefined, load: () => Promise<ComponentType>): Rou
 
 const loadFeed = async () => (await import('../../pages/feed/FeedPage')).FeedPage;
 const loadOverview = async () => (await import('../../pages/overview/OverviewPage')).OverviewPage;
+const loadQuality = async () => (await import('../../pages/quality/QualityPage')).QualityPage;
 const loadInsight = async () => (await import('../../pages/insight/InsightPage')).InsightPage;
 const loadCompany = async () => (await import('../../pages/company/CompanyPage')).CompanyPage;
 const loadNotifications = async () =>
@@ -32,6 +33,7 @@ const PAGE_LOADERS: [pattern: string, load: () => Promise<ComponentType>][] = [
   ['/', loadFeed],
   ['/business', loadBusiness],
   ['/overview', loadOverview],
+  ['/quality', loadQuality],
   ['/insights/:insightId', loadInsight],
   ['/company', loadCompany],
   ['/notifications', loadNotifications],
@@ -64,6 +66,7 @@ export const routes: RouteObject[] = [
     children: [
       page(undefined, loadFeed),
       page('overview', loadOverview),
+      page('quality', loadQuality),
       page('insights/:insightId', loadInsight),
       page('company', loadCompany),
       page('notifications', loadNotifications),

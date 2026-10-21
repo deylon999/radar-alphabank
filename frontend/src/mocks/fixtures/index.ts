@@ -7,6 +7,7 @@ import { grainInsights } from './insights-grain';
 
 export { companies, COMPANY_IDS, extractableFacts } from './companies';
 export { MOCK_NOW } from './define';
+export { demoFeedback, demoQuestions } from './quality';
 
 export const insights: Insight[] = [
   ...constructionInsights,
