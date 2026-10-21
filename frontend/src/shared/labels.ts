@@ -156,6 +156,7 @@ export const terms = {
   productName: 'Радар',
   feed: 'Лента',
   overview: 'Обзор',
+  quality: 'Качество выводов',
   byTopic: 'По темам',
   byBankMaterial: 'По материалам банка',
   insight: 'Инсайт',
@@ -205,6 +206,10 @@ export const pluralForms = {
   urgent: { one: 'срочный', few: 'срочных', many: 'срочных' },
   /** «учтён в 1 выводе», «в 3 выводах». */
   insightIn: { one: 'выводе', few: 'выводах', many: 'выводах' },
+  insightOne: { one: 'вывод', few: 'вывода', many: 'выводов' },
+  /** После «из»: «6 из 21 вывода», «из 9 выводов». */
+  ofInsights: { one: 'вывода', few: 'выводов', many: 'выводов' },
+  ofVotes: { one: 'оценки', few: 'оценок', many: 'оценок' },
   source: { one: 'источник', few: 'источника', many: 'источников' },
   fact: { one: 'факт', few: 'факта', many: 'фактов' },
   change: { one: 'изменение', few: 'изменения', many: 'изменений' },
