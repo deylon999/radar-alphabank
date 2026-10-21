@@ -9,6 +9,7 @@ import {
   type InsightFilters,
   type Overview,
   TOPICS,
+  type TraceStep,
 } from '../schemas/insight';
 import { typograph } from '../shared/lib/typography';
 import type { MockDb } from './db';
@@ -211,6 +212,42 @@ const dayMonthYear = new Intl.DateTimeFormat('ru-RU', {
  * Упрощённый ответ на уточняющий вопрос: собирается из полей инсайта и всегда ссылается на
  * них. Настоящий ответ готовит агент бэкенда по аналитике банка и данным клиента.
  */
+/**
+ * Шаги, по которым мок собирает ответ, — ровно то, что делает answerQuestion: смотрит
+ * аналитику банка, признаки клиента и новость. Настоящие шаги присылает агент бэкенда.
+ */
+export function answerSteps(insight: Insight): TraceStep[] {
+  const bank = insight.bankView;
+  const source = insight.sources[0];
+  const steps: TraceStep[] = [
+    { kind: 'plan', title: 'Разбираю вопрос: нужны аналитика банка, данные компании и новости' },
+    bank && !bank.material.outdated
+      ? { kind: 'tool', title: 'Аналитика банка', detail: bank.material.title }
+      : { kind: 'tool', title: 'Аналитика банка', detail: 'свежего материала по теме нет' },
+  ];
+  if (insight.signals?.length) {
+    steps.push({
+      kind: 'tool',
+      title: 'Профиль клиента',
+      detail: insight.signals.map((signal) => signal.value).join('; '),
+    });
+  }
+  if (source) {
+    steps.push({ kind: 'tool', title: 'Новости', detail: source.title });
+  }
+  steps.push({
+    kind: 'check',
+    title: bank?.material.outdated
+      ? 'Материал банка устарел — в ответе на него не опираюсь'
+      : 'Сверяю ответ с источниками',
+  });
+  return steps.map((step) => ({
+    ...step,
+    title: typograph(step.title),
+    ...(step.detail ? { detail: typograph(step.detail) } : {}),
+  }));
+}
+
 export function answerQuestion(insight: Insight, question: string): Answer {
   const citations: Citation[] = [];
   const parts: string[] = [];

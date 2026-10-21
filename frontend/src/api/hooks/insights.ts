@@ -1,6 +1,14 @@
 import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
-import type { AskBody, FeedbackBody, InsightFilters, InsightStatus } from '../../schemas/insight';
+import type {
+  Answer,
+  AskBody,
+  FeedbackBody,
+  InsightFilters,
+  InsightStatus,
+  TraceStep,
+} from '../../schemas/insight';
 import {
   askInsight,
   fetchDigest,
@@ -72,9 +80,54 @@ export function useSendInsightFeedback(insightId: string) {
   });
 }
 
-/** Уточняющий вопрос по инсайту: ответы не кешируются, каждый вопрос — новый запрос. */
+export interface AskResult {
+  answer: Answer;
+  /** Шаги агента, пришедшие по ходу ответа; пусто, если бэкенд не шлёт поток. */
+  steps: TraceStep[];
+}
+
+/**
+ * Уточняющий вопрос по инсайту: ответы не кешируются, каждый вопрос — новый запрос.
+ * Пока агент работает, `steps` растёт по мере его шагов; `cancel` прерывает ожидание.
+ */
 export function useAskInsight(insightId: string) {
-  return useMutation({
-    mutationFn: (body: AskBody) => askInsight(insightId, body),
+  const [steps, setSteps] = useState<TraceStep[]>([]);
+  const controllerRef = useRef<AbortController | null>(null);
+
+  const mutation = useMutation({
+    mutationFn: async (body: AskBody): Promise<AskResult> => {
+      controllerRef.current?.abort();
+      const controller = new AbortController();
+      controllerRef.current = controller;
+      const received: TraceStep[] = [];
+      const answer = await askInsight(insightId, body, {
+        signal: controller.signal,
+        onStep: (step) => {
+          received.push(step);
+          setSteps([...received]);
+        },
+      });
+      return { answer, steps: received };
+    },
+    // Шаги готового ответа живут в нём самом; живой список нужен только на время ожидания.
+    onSettled: () => {
+      setSteps([]);
+    },
   });
+
+  useEffect(
+    () => () => {
+      controllerRef.current?.abort();
+    },
+    [],
+  );
+
+  const { reset } = mutation;
+  const cancel = useCallback(() => {
+    controllerRef.current?.abort();
+    reset();
+    setSteps([]);
+  }, [reset]);
+
+  return { ...mutation, steps, cancel };
 }

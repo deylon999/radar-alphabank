@@ -24,6 +24,7 @@ import type { MockDb, MockStore } from './db';
 import { extractableFacts, MOCK_NOW, TELEGRAM_DEMO_LINK, TELEGRAM_DEMO_USERNAME } from './fixtures';
 import {
   answerQuestion,
+  answerSteps,
   searchCompanies,
   compareInsights,
   computeDigest,
@@ -306,7 +307,29 @@ export function createHandlers({ store, latency, isErrorMode }: MockHandlerOptio
             at: new Date().toISOString(),
           });
         });
-        return HttpResponse.json(answerQuestion(insight, body.question));
+        const answer = answerQuestion(insight, body.question);
+        if (!request.headers.get('Accept')?.includes('text/event-stream')) {
+          return HttpResponse.json(answer);
+        }
+        // Поток как у настоящего агента: шаги по одному с паузой, в конце ответ.
+        const encoder = new TextEncoder();
+        const events: [name: string, data: unknown][] = [
+          ...answerSteps(insight).map((step): [string, unknown] => ['step', step]),
+          ['answer', answer],
+        ];
+        const stream = new ReadableStream<Uint8Array>({
+          async start(controller) {
+            for (const [name, data] of events) {
+              const ms = latency();
+              if (ms > 0) await delay(ms);
+              controller.enqueue(
+                encoder.encode(`event: ${name}\ndata: ${JSON.stringify(data)}\n\n`),
+              );
+            }
+            controller.close();
+          },
+        });
+        return new HttpResponse(stream, { headers: { 'Content-Type': 'text/event-stream' } });
       },
     ),
 

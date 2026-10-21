@@ -1,4 +1,5 @@
 import { render, screen, waitFor, within } from '@testing-library/react';
+import { http, HttpResponse } from 'msw';
 import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 
 import { insights } from '../../mocks/fixtures';
@@ -15,6 +16,7 @@ beforeEach(() => {
   window.localStorage.clear();
 });
 afterEach(() => {
+  server.resetHandlers();
   store.reset();
 });
 afterAll(() => {
@@ -138,6 +140,72 @@ describe('карточка инсайта', () => {
       ).toHaveLength(2);
     });
     expect(within(ask).getByRole('textbox')).toHaveValue('');
+  });
+
+  it('у ответа — шаги агента, пришедшие по ходу', async () => {
+    const { user } = await openInsight('u9250-key-rate');
+    const ask = screen.getByRole('region', { name: 'Задать вопрос' });
+
+    await user.click(within(ask).getByRole('button', { name: 'Что будет при ставке 12%?' }));
+    const answers = await within(ask).findByRole('list', { name: 'Ответы' });
+    const trace = within(answers).getByText(/^Как агент искал ответ/);
+    expect(trace).toHaveTextContent('Как агент искал ответ · 5 шагов');
+
+    await user.click(trace);
+    const steps = within(answers).getByRole('list', { name: 'Шаги агента' });
+    expect(within(steps).getAllByRole('listitem')[1]).toHaveTextContent(
+      /^Данные.*Аналитика банка — Ключевая ставка ЦБ РФ/,
+    );
+  });
+
+  it('пока агент думает — статус, шаги по мере прихода и отмена без ошибки', async () => {
+    server.use(
+      http.post('*/api/insights/:insightId/ask', () => {
+        const step = 'event: step\ndata: {"kind":"plan","title":"Разбираю вопрос"}\n\n';
+        const stream = new ReadableStream<Uint8Array>({
+          start(controller) {
+            controller.enqueue(new TextEncoder().encode(step));
+          },
+        });
+        return new HttpResponse(stream, { headers: { 'Content-Type': 'text/event-stream' } });
+      }),
+    );
+    const { user } = await openInsight('u9250-key-rate');
+    const ask = screen.getByRole('region', { name: 'Задать вопрос' });
+
+    await user.click(within(ask).getByRole('button', { name: 'Что будет при ставке 12%?' }));
+
+    expect(await within(ask).findByRole('status')).toHaveTextContent(
+      'Агент готовит ответ — обычно до 30 секунд',
+    );
+    const steps = await within(ask).findByRole('list', { name: 'Шаги агента' });
+    expect(steps).toHaveTextContent('ПланРазбираю вопрос');
+
+    await user.click(within(ask).getByRole('button', { name: 'Отменить' }));
+
+    expect(within(ask).queryByRole('status')).not.toBeInTheDocument();
+    expect(within(ask).queryByRole('alert')).not.toBeInTheDocument();
+    expect(within(ask).getByRole('button', { name: 'Что будет при ставке 12%?' })).toBeEnabled();
+  });
+
+  it('бэкенд без потока отвечает JSON — ответ без шагов', async () => {
+    server.use(
+      http.post('*/api/insights/:insightId/ask', () =>
+        HttpResponse.json({
+          question: 'Что будет при ставке 12%?',
+          answer: 'Коротко.',
+          citations: [],
+        }),
+      ),
+    );
+    const { user } = await openInsight('u9250-key-rate');
+    const ask = screen.getByRole('region', { name: 'Задать вопрос' });
+
+    await user.click(within(ask).getByRole('button', { name: 'Что будет при ставке 12%?' }));
+
+    const answers = await within(ask).findByRole('list', { name: 'Ответы' });
+    expect(answers).toHaveTextContent('Коротко.');
+    expect(within(answers).queryByText(/Как агент искал ответ/)).not.toBeInTheDocument();
   });
 
   it('предложение банка подписано и ведёт на продукт в новой вкладке', async () => {

@@ -1,10 +1,17 @@
 import { Button } from '@alfalab/core-components/button/modern';
 import { Input } from '@alfalab/core-components/input/modern';
-import { useId, useState } from 'react';
+import cn from 'classnames';
+import { useEffect, useId, useState } from 'react';
 
-import { useAskInsight } from '../../../api/hooks/insights';
-import type { Answer, Insight } from '../../../schemas/insight';
-import { citationKindLabels, terms } from '../../../shared/labels';
+import { type AskResult, useAskInsight } from '../../../api/hooks/insights';
+import type { Insight, TraceStep } from '../../../schemas/insight';
+import {
+  citationKindLabels,
+  pluralForms,
+  terms,
+  traceStepKindLabels,
+} from '../../../shared/labels';
+import { pluralize } from '../../../shared/lib/plural';
 import { useUserRole } from '../../../shared/lib/userRole';
 import { Badge } from '../../../shared/ui/Badge/Badge';
 import { InsightSection } from '../InsightSection/InsightSection';
@@ -12,8 +19,76 @@ import sectionStyles from '../InsightSection/InsightSection.module.css';
 import styles from './AskPanel.module.css';
 
 const QUESTION_LIMIT = 500;
+/** Обычное время ответа агента; дольше — честно говорим, что ждём дольше обычного. */
+const USUAL_WAIT_SECONDS = 30;
 
-function AnswerItem({ answer }: { answer: Answer }) {
+/** Текущее время, которое тикает раз в секунду, пока `active`. */
+function useNow(active: boolean): number {
+  const [now, setNow] = useState(() => Date.now());
+  useEffect(() => {
+    if (!active) return undefined;
+    const timer = setInterval(() => {
+      setNow(Date.now());
+    }, 1000);
+    return () => {
+      clearInterval(timer);
+    };
+  }, [active]);
+  return now;
+}
+
+function StepList({ steps, live = false }: { steps: TraceStep[]; live?: boolean }) {
+  return (
+    <ol className={styles.steps} aria-label="Шаги агента" aria-live={live ? 'polite' : undefined}>
+      {steps.map((step, index) => (
+        <li
+          // Шаги только добавляются в конец — индекс как ключ безопасен.
+          key={index}
+          className={cn(styles.step, live && index === steps.length - 1 && styles.stepCurrent)}
+        >
+          <span className={styles.stepKind}>{traceStepKindLabels[step.kind]}</span>
+          <span>
+            {step.title}
+            {step.detail ? <span className={sectionStyles.muted}> — {step.detail}</span> : null}
+          </span>
+        </li>
+      ))}
+    </ol>
+  );
+}
+
+/**
+ * Пока агент готовит ответ: сколько ждём, его шаги — если бэкенд их присылает — и отмена.
+ * Шагов-заглушек нет: показываем только то, что пришло от агента.
+ */
+function AskProgress({ steps, onCancel }: { steps: TraceStep[]; onCancel: () => void }) {
+  // Блок появляется вместе с запросом — момент его появления и есть начало ожидания.
+  const [startedAt] = useState(() => Date.now());
+  const seconds = Math.max(0, Math.floor((useNow(true) - startedAt) / 1000));
+  return (
+    <div className={styles.progress}>
+      <div className={styles.progressHead}>
+        <span className={styles.pulse} aria-hidden="true" />
+        <p role="status">
+          {seconds < USUAL_WAIT_SECONDS
+            ? 'Агент готовит ответ — обычно до 30 секунд'
+            : 'Агент работает дольше обычного, ответ ещё готовится'}
+        </p>
+        <span className={styles.elapsed} aria-hidden="true">
+          {seconds} с
+        </span>
+      </div>
+      {steps.length > 0 ? <StepList steps={steps} live /> : null}
+      <div>
+        <Button view="secondary" size={32} onClick={onCancel}>
+          Отменить
+        </Button>
+      </div>
+    </div>
+  );
+}
+
+function AnswerItem({ result: { answer, steps } }: { result: AskResult }) {
   return (
     <li className={styles.answer}>
       <p className={styles.question}>{answer.question}</p>
@@ -42,6 +117,14 @@ function AnswerItem({ answer }: { answer: Answer }) {
           </ul>
         </>
       ) : null}
+      {steps.length > 0 ? (
+        <details className={styles.trace}>
+          <summary className={styles.traceSummary}>
+            Как агент искал ответ · {pluralize(steps.length, pluralForms.step)}
+          </summary>
+          <StepList steps={steps} />
+        </details>
+      ) : null}
     </li>
   );
 }
@@ -54,7 +137,7 @@ export function AskPanel({ insight }: { insight: Insight }) {
   const ask = useAskInsight(insight.id);
   const [role] = useUserRole();
   const [question, setQuestion] = useState('');
-  const [answers, setAnswers] = useState<Answer[]>([]);
+  const [answers, setAnswers] = useState<AskResult[]>([]);
   const inputId = useId();
 
   const submit = (text: string) => {
@@ -65,8 +148,8 @@ export function AskPanel({ insight }: { insight: Insight }) {
     ask.mutate(
       { question: trimmed, role },
       {
-        onSuccess: (answer) => {
-          setAnswers((current) => [answer, ...current]);
+        onSuccess: (result) => {
+          setAnswers((current) => [result, ...current]);
           setQuestion('');
         },
       },
@@ -74,7 +157,7 @@ export function AskPanel({ insight }: { insight: Insight }) {
   };
 
   const suggestions = (insight.suggestedQuestions ?? []).filter(
-    (suggestion) => !answers.some((answer) => answer.question === suggestion),
+    (suggestion) => !answers.some(({ answer }) => answer.question === suggestion),
   );
 
   return (
@@ -130,11 +213,7 @@ export function AskPanel({ insight }: { insight: Insight }) {
             </Button>
           </div>
         </form>
-        {ask.isPending ? (
-          <p className={sectionStyles.muted} role="status">
-            Готовим ответ по аналитике банка и данным компании…
-          </p>
-        ) : null}
+        {ask.isPending ? <AskProgress steps={ask.steps} onCancel={ask.cancel} /> : null}
         {ask.isError ? (
           <p className={styles.error} role="alert">
             Не удалось получить ответ. Попробуйте ещё раз.
@@ -142,9 +221,9 @@ export function AskPanel({ insight }: { insight: Insight }) {
         ) : null}
         {answers.length > 0 ? (
           <ol className={styles.answers} aria-label="Ответы">
-            {answers.map((answer, index) => (
+            {answers.map((result, index) => (
               // Ответы только добавляются в начало: ключ — их число на момент ответа.
-              <AnswerItem key={answers.length - index} answer={answer} />
+              <AnswerItem key={answers.length - index} result={result} />
             ))}
           </ol>
         ) : null}

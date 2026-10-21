@@ -68,3 +68,88 @@
 .error {
   color: var(--color-light-text-primary);
 }
+
+/* Ожидание ответа: строка статуса с секундами, шаги агента по мере прихода, отмена. */
+.progress {
+  display: grid;
+  gap: var(--gap-12);
+  padding: var(--gap-16);
+  border: 1px dashed var(--color-light-neutral-translucent-500);
+  border-radius: var(--border-radius-12);
+}
+
+.progressHead {
+  display: flex;
+  align-items: center;
+  gap: var(--gap-8);
+}
+
+.progressHead p {
+  flex: 1 1 auto;
+}
+
+.elapsed {
+  color: var(--color-light-text-secondary);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.pulse {
+  flex: none;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--color-light-accent-secondary);
+  animation: pulse 1.2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  50% {
+    opacity: 0.25;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pulse {
+    animation: none;
+  }
+}
+
+.steps {
+  display: grid;
+  gap: var(--gap-8);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: 14px;
+  line-height: 20px;
+}
+
+.step {
+  display: grid;
+  grid-template-columns: 84px minmax(0, 1fr);
+  gap: var(--gap-8);
+}
+
+.stepKind {
+  color: var(--color-light-text-secondary);
+}
+
+/* Последний пришедший шаг — то, чем агент занят сейчас. */
+.stepCurrent {
+  font-weight: 500;
+}
+
+.trace {
+  font-size: 14px;
+  line-height: 20px;
+}
+
+.traceSummary {
+  color: var(--color-light-text-secondary);
+  cursor: pointer;
+}
+
+.trace[open] .traceSummary {
+  margin-bottom: var(--gap-8);
+}
