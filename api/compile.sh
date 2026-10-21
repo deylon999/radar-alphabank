@@ -1,0 +1,1 @@
+npx tsp compile . --warn-as-error
