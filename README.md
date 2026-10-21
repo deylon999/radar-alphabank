@@ -8,3 +8,5 @@
 
 Описание, запуск и сценарий проверки — в [`frontend/README.md`](frontend/README.md).
 Договор API для бэкенда — [`frontend/docs/api-contract.md`](frontend/docs/api-contract.md).
+
+Как вносить изменения: ветки, pull request, формат коммитов — [`CONTRIBUTING.md`](CONTRIBUTING.md).
