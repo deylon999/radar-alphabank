@@ -8,9 +8,9 @@ const badRequestExample: BadRequestError = #{
     cacheControl: "no-store",
     body: #{
         type: "/problems/malformed-request",
-        title: "Malformed request",
+        title: "Некорректный запрос",
         status: 400,
-        detail: "The request contains invalid JSON or an invalid parameter."
+        detail: "В запросе некорректный JSON или параметр."
     }
 };
 

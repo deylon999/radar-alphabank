@@ -8,9 +8,9 @@ const conflictExample: ConflictError = #{
     cacheControl: "no-store",
     body: #{
         type: "/problems/invalid-security-state",
-        title: "Invalid security state",
+        title: "Операция недоступна",
         status: 409,
-        detail: "The operation cannot be performed in the current security state."
+        detail: "Операцию нельзя выполнить в текущем состоянии входа."
     }
 };
 

@@ -20,9 +20,9 @@ const invalidCsrfExample: ForbiddenError<InvalidCsrfDetails> = #{
     cacheControl: "no-store",
     body: #{
         type: "/problems/invalid-csrf-token",
-        title: "Invalid CSRF token",
+        title: "Неверный CSRF-токен",
         status: 403,
-        detail: "Obtain a CSRF token for the current session before submitting the request."
+        detail: "Получите CSRF-токен для текущей сессии и повторите запрос."
     }
 };
 
@@ -32,9 +32,9 @@ const reauthenticationRequiredExample: ForbiddenError<ReauthenticationRequiredDe
     cacheControl: "no-store",
     body: #{
         type: "/problems/reauthentication-required",
-        title: "Reauthentication required",
+        title: "Нужно подтвердить личность",
         status: 403,
-        detail: "Confirm your identity before performing this operation."
+        detail: "Перед этой операцией подтвердите личность."
     }
 };
 

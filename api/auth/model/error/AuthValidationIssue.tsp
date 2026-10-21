@@ -10,13 +10,13 @@ const credentialsValidationExample: ValidationError<AuthValidationIssue> = #{
     cacheControl: "no-store",
     body: #{
         type: "/problems/validation-failed",
-        title: "Validation failed",
+        title: "Ошибка валидации",
         status: 422,
         errors: #[
             #{
                 field: "email",
                 title: "INVALID_FORMAT",
-                description: "Email must be a valid email address."
+                description: "Укажите корректный email."
             }
         ]
     }
@@ -26,13 +26,13 @@ const passwordValidationExample: ValidationError<AuthValidationIssue> = #{
     ...credentialsValidationExample,
     body: #{
         type: "/problems/validation-failed",
-        title: "Validation failed",
+        title: "Ошибка валидации",
         status: 422,
         errors: #[
             #{
                 field: "newPassword",
                 title: "OUT_OF_RANGE",
-                description: "New password must contain between 15 and 255 characters."
+                description: "Новый пароль должен быть длиной от 15 до 255 символов."
             }
         ]
     }
@@ -42,13 +42,13 @@ const secondFactorValidationExample: ValidationError<AuthValidationIssue> = #{
     ...credentialsValidationExample,
     body: #{
         type: "/problems/validation-failed",
-        title: "Validation failed",
+        title: "Ошибка валидации",
         status: 422,
         errors: #[
             #{
                 field: "code",
                 title: "MUST_MATCH_PATTERN",
-                description: "A TOTP code must contain exactly six decimal digits."
+                description: "TOTP-код должен состоять ровно из шести цифр."
             }
         ]
     }
@@ -62,13 +62,13 @@ const reauthenticationValidationExample: ValidationError<AuthValidationIssue> = 
     ...credentialsValidationExample,
     body: #{
         type: "/problems/validation-failed",
-        title: "Validation failed",
+        title: "Ошибка валидации",
         status: 422,
         errors: #[
             #{
                 field: "password",
                 title: "REQUIRED",
-                description: "The current password is required."
+                description: "Нужно указать текущий пароль."
             }
         ]
     }
@@ -77,7 +77,7 @@ const reauthenticationValidationExample: ValidationError<AuthValidationIssue> = 
 const reauthenticationValidationOperationExample = #{ returnType: reauthenticationValidationExample };
 
 @doc("Ошибки полей запросов безопасности. Неверный по значению пароль или код возвращает 401, а не 422.")
-@example(#{ field: "email", title: "INVALID_FORMAT", description: "Email must be a valid email address." })
+@example(#{ field: "email", title: "INVALID_FORMAT", description: "Укажите корректный email." })
 union AuthValidationIssue {
     email: {
         field: "email";

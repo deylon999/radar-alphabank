@@ -12,9 +12,9 @@ const tooManyRequestsExample: TooManyRequestsError = #{
     retryAfter: 35,
     body: #{
         type: "/problems/too-many-attempts",
-        title: "Too many attempts",
+        title: "Слишком много попыток",
         status: 429,
-        detail: "Too many attempts. Wait before trying again."
+        detail: "Слишком много попыток. Подождите и попробуйте снова."
     }
 };
 
