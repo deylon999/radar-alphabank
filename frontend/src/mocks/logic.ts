@@ -1,4 +1,5 @@
 import type { Company, FactCategory, ProfileFact } from '../schemas/company';
+import type { QualityMetrics } from '../schemas/quality';
 import {
   type Answer,
   type Citation,
@@ -10,6 +11,7 @@ import {
   TOPICS,
 } from '../schemas/insight';
 import { typograph } from '../shared/lib/typography';
+import type { MockDb } from './db';
 
 /** Небольшая страница, чтобы в демо было видно «Показать ещё». */
 export const PAGE_SIZE = 4;
@@ -276,4 +278,95 @@ export function searchCompanies(companies: readonly Company[], query: string): C
     return words.every((word) => haystack.includes(word));
   });
   return matches.slice(0, COMPANY_SEARCH_LIMIT);
+}
+
+const RECENT_LIMIT = 10;
+const MINUTE_MS = 60_000;
+
+/** Перцентиль по ближайшему рангу: для p90 из 21 значения — 19-е по возрастанию. */
+function percentile(sorted: readonly number[], p: number): number {
+  if (sorted.length === 0) return 0;
+  return sorted[Math.max(0, Math.ceil((p / 100) * sorted.length) - 1)] ?? 0;
+}
+
+const newestFirst = <T extends { at: string }>(items: readonly T[]): T[] =>
+  items.toSorted((a, b) => Date.parse(b.at) - Date.parse(a.at));
+
+/** Метрики качества по всем клиентам: что из выводов полезно, что скрывают, о чём спрашивают. */
+export function computeQualityMetrics(db: MockDb, now: number): QualityMetrics {
+  const byId = new Map(db.insights.map((insight) => [insight.id, insight]));
+  const titleOf = (insightId: string) => byId.get(insightId)?.title ?? insightId;
+
+  const latestVote = new Map<string, boolean>();
+  for (const entry of db.feedback.toSorted((a, b) => Date.parse(a.at) - Date.parse(b.at))) {
+    latestVote.set(entry.insightId, entry.useful);
+  }
+  const votes = [...latestVote.values()];
+
+  // Реакция — от последнего сигнала, вышедшего до вывода: новости или материала банка.
+  const reactions = db.insights
+    .flatMap((insight) => {
+      const created = Date.parse(insight.createdAt);
+      const inputs = [
+        ...insight.sources.map((source) => source.publishedAt),
+        ...(insight.bankView ? [insight.bankView.material.publishedAt] : []),
+      ]
+        .map((iso) => Date.parse(iso))
+        .filter((at) => at <= created);
+      return inputs.length > 0 ? [Math.round((created - Math.max(...inputs)) / MINUTE_MS)] : [];
+    })
+    .toSorted((a, b) => a - b);
+
+  return {
+    generatedAt: new Date(now).toISOString(),
+    insights: db.insights.length,
+    engagement: {
+      read: db.insights.filter((insight) => insight.status === 'read').length,
+      dismissed: db.insights.filter((insight) => insight.status === 'dismissed').length,
+      questions: db.questions.length,
+    },
+    feedback: {
+      useful: votes.filter(Boolean).length,
+      notUseful: votes.filter((useful) => !useful).length,
+      comments: newestFirst(db.feedback)
+        .flatMap(({ insightId, useful, comment, at }) =>
+          comment ? [{ insightId, insightTitle: titleOf(insightId), useful, comment, at }] : [],
+        )
+        .slice(0, RECENT_LIMIT),
+    },
+    completeness: {
+      withBankView: db.insights.filter(
+        (insight) => insight.bankView && !insight.bankView.material.outdated,
+      ).length,
+      withSignals: db.insights.filter((insight) => (insight.signals ?? []).length > 0).length,
+      withSelfCheck: db.insights.filter((insight) =>
+        (insight.trace ?? []).some((step) => step.kind === 'check'),
+      ).length,
+      withChecks: db.insights.filter((insight) => insight.checks.length > 0).length,
+      outdatedBankView: db.insights.filter((insight) => insight.bankView?.material.outdated).length,
+    },
+    reactionMinutes: { median: percentile(reactions, 50), p90: percentile(reactions, 90) },
+    topics: TOPICS.map((topic) => {
+      const own = db.insights.filter((insight) => insight.topic === topic);
+      const ownVotes = own.flatMap((insight) => {
+        const vote = latestVote.get(insight.id);
+        return vote === undefined ? [] : [vote];
+      });
+      return {
+        topic,
+        insights: own.length,
+        useful: ownVotes.filter(Boolean).length,
+        notUseful: ownVotes.filter((useful) => !useful).length,
+        dismissed: own.filter((insight) => insight.status === 'dismissed').length,
+      };
+    }).filter((row) => row.insights > 0),
+    questions: newestFirst(db.questions)
+      .slice(0, RECENT_LIMIT)
+      .map(({ insightId, question, at }) => ({
+        insightId,
+        insightTitle: titleOf(insightId),
+        question,
+        at,
+      })),
+  };
 }

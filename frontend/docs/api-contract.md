@@ -53,6 +53,7 @@
 | PATCH | `/api/insights/:id`                | `Insight`                                          |
 | POST  | `/api/insights/:id/feedback`       | `204 No Content`                                   |
 | POST  | `/api/insights/:id/ask`            | `Answer` — ответ на уточняющий вопрос              |
+| GET   | `/api/metrics/quality`             | `QualityMetrics` — метрики качества выводов        |
 | GET   | `/api/notifications/settings`      | `NotificationSettings`                             |
 | PUT   | `/api/notifications/settings`      | `NotificationSettings`                             |
 | POST  | `/api/notifications/telegram/link` | `{ url: string }`                                  |
@@ -238,6 +239,61 @@
 - `materials` — материалы из `bankView.material` (без `page`), по которым есть выводы.
   Свежие сверху, `outdated` — в конце. `supersedes` в разрез не входит.
 - Пустые группы не передаются; если выводов нет — пустые массивы.
+
+### Метрики качества: `GET /api/metrics/quality`
+
+Экран «Качество выводов» (`/quality`) для команды и жюри. Считается по всем клиентам.
+
+```json
+{
+  "generatedAt": "2026-10-21T10:00:00Z",
+  "insights": 21,
+  "engagement": { "read": 7, "dismissed": 1, "questions": 4 },
+  "feedback": {
+    "useful": 6,
+    "notUseful": 3,
+    "comments": [
+      {
+        "insightId": "u9250-steel",
+        "insightTitle": "Металлопрокат дорожает третий месяц…",
+        "useful": false,
+        "comment": "Оценка банка 2021 года, по стали нужно что-то свежее",
+        "at": "2026-10-20T14:36:00Z"
+      }
+    ]
+  },
+  "completeness": {
+    "withBankView": 19,
+    "withSignals": 21,
+    "withSelfCheck": 9,
+    "withChecks": 21,
+    "outdatedBankView": 1
+  },
+  "reactionMinutes": { "median": 210, "p90": 720 },
+  "topics": [{ "topic": "financing", "insights": 5, "useful": 2, "notUseful": 0, "dismissed": 0 }],
+  "questions": [
+    {
+      "insightId": "u9250-key-rate",
+      "insightTitle": "ЦБ сохранил ставку 14%…",
+      "question": "Что будет при ставке 12%?",
+      "at": "2026-10-20T06:36:00Z"
+    }
+  ]
+}
+```
+
+- `insights` — сколько выводов выдано; остальные счётчики считаются из этого числа.
+- `engagement.read` — статус `read`, `dismissed` — `dismissed`, `questions` — все вопросы
+  `POST /api/insights/:id/ask`.
+- `feedback` — **последняя** оценка каждого вывода от каждого пользователя: «Полезно», а потом
+  комментарий к нему — один голос, не два. `comments` — до 10 последних с текстом, новые сверху.
+- `completeness`: `withBankView` — `bankView` на неустаревшем материале; `withSignals` — есть
+  `signals`; `withSelfCheck` — в `trace` есть шаг `check`; `withChecks` — непустые `checks`;
+  `outdatedBankView` — `bankView.material.outdated`.
+- `reactionMinutes` — минуты от последнего сигнала, вышедшего до вывода (самый поздний
+  `sources[].publishedAt` или `bankView.material.publishedAt`, не позже `createdAt`), до
+  `createdAt`. Медиана и 90-й перцентиль по ближайшему рангу.
+- `topics` — только темы, где есть выводы. `questions` — до 10 последних, новые сверху.
 
 ### Статус инсайта: `PATCH /api/insights/:id`
 

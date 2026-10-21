@@ -19,6 +19,7 @@ export const queryKeys = {
     overview: (companyId: string) => [...queryKeys.insights.all, 'overview', companyId] as const,
     detail: (insightId: string) => [...queryKeys.insights.all, 'detail', insightId] as const,
   },
+  quality: () => ['quality'] as const,
   notifications: {
     settings: () => ['notifications', 'settings'] as const,
   },

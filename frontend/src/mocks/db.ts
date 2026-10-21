@@ -1,15 +1,19 @@
 import { z } from 'zod';
 
+import { isoDateTimeSchema } from '../schemas/common';
 import { companySchema } from '../schemas/company';
 import { feedbackBodySchema, insightSchema } from '../schemas/insight';
 import { notificationSettingsSchema } from '../schemas/notifications';
-import { companies, insights, notificationSettings } from './fixtures';
+import { companies, demoFeedback, demoQuestions, insights, notificationSettings } from './fixtures';
 
 const mockDbSchema = z.object({
   companies: z.array(companySchema),
   insights: z.array(insightSchema),
   notifications: notificationSettingsSchema,
-  feedback: z.array(feedbackBodySchema.extend({ insightId: z.string() })),
+  feedback: z.array(feedbackBodySchema.extend({ insightId: z.string(), at: isoDateTimeSchema })),
+  questions: z.array(
+    z.object({ insightId: z.string(), question: z.string(), at: isoDateTimeSchema }),
+  ),
   /** Сколько «извлекаемых» фактов уже выдано каждой компании. */
   extractedCount: z.record(z.string(), z.number().int().nonnegative()),
   nextFactNumber: z.number().int().positive(),
@@ -19,14 +23,15 @@ export type MockDb = z.infer<typeof mockDbSchema>;
 
 export type MockStorage = Pick<Storage, 'getItem' | 'setItem' | 'removeItem'>;
 
-const STORAGE_KEY = 'radar-mock-db-v1';
+const STORAGE_KEY = 'radar-mock-db-v2';
 
 export function createInitialDb(): MockDb {
   return structuredClone({
     companies,
     insights,
     notifications: notificationSettings,
-    feedback: [],
+    feedback: demoFeedback,
+    questions: demoQuestions,
     extractedCount: {},
     nextFactNumber: 1,
   });

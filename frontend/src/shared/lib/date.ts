@@ -1,5 +1,7 @@
 /** Все даты интерфейса форматируются здесь — через Intl.DateTimeFormat('ru-RU'). */
 
+import { NBSP } from './typography';
+
 const timeFormat = new Intl.DateTimeFormat('ru-RU', { hour: '2-digit', minute: '2-digit' });
 const shortDayMonth = new Intl.DateTimeFormat('ru-RU', { day: 'numeric', month: 'short' });
 const shortDayMonthYear = new Intl.DateTimeFormat('ru-RU', {
@@ -63,4 +65,19 @@ export function formatLongDate(iso: string): string {
 /** Полная дата для подсказки: «18 октября 2026 г. в 14:20». */
 export function formatFullDate(iso: string): string {
   return fullDateTime.format(new Date(iso));
+}
+
+/** Длительность по-человечески: «50 мин», «3 ч 30 мин», «2 дн 4 ч». */
+export function formatDuration(minutes: number): string {
+  const total = Math.max(0, Math.round(minutes));
+  const days = Math.floor(total / (24 * 60));
+  const hours = Math.floor((total % (24 * 60)) / 60);
+  const mins = total % 60;
+  const parts =
+    days > 0
+      ? [`${String(days)}${NBSP}дн`, hours > 0 ? `${String(hours)}${NBSP}ч` : '']
+      : hours > 0
+        ? [`${String(hours)}${NBSP}ч`, mins > 0 ? `${String(mins)}${NBSP}мин` : '']
+        : [`${String(mins)}${NBSP}мин`];
+  return parts.filter(Boolean).join(' ');
 }

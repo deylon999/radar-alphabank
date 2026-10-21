@@ -10,12 +10,14 @@ import {
 } from '../api/endpoints/companies';
 import {
   askInsight,
+  sendInsightFeedback,
   fetchDigest,
   fetchInsight,
   fetchInsights,
   fetchOverview,
   updateInsightStatus,
 } from '../api/endpoints/insights';
+import { fetchQualityMetrics } from '../api/endpoints/quality';
 import {
   fetchNotificationSettings,
   requestTelegramLink,
@@ -156,6 +158,45 @@ describe('моки обзора', () => {
     const all = [...topics, ...materials].flatMap((group) => group.insights);
 
     expect(all.map((insight) => insight.id)).not.toContain('u9250-key-rate');
+  });
+});
+
+describe('моки метрик качества', () => {
+  it('считает последнюю оценку каждого вывода, а не каждое нажатие', async () => {
+    const before = await fetchQualityMetrics();
+    await sendInsightFeedback('u9250-budget', { useful: false });
+    await sendInsightFeedback('u9250-budget', { useful: true, comment: 'Учли в тендерах' });
+
+    const after = await fetchQualityMetrics();
+    expect(after.feedback.useful).toBe(before.feedback.useful + 1);
+    expect(after.feedback.notUseful).toBe(before.feedback.notUseful);
+    expect(after.feedback.comments[0]).toMatchObject({
+      insightId: 'u9250-budget',
+      comment: 'Учли в тендерах',
+      useful: true,
+    });
+  });
+
+  it('учитывает вопросы агенту и скрытые выводы', async () => {
+    const before = await fetchQualityMetrics();
+    await askInsight('u9250-yuan', { question: 'Когда лучше купить юани?' });
+    await updateInsightStatus('u9250-yuan', 'dismissed');
+
+    const after = await fetchQualityMetrics();
+    expect(after.engagement.questions).toBe(before.engagement.questions + 1);
+    expect(after.questions[0]).toMatchObject({ question: 'Когда лучше купить юани?' });
+    expect(after.engagement.dismissed).toBe(1);
+    expect(after.topics.find((row) => row.topic === 'currency')?.dismissed).toBe(1);
+  });
+
+  it('полнота и реакция — по всем выводам', async () => {
+    const metrics = await fetchQualityMetrics();
+
+    expect(metrics.insights).toBe(insights.length);
+    expect(metrics.completeness.outdatedBankView).toBe(1);
+    expect(metrics.completeness.withSignals).toBe(insights.length);
+    expect(metrics.reactionMinutes.median).toBeGreaterThan(0);
+    expect(metrics.reactionMinutes.p90).toBeGreaterThanOrEqual(metrics.reactionMinutes.median);
   });
 });
 

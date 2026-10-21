@@ -28,6 +28,7 @@ import {
   compareInsights,
   computeDigest,
   computeOverview,
+  computeQualityMetrics,
   extractTextFacts,
   filterInsights,
   paginate,
@@ -283,7 +284,7 @@ export function createHandlers({ store, latency, isErrorMode }: MockHandlerOptio
         if (!body) return error(400, 'Неверный формат запроса');
         if (!store.read().insights.some((item) => item.id === params.insightId)) return notFound();
         store.write((db) => {
-          db.feedback.push({ ...body, insightId: params.insightId });
+          db.feedback.push({ ...body, insightId: params.insightId, at: new Date().toISOString() });
         });
         return new HttpResponse(null, { status: 204 });
       },
@@ -297,9 +298,23 @@ export function createHandlers({ store, latency, isErrorMode }: MockHandlerOptio
         const body = await readJson(request, askBodySchema);
         if (!body) return error(400, 'Вопрос — от 1 до 500 символов');
         const insight = store.read().insights.find((item) => item.id === params.insightId);
-        return insight ? HttpResponse.json(answerQuestion(insight, body.question)) : notFound();
+        if (!insight) return notFound();
+        store.write((db) => {
+          db.questions.push({
+            insightId: insight.id,
+            question: body.question,
+            at: new Date().toISOString(),
+          });
+        });
+        return HttpResponse.json(answerQuestion(insight, body.question));
       },
     ),
+
+    http.get(`${API}/metrics/quality`, async () => {
+      return (
+        (await prelude()) ?? HttpResponse.json(computeQualityMetrics(store.read(), Date.now()))
+      );
+    }),
 
     http.get(`${API}/notifications/settings`, async () => {
       return (await prelude()) ?? HttpResponse.json(store.read().notifications);
