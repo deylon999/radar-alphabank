@@ -1,6 +1,6 @@
 import type { z } from 'zod';
 
-import { apiErrorBodySchema } from '../schemas/common';
+import { type ProblemDetails, problemDetailsSchema, problemMessage } from '../schemas/common';
 import { ApiError } from './ApiError';
 import { apiConfig, mockStatus } from './config';
 
@@ -49,14 +49,31 @@ export function toApiError(error: unknown, timeoutSignal?: AbortSignal): ApiErro
   return new ApiError({ kind: 'network', message: 'Нет связи с сервером', cause: error });
 }
 
-async function readErrorMessage(response: Response): Promise<string> {
+async function readProblem(response: Response): Promise<ProblemDetails> {
   try {
-    const parsed = apiErrorBodySchema.safeParse(await response.json());
-    return parsed.success ? parsed.data.message : response.statusText;
+    const parsed = problemDetailsSchema.safeParse(await response.json());
+    return parsed.success ? parsed.data : {};
   } catch {
-    return response.statusText;
+    return {};
   }
 }
+
+/** Ошибка сервера в формате Problem Details или прежнем `{ message }`. */
+export function problemError(
+  problem: ProblemDetails,
+  status?: number,
+  fallbackMessage = 'Ошибка сервера',
+): ApiError {
+  return new ApiError({
+    kind: 'http',
+    status: status ?? problem.status,
+    message: problemMessage(problem) ?? fallbackMessage,
+    problemType: problem.type,
+    issues: problem.errors,
+  });
+}
+
+const JSON_TYPE = /application\/(problem\+)?json/;
 
 export function isEventStream(response: Response): boolean {
   return response.headers.get('Content-Type')?.includes('text/event-stream') ?? false;
@@ -64,7 +81,7 @@ export function isEventStream(response: Response): boolean {
 
 /** Моки отвечают JSON, потоком событий или 204. Что-то другое — ответ сервера сайта. */
 function missedMocks(response: Response): boolean {
-  const isJson = response.headers.get('Content-Type')?.includes('application/json') ?? false;
+  const isJson = JSON_TYPE.test(response.headers.get('Content-Type') ?? '');
   return response.status !== 204 && !isJson && !isEventStream(response);
 }
 
@@ -103,11 +120,11 @@ export async function send(path: string, options: RequestOptions): Promise<Respo
   }
 
   if (!response.ok) {
-    throw new ApiError({
-      kind: 'http',
-      status: response.status,
-      message: await readErrorMessage(response),
-    });
+    throw problemError(
+      await readProblem(response),
+      response.status,
+      response.statusText || undefined,
+    );
   }
   return response;
 }
