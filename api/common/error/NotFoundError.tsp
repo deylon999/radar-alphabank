@@ -18,5 +18,4 @@ const notFoundOperationExample = #{ returnType: notFoundExample };
 
 @error
 @doc("Ошибка: ресурс не найден среди доступных текущему пользователю.")
-@example(notFoundExample)
 model NotFoundError<TBody = ProblemDetails<404>> is ProblemResponse<404, TBody>;

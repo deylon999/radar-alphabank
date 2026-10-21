@@ -5,7 +5,7 @@ const registerRequestExample: RegisterRequest = #{
     password: "My company has useful news"
 };
 
-@doc("Данные регистрации. Идентификаторы пользователя и его компании назначает сервер.")
+@doc("Данные регистрации. ID пользователя назначает сервер. Компания при регистрации не создаётся и не выбирается.")
 @example(registerRequestExample)
 model RegisterRequest {
     @doc("Уникальный email пользователя.")

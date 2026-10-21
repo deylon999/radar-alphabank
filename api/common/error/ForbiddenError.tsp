@@ -42,5 +42,5 @@ const invalidCsrfOperationExample = #{ returnType: invalidCsrfExample };
 const reauthenticationRequiredOperationExample = #{ returnType: reauthenticationRequiredExample };
 
 @error
-@doc("Ошибка: запрос не прошёл дополнительную проверку безопасности.")
+@doc("Ошибка: запрос не прошёл проверку безопасности или у пользователя нет права на действие.")
 model ForbiddenError<TBody = ProblemDetails<403>> is ProblemResponse<403, TBody>;
