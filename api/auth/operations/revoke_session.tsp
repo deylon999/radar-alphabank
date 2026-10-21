@@ -32,15 +32,15 @@ const revokeCurrentSessionOperationExample = #{
 
 @delete
 @route("/sessions/{id}")
-@summary("Завершить выбранную сессию.")
+@summary("Завершение сессии")
 @doc("""
-    Завершает сессию, принадлежащую текущему пользователю, по публичному ID.
-    Чужая, отсутствующая или истёкшая сессия возвращает одинаковый 404.
-    При завершении текущей сессии также удаляет её cookie.
-    На другом устройстве cookie может остаться, но больше не подтверждает вход.
-    Уже выполняющийся запрос на отзываемой сессии автоматически не прерывается.
+    Завершает сессию текущего пользователя по её публичному id.
+    Для чужой, отсутствующей или истёкшей сессии возвращается одинаковый 404.
+    Если завершается текущая сессия, её cookie тоже удаляется.
+    На другом устройстве cookie может остаться, но вход по ней больше не работает.
+    Запрос, который уже выполняется в отзываемой сессии, не прерывается.
     """)
-@returnsDoc("Выбранная сессия завершена.")
+@returnsDoc("Сессия завершена.")
 @opExample(revokeOtherSessionOperationExample)
 @opExample(revokeCurrentSessionOperationExample)
 @opExample(badRequestOperationExample)
@@ -48,7 +48,7 @@ const revokeCurrentSessionOperationExample = #{
 @opExample(invalidCsrfOperationExample)
 @opExample(notFoundOperationExample)
 op revokeSession(
-    @doc("Публичный ID из GET /auth/sessions, а не значение cookie.")
+    @doc("Публичный id из GET /auth/sessions, а не значение cookie.")
     @path id: Uuid,
     ...CsrfParameters
 ):

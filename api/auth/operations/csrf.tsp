@@ -27,17 +27,17 @@ const getCsrfTokenSuccessOperationExample = #{
 @get
 @route("/csrf")
 @useAuth(NoAuth)
-@summary("Получить CSRF-токен.")
+@summary("Получение CSRF-токена")
 @doc("""
     Возвращает токен текущей сессии. Если сессии нет, создаёт анонимную и устанавливает cookie.
-    Доступен до входа. Не выдаёт доступ к защищённым операциям.
-    Вызывается при открытии приложения, после успешного входа и после выхода.
-    Токен не имеет отдельного календарного TTL: связан с текущей сессией и может быть заменён сервером.
+    Доступен без входа, но сам по себе доступа к защищённым операциям не даёт.
+    Вызывается при открытии приложения, после входа и после выхода.
+    Отдельного TTL у токена нет: он действует вместе с сессией и может быть заменён сервером.
     """)
-@returnsDoc("CSRF-токен и, при необходимости, session cookie.")
+@returnsDoc("CSRF-токен и session cookie, если сессия была создана.")
 @opExample(getCsrfTokenSuccessOperationExample)
 op getCsrfToken(
-    @doc("Cookie текущей сессии, если есть.")
+    @doc("Cookie текущей сессии, если она уже есть.")
     @cookie("SESSION")
     @secret
     session?: string
@@ -45,7 +45,7 @@ op getCsrfToken(
     {
         ...AlfaHackathonApi.Ok.OkResponse<CsrfResponse>;
 
-        @doc("Устанавливается, если для CSRF создана новая анонимная сессия.")
+        @doc("Устанавливается, если создана новая анонимная сессия.")
         @header("Set-Cookie")
         @example(sessionCookieExample)
         set_cookie?: string;

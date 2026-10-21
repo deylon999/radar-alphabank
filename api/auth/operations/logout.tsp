@@ -24,14 +24,14 @@ const logoutSuccessOperationExample = #{
 
 @post
 @route("/logout")
-@summary("Выйти из системы.")
+@summary("Выход")
 @doc("""
-    Аннулирует текущую серверную сессию, очищает аутентификацию и удаляет session cookie.
-    Остальные сессии пользователя сохраняются. Скопированная cookie завершённой сессии больше не подтверждает вход.
-    Уже выполняющиеся запросы автоматически не прерываются.
-    Для истёкшей сессии возможны 401 или 403 при более ранней CSRF-проверке.
+    Завершает текущую серверную сессию, очищает аутентификацию и удаляет session cookie.
+    Остальные сессии пользователя сохраняются. Скопированная cookie завершённой сессии больше не работает.
+    Запросы, которые уже выполняются, не прерываются.
+    Для истёкшей сессии вернётся 401, или 403, если раньше сработала проверка CSRF.
     """)
-@returnsDoc("Текущая сессия завершена, cookie удалена.")
+@returnsDoc("Сессия завершена, cookie удалена.")
 @opExample(logoutSuccessOperationExample)
 @opExample(unauthorizedOperationExample)
 @opExample(invalidCsrfOperationExample)
@@ -41,7 +41,7 @@ op logout(
     {
         ...AlfaHackathonApi.Ok.NoContentResponse;
 
-        @doc("Удаление session cookie с теми же Path и атрибутами.")
+        @doc("Удаляет session cookie, Path и атрибуты те же.")
         @header("Set-Cookie")
         @example(clearedSessionCookieExample)
         set_cookie: string;
