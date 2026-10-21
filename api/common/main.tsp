@@ -12,8 +12,10 @@ import "./error/ForbiddenError.tsp";
 import "./error/NotFoundError.tsp";
 import "./error/ConflictError.tsp";
 import "./error/TooManyRequestsError.tsp";
+import "./error/ContentTooLargeError.tsp";
 import "./error/ValidationError.tsp";
 
 import "./ok/OkResponse.tsp";
 import "./ok/CreatedResponse.tsp";
+import "./ok/AcceptedResponse.tsp";
 import "./ok/NoContentResponse.tsp";
