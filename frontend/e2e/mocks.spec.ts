@@ -32,17 +32,17 @@ test('моки отвечают в браузере без ошибок в ко�
   });
 
   await waitForMocks(page, () => page.goto('/'));
-  const companies = await fetchFromPage(page, '/api/companies');
+  const companies = await fetchFromPage(page, '/api/companies?q=клиент');
 
   expect(companies.status).toBe(200);
-  expect(companies.body).toHaveLength(4);
+  expect((companies.body as { companies: unknown[] }).companies).toHaveLength(4);
   expect(consoleErrors).toEqual([]);
 });
 
 test('параметр ?mock=errors включает режим ошибок', async ({ page }) => {
   await waitForMocks(page, () => page.goto('/?mock=errors'));
 
-  const response = await fetchFromPage(page, '/api/companies');
+  const response = await fetchFromPage(page, '/api/companies/U_9250');
 
   expect(response.status).toBe(500);
 });

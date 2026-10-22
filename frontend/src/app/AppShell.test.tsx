@@ -1,10 +1,8 @@
-import { screen, waitFor, within } from '@testing-library/react';
-import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
+import { screen, within } from '@testing-library/react';
+import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 
-import { chooseClient, companyButton } from '../test/clientPicker';
 import { createMockServer } from '../test/mockServer';
 import { renderApp } from '../test/renderApp';
-import { SELECTED_COMPANY_STORAGE_KEY } from './company/SelectedCompanyProvider';
 
 const { server, store, setErrorMode } = createMockServer();
 
@@ -23,77 +21,32 @@ afterAll(() => {
 });
 
 describe('оболочка приложения', () => {
-  it('по умолчанию выбирает первую компанию и показывает её ленту', async () => {
+  it('в шапке — компания пользователя, лента — её', async () => {
     renderApp('/');
 
-    expect(await companyButton()).toHaveAccessibleName('Компания: Клиент U_9250');
     expect(await screen.findByRole('link', { name: /ЦБ сохранил ставку 14%/ })).toBeInTheDocument();
-    await waitFor(() => {
-      expect(document.title).toBe('Лента — Радар');
-    });
+    expect(screen.getByRole('banner')).toHaveTextContent('Клиент U_9250');
   });
 
-  it('переключение компании меняет ленту и запоминается', async () => {
-    const { user } = renderApp('/');
-    await screen.findByRole('link', { name: /ЦБ сохранил ставку 14%/ });
-
-    await chooseClient(user, 'Клиент U_1465');
+  it('другой пользователь видит свою компанию, а не чужую', async () => {
+    store.writeSession((session) => {
+      session.userId = 'user-u1465';
+    });
+    renderApp('/');
 
     expect(
       await screen.findByRole('link', { name: /Рубль слабеет: импортные вино/ }),
     ).toBeInTheDocument();
-    expect(screen.queryByRole('link', { name: /ЦБ сохранил ставку 14%/ })).not.toBeInTheDocument();
-    expect(window.localStorage.getItem(SELECTED_COMPANY_STORAGE_KEY)).toBe('U_1465');
+    expect(screen.getByRole('banner')).toHaveTextContent('Клиент U_1465');
+    expect(screen.queryByRole('link', { name: /ЦБ сохранил ставку 14%/ })).toBeNull();
   });
 
-  it('восстанавливает сохранённую компанию после перезагрузки', async () => {
-    window.localStorage.setItem(SELECTED_COMPANY_STORAGE_KEY, 'U_34911');
-    renderApp('/company');
-
-    expect(await companyButton()).toHaveAccessibleName('Компания: Клиент U_34911');
-    expect(await screen.findByRole('heading', { name: 'Клиент U_34911' })).toBeInTheDocument();
-  });
-
-  it('игнорирует неизвестную сохранённую компанию', async () => {
-    window.localStorage.setItem(SELECTED_COMPANY_STORAGE_KEY, 'deleted-company');
-    renderApp('/');
-
-    expect(await companyButton()).toHaveAccessibleName('Компания: Клиент U_9250');
-  });
-
-  it('работает, когда localStorage недоступен', async () => {
-    vi.spyOn(Storage.prototype, 'getItem').mockImplementation(() => {
-      throw new Error('SecurityError');
-    });
-    vi.spyOn(Storage.prototype, 'setItem').mockImplementation(() => {
-      throw new Error('SecurityError');
-    });
-    const { user } = renderApp('/');
-
-    await chooseClient(user, 'Клиент U_34911');
-
-    expect(await screen.findByRole('link', { name: /Экспорт урожая буксует/ })).toBeInTheDocument();
-  });
-
-  it('со страницы инсайта при смене компании уводит в ленту', async () => {
-    const { user, router } = renderApp('/insights/u9250-key-rate');
-    expect(
-      await screen.findByRole('heading', { level: 1, name: /ЦБ сохранил ставку 14%/ }),
-    ).toBeInTheDocument();
-
-    await chooseClient(user, 'Клиент U_34911');
-
-    await waitFor(() => {
-      expect(router.state.location.pathname).toBe('/');
-    });
-  });
-
-  it('показывает ошибку с «Повторить», если список компаний не загрузился', async () => {
+  it('показывает ошибку с «Повторить», если компания не загрузилась', async () => {
     setErrorMode(true);
     const { user } = renderApp('/');
 
     const alert = await screen.findByRole('alert');
-    expect(within(alert).getByText('Не удалось загрузить список компаний')).toBeInTheDocument();
+    expect(within(alert).getByText('Не удалось загрузить компанию')).toBeInTheDocument();
 
     setErrorMode(false);
     await user.click(within(alert).getByRole('button', { name: 'Повторить' }));

@@ -1,11 +1,11 @@
 import type { ReactNode } from 'react';
 
-import { EmptyState } from '../../shared/ui/EmptyState';
+import { ConnectCompany } from '../../features/onboarding/ConnectCompany';
 import { ErrorState } from '../../shared/ui/ErrorState';
 import { PageSkeleton } from '../../shared/ui/Skeleton/PageSkeleton';
 import { useCompanySelection } from './selectedCompanyContext';
 
-/** Страницы показываются, только когда известна выбранная компания. */
+/** Разделы показываются, когда известна компания; без неё — подключение компании. */
 export function CompanyGate({ children }: { children: ReactNode }) {
   const selection = useCompanySelection();
   switch (selection.status) {
@@ -14,21 +14,14 @@ export function CompanyGate({ children }: { children: ReactNode }) {
     case 'error':
       return (
         <ErrorState
-          title="Не удалось загрузить список компаний"
+          title="Не удалось загрузить компанию"
           error={selection.error}
           retrying={selection.retrying}
           onRetry={selection.retry}
         />
       );
-    case 'empty':
-      return (
-        <EmptyState
-          title="Компаний пока нет"
-          description={
-            'Добавьте компанию на стороне сервиса\u00a0— после этого здесь появится лента.'
-          }
-        />
-      );
+    case 'none':
+      return <ConnectCompany me={selection.me} />;
     case 'ready':
       return children;
   }

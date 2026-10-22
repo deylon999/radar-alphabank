@@ -305,6 +305,7 @@ export function searchCompanies(companies: readonly Company[], query: string): C
       [
         company.id,
         company.name,
+        company.inn ?? '',
         company.industry ?? '',
         company.profile?.okved.code ?? '',
         company.profile?.okved.name ?? '',

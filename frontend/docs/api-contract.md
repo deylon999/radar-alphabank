@@ -67,6 +67,8 @@ cd api && npm ci && sh compile.sh   # → api/tsp-output/schema/openapi.yaml
 
 - Вход: демо-аккаунты из `src/shared/demoAccounts.ts` (список и пароль — в README). Сессия
   вкладки — в `sessionStorage`, как cookie у настоящего бэкенда; CSRF проверяется так же.
+- Как у бэкенда, данные компании и её выводы видят только участники (`403`), заявки — только
+  владелец, метрики качества — только при `canViewQualityMetrics`.
 
 - Включаются `VITE_USE_MOCKS=true`. MSW перехватывает запросы к `VITE_API_URL` в браузере, поэтому переход на настоящий бэкенд — это `VITE_USE_MOCKS=false` и правильный `VITE_API_URL`.
 - Данные: четыре клиента из датасета кейса (U_9250, U_34911, U_26030, U_1465) и 21 инсайт.

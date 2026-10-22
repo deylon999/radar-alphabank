@@ -1,16 +1,14 @@
 import { createContext, useContext } from 'react';
 
+import type { Me, Membership } from '../../schemas/auth';
 import type { Company } from '../../schemas/company';
 
 export type CompanySelection =
   | { status: 'loading' }
   | { status: 'error'; error: unknown; retry: () => void; retrying: boolean }
-  | { status: 'empty' }
-  | {
-      status: 'ready';
-      company: Company;
-      selectCompany: (company: Company) => void;
-    };
+  /** Пользователь ещё не в компании: подаёт заявку или создаёт свою. */
+  | { status: 'none'; me: Me }
+  | { status: 'ready'; company: Company; membership: Membership };
 
 export const SelectedCompanyContext = createContext<CompanySelection | null>(null);
 
@@ -22,13 +20,20 @@ export function useCompanySelection(): CompanySelection {
   return selection;
 }
 
-/** Выбранная компания. Доступна страницам внутри CompanyGate, где список уже загружен. */
-export function useSelectedCompany(): Company {
+function useReady() {
   const selection = useCompanySelection();
   if (selection.status !== 'ready') {
-    throw new Error(
-      'useSelectedCompany используется до загрузки компаний — оберните в CompanyGate',
-    );
+    throw new Error('Компания ещё не загружена — оберните в CompanyGate');
   }
-  return selection.company;
+  return selection;
+}
+
+/** Компания пользователя. Доступна страницам внутри CompanyGate. */
+export function useSelectedCompany(): Company {
+  return useReady().company;
+}
+
+/** Членство пользователя: владелец или участник, должность. */
+export function useMembership(): Membership {
+  return useReady().membership;
 }

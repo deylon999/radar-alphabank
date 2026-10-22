@@ -3,8 +3,14 @@ import { afterAll, afterEach, beforeAll, describe, expect, it } from 'vitest';
 
 import { ApiError } from '../api/ApiError';
 import {
+  createCompany,
+  decideJoinRequest,
   describeCompany,
   fetchCompany,
+  fetchJoinRequests,
+  fetchMembers,
+  searchCompanies,
+  submitJoinRequest,
   updateFact,
   uploadCompanyDocuments,
 } from '../api/endpoints/companies';
@@ -18,6 +24,7 @@ import {
   updateInsightStatus,
 } from '../api/endpoints/insights';
 import { fetchQualityMetrics } from '../api/endpoints/quality';
+import { fetchMe } from '../api/endpoints/auth';
 import {
   fetchNotificationSettings,
   requestTelegramLink,
@@ -111,6 +118,9 @@ describe('моки ленты', () => {
 
   it('у разных компаний разные ленты', async () => {
     const main = await fetchInsights(MAIN, {}, null);
+    store.writeSession((session) => {
+      session.userId = 'user-u34911';
+    });
     const grain = await fetchInsights(COMPANY_IDS.grain, {}, null);
 
     expect(main.items.every((item) => item.companyId === MAIN)).toBe(true);
@@ -211,6 +221,86 @@ describe('моки метрик качества', () => {
     expect(metrics.completeness.withSignals).toBe(insights.length);
     expect(metrics.reactionMinutes.median).toBeGreaterThan(0);
     expect(metrics.reactionMinutes.p90).toBeGreaterThanOrEqual(metrics.reactionMinutes.median);
+  });
+});
+
+describe('моки членства в компании', () => {
+  const signIn = (userId: string | undefined) => {
+    store.writeSession((session) => {
+      session.userId = userId;
+    });
+  };
+
+  it('чужая компания и её выводы недоступны', async () => {
+    await expect(fetchCompany(COMPANY_IDS.grain)).rejects.toMatchObject({
+      status: 403,
+      problemType: '/problems/company-membership-required',
+    });
+    await expect(fetchInsight('u34911-export')).rejects.toMatchObject({ status: 403 });
+  });
+
+  it('поиск — от 2 символов, по названию, ID или ИНН', async () => {
+    await expect(searchCompanies('U')).rejects.toMatchObject({ status: 422 });
+    expect(await searchCompanies('u_1465')).toEqual([
+      { id: 'U_1465', name: 'Клиент U_1465', origin: 'dataset' },
+    ]);
+  });
+
+  it('заявка → владелец одобряет → пользователь в компании', async () => {
+    signIn('user-newcomer');
+    const pending = await fetchMe();
+    expect(pending.joinRequest).toMatchObject({ status: 'pending', company: { id: MAIN } });
+
+    signIn('user-u9250');
+    const [request] = await fetchJoinRequests(MAIN);
+    if (!request) throw new Error('Нет заявки');
+    await decideJoinRequest(MAIN, request.id, 'approve');
+    expect((await fetchMembers(MAIN)).map((member) => member.email)).toContain(
+      'newcomer@demo.radar',
+    );
+
+    signIn('user-newcomer');
+    expect(await fetchMe()).toMatchObject({
+      membership: { company: { id: MAIN }, role: 'member', position: 'accountant' },
+      joinRequest: null,
+    });
+  });
+
+  it('заявки видит только владелец, повторная заявка — 409', async () => {
+    signIn('user-cfo');
+    await expect(fetchJoinRequests(MAIN)).rejects.toMatchObject({
+      status: 403,
+      problemType: '/problems/company-owner-required',
+    });
+
+    signIn('user-newcomer');
+    await expect(submitJoinRequest(COMPANY_IDS.fuel, {})).rejects.toMatchObject({
+      status: 409,
+      problemType: '/problems/join-request-pending',
+    });
+  });
+
+  it('своя компания: ИНН проверяется, создатель — владелец', async () => {
+    signIn('user-newcomer');
+    await expect(createCompany({ name: 'ООО Ромашка', inn: '123' })).rejects.toMatchObject({
+      status: 422,
+    });
+
+    const company = await createCompany({ name: 'ООО Ромашка', inn: '7701234567' });
+    expect(company).toMatchObject({ name: 'ООО Ромашка', origin: 'user' });
+    expect(await fetchMe()).toMatchObject({
+      membership: { company: { id: company.id }, role: 'owner' },
+      joinRequest: null,
+    });
+    expect(await fetchCompany(company.id)).toMatchObject({ facts: [], description: '' });
+  });
+
+  it('метрики качества — только команде и экспертам', async () => {
+    signIn('user-cfo');
+    await expect(fetchQualityMetrics()).rejects.toMatchObject({
+      status: 403,
+      problemType: '/problems/quality-reviewer-required',
+    });
   });
 });
 

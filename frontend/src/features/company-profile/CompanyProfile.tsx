@@ -14,6 +14,7 @@ import { useFactActions } from './FactList/useFactActions';
 import { PendingBanner } from './PendingBanner/PendingBanner';
 import { ProfileIntro } from './ProfileIntro/ProfileIntro';
 import { RoleField } from './RoleField/RoleField';
+import { Team } from './Team/Team';
 
 function ProfileContent({ company }: { company: Company }) {
   const actions = useFactActions(company.id);
@@ -69,6 +70,9 @@ function ProfileContent({ company }: { company: Company }) {
       <div className={styles.aside}>
         <div className={styles.role}>
           <RoleField />
+        </div>
+        <div className={styles.team}>
+          <Team companyId={company.id} />
         </div>
         {isEmpty ? (
           <div className={styles.promo}>

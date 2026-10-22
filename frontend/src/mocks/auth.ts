@@ -1,10 +1,10 @@
 import { http, HttpResponse } from 'msw';
 import type { z } from 'zod';
 
-import type { Me } from '../schemas/auth';
 import { credentialsSchema, secondFactorSchema } from '../schemas/auth';
-import type { MockDb, MockStore, MockUser } from './db';
+import type { MockStore, MockUser } from './db';
 import { problem } from './problems';
+import { meOf } from './views';
 
 const API = '*/api';
 const CSRF_HEADER = 'X-CSRF-TOKEN';
@@ -37,33 +37,6 @@ export function currentUser(store: MockStore): MockUser | undefined {
 
 function authUser(user: MockUser) {
   return { id: user.id, email: user.email, twoFactorEnabled: Boolean(user.totp) };
-}
-
-function companyRef(db: MockDb, companyId: string) {
-  const company = db.companies.find((item) => item.id === companyId);
-  return {
-    id: companyId,
-    name: company?.name ?? companyId,
-    ...(company?.inn ? { inn: company.inn } : {}),
-    origin: 'dataset' as const,
-  };
-}
-
-export function meOf(db: MockDb, user: MockUser): Me {
-  const { membership } = user;
-  return {
-    user: authUser(user),
-    membership: membership
-      ? {
-          company: companyRef(db, membership.companyId),
-          role: membership.role,
-          ...(membership.position ? { position: membership.position } : {}),
-          joinedAt: '2026-10-01T09:00:00Z',
-        }
-      : null,
-    joinRequest: null,
-    canViewQualityMetrics: user.canViewQualityMetrics,
-  };
 }
 
 function signIn(store: MockStore, user: MockUser) {

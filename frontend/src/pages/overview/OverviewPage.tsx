@@ -1,6 +1,7 @@
 import { Tab, Tabs } from '@alfalab/core-components/tabs/modern';
 import { Link, useSearchParams } from 'react-router';
 
+import { useMe } from '../../api/hooks/auth';
 import { useOverview } from '../../api/hooks/insights';
 import { useSelectedCompany } from '../../app/company/selectedCompanyContext';
 import { MaterialGroups } from '../../features/overview/MaterialGroups';
@@ -30,6 +31,7 @@ function useOverviewView() {
 
 export function OverviewPage() {
   const company = useSelectedCompany();
+  const me = useMe();
   const overview = useOverview(company.id);
   const [view, setView] = useOverviewView();
   useDocumentTitle(terms.overview);
@@ -83,9 +85,11 @@ export function OverviewPage() {
           {view === 'bank' ? content : null}
         </Tab>
       </Tabs>
-      <p className={styles.qualityLink}>
-        <Link to="/quality">Как мы проверяем качество выводов</Link>
-      </p>
+      {me.data?.canViewQualityMetrics ? (
+        <p className={styles.qualityLink}>
+          <Link to="/quality">Как мы проверяем качество выводов</Link>
+        </p>
+      ) : null}
     </>
   );
 }

@@ -1,6 +1,18 @@
 import {
+  type CompanyRef,
+  companyRefSchema,
+  companySearchSchema,
+  type CreateCompanyBody,
+  type JoinDecision,
+  type JoinRequest,
+  type JoinRequestBody,
+  joinRequestListSchema,
+  joinRequestSchema,
+  type Member,
+  memberListSchema,
+} from '../../schemas/auth';
+import {
   type Company,
-  companyListSchema,
   companySchema,
   type DescribeCompanyBody,
   type ExtractedFacts,
@@ -9,13 +21,72 @@ import {
   profileFactSchema,
   type UpdateFactBody,
 } from '../../schemas/company';
-import { request } from '../http';
+import { request, requestVoid } from '../http';
 
 const companyPath = (companyId: string) => `/api/companies/${encodeURIComponent(companyId)}`;
 
-/** Клиенты: без `query` — крупнейшие по выручке, с ним — поиск по ID, отрасли и региону. */
-export function fetchCompanies(query: string, signal?: AbortSignal): Promise<Company[]> {
-  return request('/api/companies', companyListSchema, { signal, query: { q: query.trim() } });
+/** Поиск компании, чтобы подать в неё заявку: от 2 символов названия, ID или ИНН. */
+export async function searchCompanies(query: string, signal?: AbortSignal): Promise<CompanyRef[]> {
+  const { companies } = await request('/api/companies', companySearchSchema, {
+    signal,
+    query: { q: query.trim() },
+  });
+  return companies;
+}
+
+export function createCompany(body: CreateCompanyBody): Promise<CompanyRef> {
+  return request('/api/companies', companyRefSchema, { method: 'POST', json: body });
+}
+
+export function submitJoinRequest(companyId: string, body: JoinRequestBody): Promise<JoinRequest> {
+  return request(`${companyPath(companyId)}/join-requests`, joinRequestSchema, {
+    method: 'POST',
+    json: body,
+  });
+}
+
+const joinRequestPath = (companyId: string, requestId: string, action: string) =>
+  `${companyPath(companyId)}/join-requests/${encodeURIComponent(requestId)}/${action}`;
+
+export function cancelJoinRequest(companyId: string, requestId: string): Promise<JoinRequest> {
+  return request(joinRequestPath(companyId, requestId, 'cancel'), joinRequestSchema, {
+    method: 'POST',
+  });
+}
+
+export async function fetchJoinRequests(
+  companyId: string,
+  signal?: AbortSignal,
+): Promise<JoinRequest[]> {
+  const { joinRequests } = await request(
+    `${companyPath(companyId)}/join-requests`,
+    joinRequestListSchema,
+    { signal },
+  );
+  return joinRequests;
+}
+
+export function decideJoinRequest(
+  companyId: string,
+  requestId: string,
+  decision: JoinDecision,
+): Promise<JoinRequest> {
+  return request(joinRequestPath(companyId, requestId, decision), joinRequestSchema, {
+    method: 'POST',
+  });
+}
+
+export async function fetchMembers(companyId: string, signal?: AbortSignal): Promise<Member[]> {
+  const { members } = await request(`${companyPath(companyId)}/members`, memberListSchema, {
+    signal,
+  });
+  return members;
+}
+
+export function removeMember(companyId: string, userId: string): Promise<void> {
+  return requestVoid(`${companyPath(companyId)}/members/${encodeURIComponent(userId)}`, {
+    method: 'DELETE',
+  });
 }
 
 export function fetchCompany(companyId: string, signal?: AbortSignal): Promise<Company> {
