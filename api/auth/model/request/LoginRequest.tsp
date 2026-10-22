@@ -5,7 +5,7 @@ const loginRequestExample: LoginRequest = #{
     password: "My company has useful news"
 };
 
-@doc("Данные входа. Компания определяется сервером после проверки пользователя.")
+@doc("Данные входа. Членство в компании сервер определяет сам и при входе не принимает.")
 @example(loginRequestExample)
 model LoginRequest {
     @doc("Email пользователя. Нормализация совпадает с регистрацией и ключом ограничения попыток.")

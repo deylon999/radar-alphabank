@@ -30,12 +30,12 @@ const registerSuccessOperationExample = #{
 @useAuth(NoAuth)
 @summary("Регистрация")
 @doc("""
-    Создаёт пользователя с уникальным email и его компанию в одной транзакции.
-    id компании от клиента не принимается. Профиль компании здесь не заполняется.
+    Создаёт пользователя с уникальным email. Компанию регистрация не создаёт и доступа к ней не даёт:
+    после входа пользователь создаёт свою компанию через POST /companies или подаёт заявку на вступление.
     Пароль хранится как хеш Argon2id, ни пароль, ни хеш в ответ не попадают.
     Регистрация не выполняет вход. Число попыток ограничено.
     """)
-@returnsDoc("id созданного пользователя и его компании.")
+@returnsDoc("id созданного пользователя.")
 @opExample(registerSuccessOperationExample)
 @opExample(badRequestOperationExample)
 @opExample(credentialsValidationOperationExample)

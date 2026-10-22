@@ -8,9 +8,9 @@ const notFoundExample: NotFoundError = #{
     cacheControl: "no-store",
     body: #{
         type: "/problems/session-not-found",
-        title: "Session not found",
+        title: "Сессия не найдена",
         status: 404,
-        detail: "The session was not found among your active sessions."
+        detail: "Среди ваших действующих сессий такой нет."
     }
 };
 
@@ -18,5 +18,4 @@ const notFoundOperationExample = #{ returnType: notFoundExample };
 
 @error
 @doc("Ошибка: ресурс не найден среди доступных текущему пользователю.")
-@example(notFoundExample)
 model NotFoundError<TBody = ProblemDetails<404>> is ProblemResponse<404, TBody>;

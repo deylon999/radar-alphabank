@@ -8,9 +8,9 @@ const unauthorizedExample: UnauthorizedError = #{
     cacheControl: "no-store",
     body: #{
         type: "/problems/authentication-required",
-        title: "Authentication required",
+        title: "Нужно войти",
         status: 401,
-        detail: "The authenticated session is missing, expired or revoked."
+        detail: "Сессии нет, она истекла или была отозвана."
     }
 };
 

@@ -4,6 +4,15 @@ import "@typespec/openapi3";
 
 import "./common";
 import "./auth";
+import "./me";
+import "./companies";
+import "./join-requests";
+import "./members";
+import "./facts";
+import "./insights";
+import "./metrics";
+import "./notifications";
+import "./bots";
 
 using TypeSpec.Http;
 using TypeSpec.OpenAPI;

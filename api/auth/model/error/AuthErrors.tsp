@@ -59,9 +59,9 @@ const invalidCredentialsExample: UnauthorizedError<InvalidCredentialsDetails> = 
     cacheControl: "no-store",
     body: #{
         type: "/problems/invalid-credentials",
-        title: "Invalid credentials",
+        title: "Неверные учётные данные",
         status: 401,
-        detail: "Email or password is incorrect."
+        detail: "Неверный email или пароль."
     }
 };
 
@@ -73,9 +73,9 @@ const pendingLoginRequiredExample: UnauthorizedError<PendingLoginRequiredDetails
     cacheControl: "no-store",
     body: #{
         type: "/problems/pending-login-required",
-        title: "Pending login required",
+        title: "Нет незавершённого входа",
         status: 401,
-        detail: "Submit your email and password again to start a new login."
+        detail: "Введите email и пароль заново, чтобы начать вход."
     }
 };
 
@@ -87,9 +87,9 @@ const invalidSecondFactorExample: UnauthorizedError<InvalidSecondFactorDetails> 
     cacheControl: "no-store",
     body: #{
         type: "/problems/invalid-second-factor",
-        title: "Invalid second factor",
+        title: "Неверный второй фактор",
         status: 401,
-        detail: "The second-factor verification failed."
+        detail: "Проверка второго фактора не пройдена."
     }
 };
 
@@ -101,9 +101,9 @@ const invalidReauthenticationExample: UnauthorizedError<InvalidReauthenticationD
     cacheControl: "no-store",
     body: #{
         type: "/problems/invalid-reauthentication",
-        title: "Reauthentication failed",
+        title: "Подтверждение не пройдено",
         status: 401,
-        detail: "The identity verification failed."
+        detail: "Не удалось подтвердить личность."
     }
 };
 
@@ -115,9 +115,9 @@ const emailAlreadyExistsExample: ConflictError<EmailAlreadyExistsDetails> = #{
     cacheControl: "no-store",
     body: #{
         type: "/problems/email-already-exists",
-        title: "Email already exists",
+        title: "Email уже занят",
         status: 409,
-        detail: "A user with this email already exists."
+        detail: "Пользователь с таким email уже существует."
     }
 };
 
@@ -129,9 +129,9 @@ const twoFactorAlreadyEnabledExample: ConflictError<TwoFactorAlreadyEnabledDetai
     cacheControl: "no-store",
     body: #{
         type: "/problems/two-factor-already-enabled",
-        title: "Two-factor authentication already enabled",
+        title: "2FA уже включена",
         status: 409,
-        detail: "Disable the existing factor before configuring a replacement."
+        detail: "Чтобы настроить новый фактор, сначала отключите текущий."
     }
 };
 
@@ -143,9 +143,9 @@ const twoFactorNotEnabledExample: ConflictError<TwoFactorNotEnabledDetails> = #{
     cacheControl: "no-store",
     body: #{
         type: "/problems/two-factor-not-enabled",
-        title: "Two-factor authentication not enabled",
+        title: "2FA не включена",
         status: 409,
-        detail: "Enable two-factor authentication before performing this operation."
+        detail: "Для этой операции нужно включить 2FA."
     }
 };
 
@@ -157,9 +157,9 @@ const totpSetupExpiredExample: ConflictError<TotpSetupExpiredDetails> = #{
     cacheControl: "no-store",
     body: #{
         type: "/problems/totp-setup-expired",
-        title: "TOTP setup expired",
+        title: "Настройка TOTP истекла",
         status: 409,
-        detail: "Start TOTP setup again in the current session."
+        detail: "Начните настройку TOTP заново в текущей сессии."
     }
 };
 
