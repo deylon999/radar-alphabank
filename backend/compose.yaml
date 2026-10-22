@@ -12,7 +12,6 @@ services:
 
   redis:
     image: redis:8-alpine
-    command: ["redis-server", "--requirepass", "${RADAR_REDIS_PASSWORD:?Укажите RADAR_REDIS_PASSWORD в .env}"]
     ports:
       - "127.0.0.1:6379:6379"
 

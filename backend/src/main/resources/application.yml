@@ -1,6 +1,11 @@
 spring:
   application:
     name: radar
+  config:
+    import: optional:file:.env[.properties]
+  docker:
+    compose:
+      lifecycle-management: start-only
   datasource:
     url: ${RADAR_DB_URL:jdbc:postgresql://localhost:5432/radar}
     username: ${RADAR_DB_USERNAME:radar}

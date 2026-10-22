@@ -12,11 +12,22 @@ Spring Boot 4.1, Java 25, PostgreSQL через Spring JDBC, Spring Security, с
 ## Запуск
 
 ```bash
-cp .env.example .env          # задайте RADAR_DB_PASSWORD и RADAR_REDIS_PASSWORD
-docker compose up -d          # PostgreSQL 18 и Redis 8 на 127.0.0.1
-set -a && . ./.env && set +a  # переменные окружения для приложения
+cp .env.example .env    # задайте RADAR_DB_PASSWORD
 ./gradlew bootRun
 ```
+
+`backend/.env` — единственное место локальных значений: его читают и `docker compose`,
+и приложение (`spring.config.import`). Переменные окружения имеют приоритет над `.env`.
+
+При запуске приложение само поднимает PostgreSQL 18 и Redis 8 из `compose.yaml`
+(модуль `spring-boot-docker-compose`) и берёт адреса и пароль БД из контейнеров.
+Контейнеры остаются работать после остановки приложения; остановить их —
+`docker compose stop`. Модуль работает только при локальном запуске: в jar и тесты
+он не попадает. Локальный Redis без пароля, порты открыты только на 127.0.0.1.
+
+Из IntelliJ IDEA: конфигурация `RadarApplication`, **Working directory** —
+каталог `backend`, иначе не найдутся `compose.yaml` и `.env`. Переменные окружения
+в конфигурацию добавлять не нужно.
 
 Миграции схемы (`src/main/resources/db/migration`) применяет Flyway при старте.
 
