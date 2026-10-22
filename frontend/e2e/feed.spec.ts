@@ -1,5 +1,5 @@
 import AxeBuilder from '@axe-core/playwright';
-import { expect, type Page, test } from '@playwright/test';
+import { expect, type Page, test } from './fixtures';
 
 const FLOOD = 'ЦБ сохранил ставку 14% и ужесточил риторику: кредиты не подешевеют до конца года';
 const cards = (page: Page) => page.getByRole('article');

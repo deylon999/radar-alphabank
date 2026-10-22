@@ -1,5 +1,6 @@
 import type { z } from 'zod';
 
+import { csrfSchema } from '../schemas/auth';
 import { type ProblemDetails, problemDetailsSchema, problemMessage } from '../schemas/common';
 import { ApiError } from './ApiError';
 import { apiConfig, mockStatus } from './config';
@@ -20,6 +21,37 @@ export interface RequestOptions {
   baseUrl?: string;
   /** Заголовок Accept; по умолчанию JSON. */
   accept?: string;
+}
+
+const SAFE_METHODS = new Set(['GET', 'HEAD', 'OPTIONS']);
+const INVALID_CSRF = '/problems/invalid-csrf-token';
+
+/**
+ * CSRF-токен привязан к cookie сессии: берём его один раз и кладём в каждый изменяющий
+ * запрос. После входа и выхода cookie меняется — токен сбрасывается и берётся заново.
+ */
+let csrf: Promise<{ token: string; headerName: string }> | undefined;
+
+/** Сессия истекла посреди работы: каркас приложения подписывается и ведёт на вход. */
+const unauthorizedListeners = new Set<() => void>();
+
+export function onUnauthorized(listener: () => void): () => void {
+  unauthorizedListeners.add(listener);
+  return () => {
+    unauthorizedListeners.delete(listener);
+  };
+}
+
+export function resetCsrf(): void {
+  csrf = undefined;
+}
+
+function csrfToken(): Promise<{ token: string; headerName: string }> {
+  csrf ??= request('/api/auth/csrf', csrfSchema).catch((error: unknown) => {
+    csrf = undefined;
+    throw error;
+  });
+  return csrf;
 }
 
 export function buildUrl(baseUrl: string, path: string, query: RequestOptions['query']): string {
@@ -98,12 +130,19 @@ export async function send(path: string, options: RequestOptions): Promise<Respo
   }
 
   const url = buildUrl(options.baseUrl ?? apiConfig.apiUrl, path, query);
+  const needsCsrf = !SAFE_METHODS.has(method);
   const fetchOnce = async () => {
+    if (needsCsrf) {
+      const { token, headerName } = await csrfToken();
+      headers.set(headerName, token);
+    }
     try {
       return await fetch(url, {
         method,
         headers,
         body,
+        // Сессия — в cookie: при разработке API на другом адресе её надо передавать явно.
+        credentials: 'include',
         signal: signal ? AbortSignal.any([signal, timeoutSignal]) : timeoutSignal,
       });
     } catch (error) {
@@ -120,11 +159,28 @@ export async function send(path: string, options: RequestOptions): Promise<Respo
   }
 
   if (!response.ok) {
-    throw problemError(
-      await readProblem(response),
-      response.status,
-      response.statusText || undefined,
-    );
+    const problem = await readProblem(response);
+    // Ошибки входа и проверки «кто я» разбирает сам вызывающий код.
+    if (response.status === 401 && !path.startsWith('/api/auth/') && path !== '/api/me') {
+      resetCsrf();
+      unauthorizedListeners.forEach((listener) => {
+        listener();
+      });
+    }
+    // Токен устарел (сессия сменилась в другой вкладке) — берём новый и повторяем один раз.
+    if (needsCsrf && response.status === 403 && problem.type === INVALID_CSRF) {
+      resetCsrf();
+      response = await fetchOnce();
+      if (response.ok) {
+        return response;
+      }
+      throw problemError(
+        await readProblem(response),
+        response.status,
+        response.statusText || undefined,
+      );
+    }
+    throw problemError(problem, response.status, response.statusText || undefined);
   }
   return response;
 }

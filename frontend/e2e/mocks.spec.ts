@@ -1,4 +1,4 @@
-import { expect, type Page, test } from '@playwright/test';
+import { expect, type Page, test } from './fixtures';
 
 const API_URL = 'http://localhost:8000';
 
@@ -50,9 +50,14 @@ test('параметр ?mock=errors включает режим ошибок', a
 test('состояние моков переживает перезагрузку вкладки', async ({ page }) => {
   await waitForMocks(page, () => page.goto('/'));
   await page.evaluate(async (url) => {
+    // Изменяющий запрос — с CSRF-токеном, как у приложения.
+    const csrf = (await (await fetch(`${url}/api/auth/csrf`)).json()) as {
+      token: string;
+      headerName: string;
+    };
     await fetch(`${url}/api/insights/u9250-key-rate`, {
       method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', [csrf.headerName]: csrf.token },
       body: JSON.stringify({ status: 'read' }),
     });
   }, API_URL);
@@ -100,7 +105,7 @@ test.describe('браузер без Service Worker', () => {
   test('вместо вечной загрузки — понятная ошибка', async ({ page }) => {
     await page.goto('/');
 
-    await expect(page.getByText('Не удалось загрузить список компаний')).toBeVisible();
+    await expect(page.getByText('Не удалось проверить вход')).toBeVisible();
     await expect(page.getByText(/Демо-данные не запустились в этом браузере/)).toBeVisible();
   });
 });

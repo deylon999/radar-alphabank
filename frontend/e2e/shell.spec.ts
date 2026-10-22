@@ -1,5 +1,5 @@
 import AxeBuilder from '@axe-core/playwright';
-import { expect, type Page, test } from '@playwright/test';
+import { expect, type Page, test } from './fixtures';
 
 const PAGES = [
   { path: '/', title: 'Лента — Радар', heading: 'Лента' },
@@ -123,7 +123,8 @@ for (const { path, text } of [
 ]) {
   test(`${path}: состояние без данных проходит axe`, async ({ page }) => {
     await page.goto(path);
-    await expect(page.getByText(text)).toBeVisible();
+    // Запросы с ошибкой повторяются с паузами — экран ошибки появляется не сразу.
+    await expect(page.getByText(text)).toBeVisible({ timeout: 15_000 });
 
     const { violations } = await new AxeBuilder({ page }).analyze();
     const severe = violations

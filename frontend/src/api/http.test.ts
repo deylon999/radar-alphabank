@@ -6,11 +6,17 @@ import { z } from 'zod';
 
 import { ApiError } from './ApiError';
 import { apiConfig, mockStatus } from './config';
-import { buildUrl, request, requestVoid } from './http';
+import { buildUrl, request, requestVoid, resetCsrf } from './http';
 
 const BASE = apiConfig.apiUrl;
 const itemSchema = z.object({ id: z.string() });
-const server = setupServer();
+let csrfIssued = 0;
+const server = setupServer(
+  http.get(`${BASE}/api/auth/csrf`, () => {
+    csrfIssued += 1;
+    return HttpResponse.json({ token: `token-${String(csrfIssued)}`, headerName: 'X-CSRF-TOKEN' });
+  }),
+);
 
 beforeAll(() => {
   server.listen({ onUnhandledFrame: 'error' });
@@ -18,6 +24,8 @@ beforeAll(() => {
 afterEach(() => {
   server.resetHandlers();
   mockStatus.restart = undefined;
+  resetCsrf();
+  csrfIssued = 0;
 });
 afterAll(() => {
   server.close();
@@ -254,5 +262,49 @@ describe('моки отключились', () => {
     const error = await captureError(request('/api/items/3', itemSchema));
 
     expect(error.kind).toBe('parse');
+  });
+});
+
+describe('CSRF', () => {
+  it('изменяющий запрос несёт токен, чтение — нет; токен берётся один раз', async () => {
+    const seen: (string | null)[] = [];
+    server.use(
+      http.get(`${BASE}/api/item`, ({ request: req }) => {
+        seen.push(req.headers.get('X-CSRF-TOKEN'));
+        return HttpResponse.json({ id: '1' });
+      }),
+      http.post(`${BASE}/api/item`, ({ request: req }) => {
+        seen.push(req.headers.get('X-CSRF-TOKEN'));
+        return HttpResponse.json({ id: '1' });
+      }),
+    );
+
+    await request('/api/item', itemSchema);
+    await request('/api/item', itemSchema, { method: 'POST', json: {} });
+    await request('/api/item', itemSchema, { method: 'POST', json: {} });
+
+    expect(seen).toEqual([null, 'token-1', 'token-1']);
+    expect(csrfIssued).toBe(1);
+  });
+
+  it('устаревший токен: берёт новый и повторяет запрос один раз', async () => {
+    const seen: (string | null)[] = [];
+    server.use(
+      http.post(`${BASE}/api/item`, ({ request: req }) => {
+        const token = req.headers.get('X-CSRF-TOKEN');
+        seen.push(token);
+        return token === 'token-2'
+          ? HttpResponse.json({ id: '1' })
+          : HttpResponse.json(
+              { type: '/problems/invalid-csrf-token', title: 'Неверный CSRF-токен', status: 403 },
+              { status: 403, headers: { 'Content-Type': 'application/problem+json' } },
+            );
+      }),
+    );
+
+    await expect(request('/api/item', itemSchema, { method: 'POST', json: {} })).resolves.toEqual({
+      id: '1',
+    });
+    expect(seen).toEqual(['token-1', 'token-2']);
   });
 });

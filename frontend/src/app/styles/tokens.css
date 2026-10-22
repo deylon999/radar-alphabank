@@ -2,7 +2,7 @@
  * Токены core-components: цвета, отступы, скругления, тени, шрифтовые переменные.
  * Подключаем отдельные файлы, а не bundle: в bundle есть @define-mixin для postcss-mixins,
  * которые браузер не понимает. Тему corp не подключаем: её :root-переменные перебиваются
- * стилями компонентов, которые грузятся позже; главное действие — Button view="accent".
+ * стилями компонентов, которые грузятся позже; главное действие — Button view="primary".
  */
 @import '@alfalab/core-components/vars/colors-bluetint.css';
 @import '@alfalab/core-components/vars/colors-promo.css';

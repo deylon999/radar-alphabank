@@ -5,6 +5,7 @@ import type { InsightFilters } from '../schemas/insight';
  * `queryKeys.insights.all` сбрасывает и ленты, и карточки.
  */
 export const queryKeys = {
+  me: ['me'] as const,
   companies: {
     all: ['companies'] as const,
     list: (query = '') => [...queryKeys.companies.all, 'list', query.trim()] as const,

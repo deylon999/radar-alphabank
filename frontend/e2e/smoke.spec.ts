@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test';
+import { expect, test } from './fixtures';
 
 test('главная открывается: шапка, лента и заголовок вкладки', async ({ page }) => {
   await page.goto('/');

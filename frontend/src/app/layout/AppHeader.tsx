@@ -1,6 +1,7 @@
 import { Link } from 'react-router';
 
 import { terms } from '../../shared/labels';
+import { LogoutButton } from '../auth/LogoutButton';
 import { CompanySwitcher } from '../company/CompanySwitcher';
 import { ThemeToggle } from '../theme/ThemeToggle';
 import styles from './AppHeader.module.css';
@@ -42,6 +43,7 @@ export function AppHeader({ variant = 'radar' }: AppHeaderProps) {
         <div className={styles.actions}>
           <CompanySwitcher />
           <ThemeToggle />
+          <LogoutButton />
         </div>
       </div>
     </header>
