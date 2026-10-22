@@ -31,6 +31,31 @@ cp .env.example .env    # задайте RADAR_DB_PASSWORD
 
 Миграции схемы (`src/main/resources/db/migration`) применяет Flyway при старте.
 
+API отвечает под базовым путём `/api`, например `http://localhost:8080/api/auth/csrf`.
+
+## Настройки окружения
+
+| Переменная | Назначение |
+| --- | --- |
+| `RADAR_DB_URL`, `RADAR_DB_USERNAME`, `RADAR_DB_PASSWORD` | PostgreSQL |
+| `RADAR_REDIS_HOST`, `RADAR_REDIS_PORT`, `RADAR_REDIS_PASSWORD` | Redis для сессий |
+| `RADAR_CORS_ALLOWED_ORIGINS` | адреса фронтенда через запятую, если он на другом сайте; пусто — CORS выключен |
+| `RADAR_LOG_DIR` | каталог файлов журнала, по умолчанию `logs` |
+| `SPRING_PROFILES_ACTIVE=production` | вывод в консоль в JSON (ECS) для сборщика журналов |
+
+Фронтенд должен работать с того же сайта, что и API (cookie `SESSION` с `SameSite=Lax`),
+поэтому `RADAR_CORS_ALLOWED_ORIGINS` обычно пуст.
+
+## Журналы
+
+В `RADAR_LOG_DIR` пишутся файлы в формате JSON (ECS):
+
+- `radar.json` — журнал приложения, ротация по 10 МБ, хранение 14 дней, не больше 1 ГБ;
+- `security.json` — события безопасности (запрос без входа, отказ CSRF), хранение 90 дней.
+
+На сервере каталог журналов — отдельный том вне каталога приложения, доступный только
+пользователю приложения. Тесты и PIT пишут журналы в `build/`.
+
 ## Проверки
 
 ```bash

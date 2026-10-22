@@ -1,6 +1,8 @@
 spring:
   application:
     name: radar
+  autoconfigure:
+    exclude: org.springframework.boot.security.autoconfigure.UserDetailsServiceAutoConfiguration
   config:
     import: optional:file:.env[.properties]
   docker:
@@ -18,3 +20,21 @@ spring:
 
 server:
   port: ${RADAR_PORT:8080}
+  servlet:
+    context-path: /api
+    session:
+      cookie:
+        name: SESSION
+        path: /
+        http-only: true
+        secure: true
+        same-site: lax
+
+logging:
+  pattern:
+    correlation: "[%X{requestId:-}] "
+
+radar:
+  log-dir: ${RADAR_LOG_DIR:logs}
+  cors:
+    allowed-origins: ${RADAR_CORS_ALLOWED_ORIGINS:}
