@@ -18,4 +18,6 @@ public class User {
 
     @ToString.Exclude
     private final String passwordHash;
+
+    private final boolean canViewQualityMetrics;
 }

@@ -5,6 +5,9 @@ spring:
     import: optional:file:.env[.properties]
   session:
     timeout: ${radar.session.idle-timeout}
+    data:
+      redis:
+        repository-type: indexed
   docker:
     compose:
       lifecycle-management: start-only

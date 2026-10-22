@@ -1,11 +1,13 @@
 package io.github.radar;
 
 import java.io.IOException;
+import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.util.Arrays;
+import java.util.Map;
 import tools.jackson.databind.json.JsonMapper;
 
 /**
@@ -79,6 +81,44 @@ public final class ApiHttpClient {
     }
 
     /**
+     * Регистрирует пользователя, если его ещё нет, и входит в новой сессии браузера.
+     *
+     * @param email email пользователя
+     * @param password пароль
+     * @return вошедшая сессия с актуальным CSRF-токеном
+     * @throws IOException при ошибке соединения
+     * @throws InterruptedException при прерывании потока
+     */
+    public BrowserSession registerAndLogin(String email, String password)
+            throws IOException, InterruptedException {
+        postJson("/auth/register", credentials(email, password), openSession());
+        return login(email, password, Map.of());
+    }
+
+    /**
+     * Входит в новой сессии браузера с дополнительными заголовками, например User-Agent.
+     *
+     * @param email email пользователя
+     * @param password пароль
+     * @param headers дополнительные заголовки запроса входа
+     * @return вошедшая сессия с актуальным CSRF-токеном
+     * @throws IOException при ошибке соединения
+     * @throws InterruptedException при прерывании потока
+     */
+    public BrowserSession login(String email, String password, Map<String, String> headers)
+            throws IOException, InterruptedException {
+        HttpRequest.Builder request = openSession().apply(request("/auth/login"))
+                .header("Content-Type", "application/json")
+                .POST(HttpRequest.BodyPublishers.ofString(credentials(email, password)));
+        headers.forEach(request::header);
+        HttpResponse<String> response = send(request);
+        if (response.statusCode() != HttpURLConnection.HTTP_OK) {
+            throw new IllegalStateException("Вход не выполнен: " + response.statusCode());
+        }
+        return continueSession(sessionCookie(response));
+    }
+
+    /**
      * Отправляет JSON методом POST в рамках сессии браузера.
      *
      * @param path путь без /api
@@ -108,5 +148,9 @@ public final class ApiHttpClient {
                 .filter(attribute -> attribute.startsWith("SESSION="))
                 .findFirst()
                 .orElseThrow();
+    }
+
+    private String credentials(String email, String password) {
+        return jsonMapper.writeValueAsString(Map.of("email", email, "password", password));
     }
 }

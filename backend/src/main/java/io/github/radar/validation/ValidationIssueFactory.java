@@ -10,6 +10,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import org.springframework.stereotype.Component;
 import tools.jackson.core.JacksonException;
+import tools.jackson.databind.exc.InvalidFormatException;
 import tools.jackson.databind.exc.InvalidNullException;
 import tools.jackson.databind.exc.MismatchedInputException;
 
@@ -50,6 +51,10 @@ public class ValidationIssueFactory {
                 .map(JacksonException.Reference::getPropertyName)
                 .filter(Objects::nonNull)
                 .collect(Collectors.joining("."));
+        if (mismatch instanceof InvalidFormatException format && format.getTargetType().isEnum()) {
+            return Optional.of(new ValidationIssueResponse(
+                    field, "INVALID_ENUM_VALUE", "Выберите значение из списка."));
+        }
         if (mismatch instanceof InvalidNullException) {
             return Optional.of(new ValidationIssueResponse(
                     field, "MUST_NOT_BE_NULL", "Значение не может быть null."));

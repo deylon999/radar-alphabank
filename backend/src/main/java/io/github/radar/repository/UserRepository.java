@@ -18,7 +18,8 @@ public class UserRepository {
     private static final RowMapper<User> USER_ROW_MAPPER = (resultSet, rowNumber) -> new User(
             resultSet.getObject("id", UUID.class),
             resultSet.getString("email"),
-            resultSet.getString("password_hash")
+            resultSet.getString("password_hash"),
+            resultSet.getBoolean("can_view_quality_metrics")
     );
 
     private final JdbcClient jdbcClient;
@@ -36,7 +37,7 @@ public class UserRepository {
                         """
                         INSERT INTO users (email, password_hash)
                         VALUES (:email, :passwordHash)
-                        RETURNING id, email, password_hash
+                        RETURNING id, email, password_hash, can_view_quality_metrics
                         """
                 )
                 .param("email", email.getValue())
@@ -55,12 +56,32 @@ public class UserRepository {
         return jdbcClient
                 .sql(
                         """
-                        SELECT id, email, password_hash
+                        SELECT id, email, password_hash, can_view_quality_metrics
                         FROM users
                         WHERE email = :email
                         """
                 )
                 .param("email", email.getValue())
+                .query(USER_ROW_MAPPER)
+                .optional();
+    }
+
+    /**
+     * Ищет пользователя по ID.
+     *
+     * @param id ID пользователя
+     * @return пользователь или пустой результат
+     */
+    public Optional<User> findById(UUID id) {
+        return jdbcClient
+                .sql(
+                        """
+                        SELECT id, email, password_hash, can_view_quality_metrics
+                        FROM users
+                        WHERE id = :id
+                        """
+                )
+                .param("id", id)
                 .query(USER_ROW_MAPPER)
                 .optional();
     }

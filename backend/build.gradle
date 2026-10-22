@@ -134,7 +134,7 @@ pitest {
     if (findProperty('pitTargetTests')) {
         targetTests = [findProperty('pitTargetTests')]
     }
-    threads = Runtime.runtime.availableProcessors()
+    threads = (findProperty('pitThreads') ?: '2') as int
     jvmArgs = ["-Dradar.log-dir=${layout.buildDirectory.dir('pit-logs').get().asFile.path}"]
     outputFormats = ['HTML', 'XML']
     timestampedReports = false

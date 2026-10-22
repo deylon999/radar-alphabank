@@ -35,6 +35,8 @@ public class LoginService {
 
     private final AttemptLimitService attemptLimitService;
 
+    private final UserSessionService userSessionService;
+
     private final SessionAuthenticationStrategy sessionAuthenticationStrategy;
 
     private final SecurityContextRepository securityContextRepository;
@@ -81,6 +83,7 @@ public class LoginService {
         securityContextRepository.saveContext(
                 new SecurityContextImpl(authentication), httpRequest, httpResponse);
         Instant authenticatedAt = clock.instant();
+        userSessionService.describeLogin(httpRequest, authenticatedAt);
 
         return new LoginResponse(
                 "authenticated",

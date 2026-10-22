@@ -33,6 +33,18 @@ public interface ValidationCode {
     }
 
     /**
+     * Значение не соответствует шаблону.
+     */
+    interface MustMatchPattern extends Payload {
+    }
+
+    /**
+     * Не совпадает контрольная цифра.
+     */
+    interface InvalidChecksum extends Payload {
+    }
+
+    /**
      * Пароль распространённый или встречался в утечках.
      */
     interface CompromisedPassword extends Payload {
