@@ -18,7 +18,9 @@ import org.springframework.web.servlet.HandlerMapping;
 /**
  * Пишет в журнал безопасности подтверждение личности и чувствительные действия.
  *
- * <p>Пароли не пишутся; пользователь — userId из MDC. Попытка чувствительного действия
+ * <p>Неудачная проверка пишется и при подтверждении через reauthenticate, и при проверке
+ * пароля и второго фактора прямо в запросе действия. Пароли и коды не пишутся;
+ * пользователь — userId из MDC. Попытка чувствительного действия
  * без подтверждения пишется на границе контроллера, одной записью на запрос.
  */
 @Aspect
@@ -29,8 +31,10 @@ public class SensitiveActionLoggingAspect {
     private static final String THROWN = "exception";
 
     private static final String REAUTHENTICATE =
-            "execution(* io.github.radar.service.ReauthenticationService.reauthenticate(..))"
-                    + " && args(*, *, httpRequest)";
+            "(execution(* io.github.radar.service.ReauthenticationService.reauthenticate(..))"
+                    + " && args(*, *, httpRequest))"
+                    + " || (execution(* io.github.radar.service.ReauthenticationService"
+                    + ".confirmIdentity(..)) && args(*, *, *, httpRequest))";
 
     /**
      * Пишет успешное подтверждение личности.

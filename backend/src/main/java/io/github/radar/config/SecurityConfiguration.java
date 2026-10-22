@@ -57,7 +57,8 @@ public class SecurityConfiguration {
                 .authorizeHttpRequests(requests -> requests
                         .dispatcherTypeMatchers(DispatcherType.ERROR).permitAll()
                         .requestMatchers(HttpMethod.GET, "/auth/csrf").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/auth/register", "/auth/login")
+                        .requestMatchers(HttpMethod.POST, "/auth/register", "/auth/login",
+                                "/auth/login/2fa")
                         .permitAll()
                         .anyRequest().authenticated())
                 .cors(Customizer.withDefaults())

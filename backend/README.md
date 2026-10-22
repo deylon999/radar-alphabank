@@ -12,7 +12,7 @@ Spring Boot 4.1, Java 25, PostgreSQL через Spring JDBC, Spring Security, с
 ## Запуск
 
 ```bash
-cp .env.example .env    # задайте RADAR_DB_PASSWORD
+cp .env.example .env    # задайте RADAR_DB_PASSWORD и RADAR_TOTP_ENCRYPTION_KEY
 ./gradlew bootRun
 ```
 
@@ -43,6 +43,8 @@ API отвечает под базовым путём `/api`, например `
 | `RADAR_LOG_DIR` | каталог файлов журнала, по умолчанию `logs` |
 | `RADAR_LOGIN_EMAIL_ATTEMPTS`, `RADAR_LOGIN_IP_ATTEMPTS` | неудачных входов за 15 минут на email и на IP, по умолчанию 5 и 20 |
 | `RADAR_REGISTRATION_IP_ATTEMPTS` | регистраций за час с одного IP, по умолчанию 5 |
+| `RADAR_SECOND_FACTOR_USER_ATTEMPTS` | неверных TOTP-кодов за сутки на пользователя, по умолчанию 10 |
+| `RADAR_TOTP_ENCRYPTION_KEY` | обязательный ключ AES-256 для TOTP-секретов, 32 байта в Base64: `openssl rand -base64 32` |
 | `SPRING_PROFILES_ACTIVE=production` | вывод в консоль в JSON (ECS) для сборщика журналов |
 
 Фронтенд должен работать с того же сайта, что и API (cookie `SESSION` с `SameSite=Lax`),

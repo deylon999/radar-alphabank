@@ -1,5 +1,6 @@
 package io.github.radar.validation;
 
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import io.github.radar.dto.ValidationIssueResponse;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Payload;
@@ -12,6 +13,7 @@ import org.springframework.stereotype.Component;
 import tools.jackson.core.JacksonException;
 import tools.jackson.databind.exc.InvalidFormatException;
 import tools.jackson.databind.exc.InvalidNullException;
+import tools.jackson.databind.exc.InvalidTypeIdException;
 import tools.jackson.databind.exc.MismatchedInputException;
 
 /**
@@ -37,30 +39,37 @@ public class ValidationIssueFactory {
 
     /**
      * Создаёт ошибку поля по ошибке разбора JSON, если она относится к конкретному полю:
-     * явный null в обязательном поле или значение другого типа. Ошибки синтаксиса JSON
-     * к полю не относятся и дают пустой результат.
+     * явный null в обязательном поле, значение другого типа или отсутствующий либо
+     * неизвестный вариант в поле-признаке, например method второго фактора. Ошибки синтаксиса
+     * JSON к полю не относятся и дают пустой результат.
      *
      * @param cause причина ошибки чтения тела запроса
      * @return ошибка поля или пустой результат
      */
     public Optional<ValidationIssueResponse> fromJsonInput(Throwable cause) {
-        if (!(cause instanceof MismatchedInputException mismatch) || mismatch.getPath().isEmpty()) {
+        if (!(cause instanceof MismatchedInputException mismatch)) {
             return Optional.empty();
         }
-        String field = mismatch.getPath().stream()
+        String path = mismatch.getPath().stream()
                 .map(JacksonException.Reference::getPropertyName)
                 .filter(Objects::nonNull)
                 .collect(Collectors.joining("."));
+        if (mismatch instanceof InvalidTypeIdException typeId) {
+            return Optional.of(fromTypeId(path, typeId));
+        }
+        if (path.isEmpty()) {
+            return Optional.empty();
+        }
         if (mismatch instanceof InvalidFormatException format && format.getTargetType().isEnum()) {
             return Optional.of(new ValidationIssueResponse(
-                    field, "INVALID_ENUM_VALUE", "Выберите значение из списка."));
+                    path, "INVALID_ENUM_VALUE", "Выберите значение из списка."));
         }
         if (mismatch instanceof InvalidNullException) {
             return Optional.of(new ValidationIssueResponse(
-                    field, "MUST_NOT_BE_NULL", "Значение не может быть null."));
+                    path, "MUST_NOT_BE_NULL", "Значение не может быть null."));
         }
         return Optional.of(new ValidationIssueResponse(
-                field, "INVALID_TYPE", "Значение имеет неверный тип."));
+                path, "INVALID_TYPE", "Значение имеет неверный тип."));
     }
 
     /**
@@ -71,6 +80,18 @@ public class ValidationIssueFactory {
     public Comparator<ValidationIssueResponse> order() {
         return Comparator.comparing(ValidationIssueResponse::getField)
                 .thenComparing(ValidationIssueResponse::getTitle);
+    }
+
+    private ValidationIssueResponse fromTypeId(String path, InvalidTypeIdException typeId) {
+        String property = typeId.getBaseType().getRawClass()
+                .getAnnotation(JsonTypeInfo.class)
+                .property();
+        String field = path.isEmpty() ? property : path + "." + property;
+        if (typeId.getTypeId() == null) {
+            return new ValidationIssueResponse(field, "REQUIRED", "Укажите вариант.");
+        }
+        return new ValidationIssueResponse(
+                field, "INVALID_ENUM_VALUE", "Выберите значение из списка.");
     }
 
     private String code(ConstraintViolation<?> violation) {

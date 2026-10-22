@@ -39,6 +39,8 @@ public class MeService {
 
     private final JoinRequestMapper joinRequestMapper;
 
+    private final SecondFactorService secondFactorService;
+
     /**
      * Описывает текущего пользователя.
      *
@@ -52,7 +54,8 @@ public class MeService {
                 .map(this::toResponse)
                 .orElse(null);
         return new MeResponse(
-                new AuthenticatedUserResponse(user.getId(), user.getEmail(), false),
+                new AuthenticatedUserResponse(user.getId(), user.getEmail(),
+                        secondFactorService.isEnabled(userId)),
                 membership,
                 membership == null ? visibleJoinRequest(userId) : null,
                 user.isCanViewQualityMetrics()

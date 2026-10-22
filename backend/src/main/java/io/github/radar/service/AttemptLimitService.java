@@ -5,16 +5,13 @@ import io.github.radar.domain.AttemptCount;
 import io.github.radar.domain.Email;
 import io.github.radar.exception.TooManyAttemptsException;
 import io.github.radar.repository.AttemptCounterRepository;
-import java.nio.charset.StandardCharsets;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.time.Duration;
-import java.util.HexFormat;
+import io.github.radar.security.Sha256Hasher;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 /**
- * Ограничения попыток входа и регистрации.
+ * Ограничения попыток входа, второго фактора и регистрации.
  *
  * <p>Попытка учитывается до проверки пароля: при исчерпанном лимите пароль не проверяется,
  * поэтому число дорогих проверок Argon2 ограничено и при параллельных запросах.
@@ -26,6 +23,8 @@ public class AttemptLimitService {
     private final AttemptCounterRepository attemptCounterRepository;
 
     private final RateLimitProperties rateLimit;
+
+    private final Sha256Hasher sha256;
 
     /**
      * Учитывает попытку входа отдельно по email и по IP.
@@ -74,21 +73,40 @@ public class AttemptLimitService {
         }
     }
 
+    /**
+     * Учитывает попытку TOTP-кода пользователя. Счётчик привязан к пользователю, а не к сессии:
+     * новый вход по паролю его не сбрасывает.
+     *
+     * @param userId ID пользователя
+     * @throws TooManyAttemptsException если лимит исчерпан
+     */
+    public void reserveSecondFactor(UUID userId) {
+        RateLimitProperties.SecondFactor secondFactor = rateLimit.secondFactor();
+        AttemptCount byUser = attemptCounterRepository.increment(
+                secondFactorKey(userId), secondFactor.window());
+        if (byUser.getAttempts() > secondFactor.userAttempts()) {
+            throw new TooManyAttemptsException(byUser.getRemaining());
+        }
+    }
+
+    /**
+     * Сбрасывает счётчик TOTP-кодов пользователя после принятого кода.
+     *
+     * @param userId ID пользователя
+     */
+    public void forgiveSecondFactor(UUID userId) {
+        attemptCounterRepository.reset(secondFactorKey(userId));
+    }
+
     private String loginEmailKey(Email email) {
-        return "radar:attempts:login:email:" + sha256(email.getValue());
+        return "radar:attempts:login:email:" + sha256.hex(email.getValue());
+    }
+
+    private String secondFactorKey(UUID userId) {
+        return "radar:attempts:second-factor:user:" + userId;
     }
 
     private String loginIpKey(String ip) {
         return "radar:attempts:login:ip:" + ip;
-    }
-
-    private String sha256(String value) {
-        try {
-            byte[] digest = MessageDigest.getInstance("SHA-256")
-                    .digest(value.getBytes(StandardCharsets.UTF_8));
-            return HexFormat.of().formatHex(digest);
-        } catch (NoSuchAlgorithmException exception) {
-            throw new IllegalStateException("SHA-256 недоступен", exception);
-        }
     }
 }

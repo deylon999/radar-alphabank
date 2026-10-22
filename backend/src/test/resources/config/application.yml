@@ -5,3 +5,7 @@ radar:
       ip-attempts: 1000
     registration:
       ip-attempts: 1000
+    second-factor:
+      user-attempts: 1000
+  totp:
+    encryption-key: HFZzpOcWFSsow3ULYwOD2jAKgkQ4fv1ApBDHT8NiP2c=

@@ -43,6 +43,11 @@ radar:
     idle-timeout: 60m
     absolute-timeout: 8h
     reauthentication-timeout: 5m
+    pending-login-timeout: 5m
+    totp-setup-timeout: 5m
+  totp:
+    issuer: Radar
+    encryption-key: ${RADAR_TOTP_ENCRYPTION_KEY}
   cors:
     allowed-origins: ${RADAR_CORS_ALLOWED_ORIGINS:}
   password-hashing:
@@ -56,3 +61,6 @@ radar:
     registration:
       ip-attempts: ${RADAR_REGISTRATION_IP_ATTEMPTS:5}
       window: 1h
+    second-factor:
+      user-attempts: ${RADAR_SECOND_FACTOR_USER_ATTEMPTS:10}
+      window: 24h

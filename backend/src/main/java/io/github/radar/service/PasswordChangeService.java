@@ -8,7 +8,6 @@ import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.web.authentication.session.SessionAuthenticationStrategy;
 import org.springframework.stereotype.Service;
 
 /**
@@ -27,9 +26,7 @@ public class PasswordChangeService {
 
     private final PasswordEncoder passwordEncoder;
 
-    private final UserSessionService userSessionService;
-
-    private final SessionAuthenticationStrategy sessionAuthenticationStrategy;
+    private final SessionRenewalService sessionRenewalService;
 
     /**
      * Меняет пароль текущего пользователя.
@@ -50,8 +47,6 @@ public class PasswordChangeService {
         reauthenticationService.requireRecentConfirmation(httpRequest.getSession());
         userRepository.updatePasswordHash(UUID.fromString(authentication.getName()),
                 passwordEncoder.encode(request.getNewPassword()));
-        userSessionService.revokeOthers(authentication, httpRequest);
-        sessionAuthenticationStrategy.onAuthentication(authentication, httpRequest, httpResponse);
-        reauthenticationService.resetConfirmation(httpRequest.getSession());
+        sessionRenewalService.renewAfterCredentialChange(authentication, httpRequest, httpResponse);
     }
 }
