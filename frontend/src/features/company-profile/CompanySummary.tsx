@@ -11,7 +11,7 @@ export function CompanySummary({ company }: { company: Company }) {
       {/* Заголовок блока — 16 px, как остальные: на экране не больше четырёх размеров текста. */}
       <h2 className={styles.name}>{company.name}</h2>
       <Typography.Text tag="p" view="primary-small" color="secondary">
-        {company.industry}
+        {company.industry ?? 'Отрасль не указана'}
         {company.inn ? ` · ИНН${NBSP}${company.inn}` : ''}
       </Typography.Text>
       {company.description ? (

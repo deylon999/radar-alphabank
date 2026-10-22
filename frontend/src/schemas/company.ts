@@ -84,7 +84,8 @@ export const companySchema = z.object({
     .string()
     .regex(/^(\d{10}|\d{12})$/)
     .optional(),
-  industry: z.string().min(1),
+  /** Есть у всех компаний из датасета; у созданной пользователем может не быть. */
+  industry: z.string().min(1).optional(),
   description: z.string(),
   facts: z.array(profileFactSchema),
   profile: clientProfileSchema.optional(),
