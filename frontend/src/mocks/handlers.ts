@@ -27,7 +27,6 @@ import { extractableFacts, MOCK_NOW, TELEGRAM_DEMO_LINK, TELEGRAM_DEMO_USERNAME 
 import {
   answerQuestion,
   answerSteps,
-  searchCompanies,
   compareInsights,
   computeDigest,
   computeOverview,

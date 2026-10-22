@@ -77,6 +77,17 @@ describe('профиль компании', () => {
     expect(within(factRow(PORT_FACT)).getByText(/Ссылка · example\.com/)).toBeInTheDocument();
   });
 
+  it('компания без отрасли — профиль открывается, вместо отрасли подсказка', async () => {
+    store.write((db) => {
+      const company = db.companies.find((item) => item.id === 'U_9250');
+      if (company) delete company.industry;
+    });
+    await openProfile();
+
+    expect(screen.getByRole('heading', { name: 'Клиент U_9250' })).toBeInTheDocument();
+    expect(screen.getByText('Отрасль не указана')).toBeInTheDocument();
+  });
+
   it('показывает данные банка: признаки, продукты, ВЭД и контрагентов', async () => {
     await openProfile();
     const bank = screen.getByRole('region', { name: 'Данные банка о компании' });
