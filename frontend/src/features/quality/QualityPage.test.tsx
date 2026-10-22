@@ -73,6 +73,17 @@ describe('экран качества', () => {
   });
 });
 
+describe('доступ к метрикам', () => {
+  it('без прав — понятное объяснение вместо данных', async () => {
+    store.writeSession((session) => {
+      session.userId = 'user-cfo';
+    });
+    renderApp('/quality');
+
+    expect(await screen.findByText('Метрики доступны команде и экспертам')).toBeInTheDocument();
+  });
+});
+
 describe('форматирование', () => {
   it.each([
     [50, '50 мин'],

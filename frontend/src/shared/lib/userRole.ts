@@ -1,37 +1,20 @@
-import { useSyncExternalStore } from 'react';
+import { useMe, useUpdatePosition } from '../../api/hooks/auth';
+import type { UserRole } from '../../schemas/user';
 
-import { type UserRole, userRoleSchema } from '../../schemas/user';
-import { safeStorage } from './safeStorage';
-
-export const USER_ROLE_STORAGE_KEY = 'radar-user-role';
 const DEFAULT_ROLE: UserRole = 'ceo';
 
-const listeners = new Set<() => void>();
-
-function readRole(): UserRole {
-  const parsed = userRoleSchema.safeParse(safeStorage.get(USER_ROLE_STORAGE_KEY));
-  return parsed.success ? parsed.data : DEFAULT_ROLE;
-}
-
-function subscribe(onChange: () => void) {
-  listeners.add(onChange);
-  return () => {
-    listeners.delete(onChange);
-  };
-}
-
-function setUserRole(role: UserRole) {
-  safeStorage.set(USER_ROLE_STORAGE_KEY, role);
-  listeners.forEach((listener) => {
-    listener();
-  });
-}
-
 /**
- * Роль читателя: от неё бэкенд поднимает выше то, что важнее для роли. Хранится в браузере —
- * у одной компании несколько пользователей с разными ролями.
+ * Должность читателя в компании — из `/me`, меняется на сервере. От неё бэкенд поднимает
+ * выше то, что важнее для роли: у одной компании несколько пользователей.
  */
 export function useUserRole(): [UserRole, (role: UserRole) => void] {
-  const role = useSyncExternalStore(subscribe, readRole, () => DEFAULT_ROLE);
-  return [role, setUserRole];
+  const me = useMe();
+  const update = useUpdatePosition();
+  const role = me.data?.membership?.position ?? DEFAULT_ROLE;
+  return [
+    role,
+    (next) => {
+      update.mutate(next);
+    },
+  ];
 }

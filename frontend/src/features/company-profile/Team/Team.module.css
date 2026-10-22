@@ -1,0 +1,61 @@
+.root,
+.block {
+  display: grid;
+  gap: var(--gap-8);
+}
+
+.title {
+  margin: 0;
+  font-size: 16px;
+  line-height: 24px;
+  font-weight: 700;
+}
+
+.subtitle {
+  margin: 0;
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 700;
+}
+
+.list {
+  display: grid;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.item {
+  display: grid;
+  gap: 2px;
+  padding: var(--gap-8) 0;
+  font-size: 14px;
+  line-height: 20px;
+}
+
+.item + .item {
+  border-top: 1px solid var(--color-light-neutral-translucent-300);
+}
+
+.who {
+  overflow-wrap: anywhere;
+  font-weight: 500;
+}
+
+.muted {
+  margin: 0;
+  color: var(--color-light-text-secondary);
+  font-size: 14px;
+  line-height: 20px;
+}
+
+.message {
+  color: var(--color-light-text-primary);
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--gap-8);
+  margin-top: var(--gap-4);
+}

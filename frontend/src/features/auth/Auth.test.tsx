@@ -155,7 +155,10 @@ describe('регистрация', () => {
 
     await fillRegister(user, 'new@example.com', 'длинный пароль для проверки');
 
-    expect(await screen.findByRole('heading', { level: 1, name: 'Лента' })).toBeInTheDocument();
+    // Новый пользователь ещё не в компании — сначала подключает её.
+    expect(
+      await screen.findByRole('heading', { level: 1, name: 'Подключите компанию' }),
+    ).toBeInTheDocument();
     expect(store.read().users.some((item) => item.email === 'new@example.com')).toBe(true);
     expect(within(document.body).getByRole('button', { name: 'Выйти' })).toHaveAttribute(
       'title',

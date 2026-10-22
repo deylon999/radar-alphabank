@@ -1,7 +1,15 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import { isApiError } from '../ApiError';
-import { fetchMe, login, logout, register, verifySecondFactor } from '../endpoints/auth';
+import type { Me } from '../../schemas/auth';
+import {
+  fetchMe,
+  login,
+  logout,
+  register,
+  updatePosition,
+  verifySecondFactor,
+} from '../endpoints/auth';
 import { queryKeys } from '../queryKeys';
 
 /** 401 — не ошибка, а «не вошёл»: тогда `data` — `null`. */
@@ -63,5 +71,33 @@ export function useLogout() {
       queryClient.clear();
       queryClient.setQueryData(queryKeys.me, null);
     },
+  });
+}
+
+/**
+ * Должность в компании: от неё бэкенд поднимает выше то, что важнее для роли. Меняется сразу,
+ * при ошибке возвращается прежняя.
+ */
+export function useUpdatePosition() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: updatePosition,
+    onMutate: async (position) => {
+      await queryClient.cancelQueries({ queryKey: queryKeys.me });
+      const previous = queryClient.getQueryData<Me | null>(queryKeys.me);
+      if (previous?.membership) {
+        queryClient.setQueryData<Me>(queryKeys.me, {
+          ...previous,
+          membership: { ...previous.membership, position },
+        });
+      }
+      return { previous };
+    },
+    onError: (_error, _position, context) => {
+      if (context?.previous !== undefined) {
+        queryClient.setQueryData(queryKeys.me, context.previous);
+      }
+    },
+    onSettled: () => queryClient.invalidateQueries({ queryKey: queryKeys.me }),
   });
 }

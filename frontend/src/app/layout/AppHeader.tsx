@@ -2,7 +2,7 @@ import { Link } from 'react-router';
 
 import { terms } from '../../shared/labels';
 import { LogoutButton } from '../auth/LogoutButton';
-import { CompanySwitcher } from '../company/CompanySwitcher';
+import { CompanyName } from '../company/CompanyName';
 import { ThemeToggle } from '../theme/ThemeToggle';
 import styles from './AppHeader.module.css';
 import { MainNav } from './MainNav';
@@ -41,7 +41,7 @@ export function AppHeader({ variant = 'radar' }: AppHeaderProps) {
           </>
         )}
         <div className={styles.actions}>
-          <CompanySwitcher />
+          <CompanyName />
           <ThemeToggle />
           <LogoutButton />
         </div>

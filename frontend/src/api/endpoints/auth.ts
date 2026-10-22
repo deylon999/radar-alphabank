@@ -1,5 +1,7 @@
 import {
   type Authenticated,
+  type Membership,
+  membershipSchema,
   authenticatedSchema,
   type Credentials,
   type LoginResponse,
@@ -9,6 +11,7 @@ import {
   registerResponseSchema,
   type SecondFactor,
 } from '../../schemas/auth';
+import type { UserRole } from '../../schemas/user';
 import { request, requestVoid, resetCsrf } from '../http';
 
 /** Регистрация не выполняет вход: после неё нужен `login`. */
@@ -45,6 +48,10 @@ export async function logout(): Promise<void> {
   } finally {
     resetCsrf();
   }
+}
+
+export function updatePosition(position: UserRole): Promise<Membership> {
+  return request('/api/me/membership', membershipSchema, { method: 'PATCH', json: { position } });
 }
 
 export function fetchMe(signal?: AbortSignal): Promise<Me> {

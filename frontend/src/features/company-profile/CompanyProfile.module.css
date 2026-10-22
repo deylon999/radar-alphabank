@@ -27,6 +27,10 @@
   order: 3;
 }
 
+.team {
+  order: 3;
+}
+
 .promo {
   order: 4;
 }
@@ -76,6 +80,7 @@
   }
 
   .aside .role,
+  .aside .team,
   .aside .form {
     padding: var(--gap-20);
     border: 1px solid var(--radar-card-border);

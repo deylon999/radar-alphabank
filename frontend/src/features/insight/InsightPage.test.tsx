@@ -25,7 +25,23 @@ afterAll(() => {
 
 const FLOOD = 'ЦБ сохранил ставку 14% и ужесточил риторику: кредиты не подешевеют до конца года';
 
+/** Вывод видят только участники его компании — входим владельцем этой компании. */
+function signInForInsight(id: string) {
+  const companyId = insights.find((insight) => insight.id === id)?.companyId;
+  const owner = store
+    .read()
+    .users.find(
+      (user) => user.membership?.companyId === companyId && user.membership?.role === 'owner',
+    );
+  if (owner) {
+    store.writeSession((session) => {
+      session.userId = owner.id;
+    });
+  }
+}
+
 async function openInsight(id: string) {
+  signInForInsight(id);
   const app = renderApp(`/insights/${id}`);
   await screen.findByRole('heading', { level: 1 });
   return app;

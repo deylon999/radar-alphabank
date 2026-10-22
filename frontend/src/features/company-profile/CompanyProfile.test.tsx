@@ -4,7 +4,6 @@ import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it } from
 
 import { COMPANY_IDS } from '../../mocks/fixtures';
 import type { ProfileFact } from '../../schemas/company';
-import { USER_ROLE_STORAGE_KEY } from '../../shared/lib/userRole';
 import { createMockServer } from '../../test/mockServer';
 import { renderApp } from '../../test/renderApp';
 
@@ -106,14 +105,21 @@ describe('профиль компании', () => {
     expect(bank).toHaveTextContent('U_9972Получает от вас · 800 млн ₽ · 32 платежа');
   });
 
-  it('роль пользователя выбирается в профиле и запоминается', async () => {
+  it('должность выбирается в профиле и сохраняется на сервере', async () => {
     const { user } = await openProfile();
     const role = screen.getByRole('combobox', { name: 'Роль в компании' });
     expect(role).toHaveValue('ceo');
 
     await user.selectOptions(role, 'Финансовый директор');
 
-    expect(window.localStorage.getItem(USER_ROLE_STORAGE_KEY)).toBe('cfo');
+    await waitFor(() => {
+      expect(store.read().users.find((item) => item.id === 'user-u9250')?.membership).toMatchObject(
+        {
+          position: 'cfo',
+        },
+      );
+    });
+    expect(role).toHaveValue('cfo');
   });
 
   it('«Подтвердить» меняет статус факта и число в плашке', async () => {
@@ -199,8 +205,39 @@ describe('профиль компании', () => {
     expect(screen.queryAllByText('Ждёт подтверждения')).toEqual([]);
   });
 
+  it('владелец видит заявку и принимает её — новый сотрудник среди участников', async () => {
+    const { user } = await openProfile();
+    const team = screen.getByRole('region', { name: 'Сотрудники' });
+
+    const requests = await within(team).findByRole('list', { name: 'Заявки на вступление' });
+    expect(requests).toHaveTextContent('newcomer@demo.radar');
+    expect(requests).toHaveTextContent('Главный бухгалтер');
+
+    await user.click(within(requests).getByRole('button', { name: 'Принять newcomer@demo.radar' }));
+
+    const members = within(team).getByRole('list', { name: 'Участники' });
+    await waitFor(() => {
+      expect(members).toHaveTextContent('newcomer@demo.radar');
+    });
+    expect(within(team).queryByRole('list', { name: 'Заявки на вступление' })).toBeNull();
+  });
+
+  it('участник без прав владельца заявок не видит', async () => {
+    store.writeSession((session) => {
+      session.userId = 'user-cfo';
+    });
+    await openProfile();
+    const team = screen.getByRole('region', { name: 'Сотрудники' });
+
+    expect(await within(team).findByRole('list', { name: 'Участники' })).toHaveTextContent(
+      'cfo@demo.radar (вы)',
+    );
+    expect(within(team).queryByRole('list', { name: 'Заявки на вступление' })).toBeNull();
+    expect(within(team).queryByRole('button', { name: /Исключить/ })).toBeNull();
+  });
+
   it('не грузится — понятная ошибка и «Повторить»', async () => {
-    // Падает только профиль: список компаний для шапки должен загрузиться.
+    // Профиль — тот же запрос, что и компания пользователя для шапки: ошибку показывает каркас.
     server.use(
       http.get('*/api/companies/:companyId', () => HttpResponse.json({}, { status: 500 }), {
         once: true,
@@ -208,7 +245,7 @@ describe('профиль компании', () => {
     );
     const { user } = renderApp('/company');
 
-    expect(await screen.findByText('Не удалось загрузить профиль компании')).toBeInTheDocument();
+    expect(await screen.findByText('Не удалось загрузить компанию')).toBeInTheDocument();
     await user.click(screen.getByRole('button', { name: 'Повторить' }));
 
     expect(await screen.findByRole('region', { name: 'Факты о компании' })).toBeInTheDocument();

@@ -8,7 +8,10 @@ export const queryKeys = {
   me: ['me'] as const,
   companies: {
     all: ['companies'] as const,
-    list: (query = '') => [...queryKeys.companies.all, 'list', query.trim()] as const,
+    search: (query: string) => [...queryKeys.companies.all, 'search', query.trim()] as const,
+    joinRequests: (companyId: string) =>
+      [...queryKeys.companies.all, 'join-requests', companyId] as const,
+    members: (companyId: string) => [...queryKeys.companies.all, 'members', companyId] as const,
     detail: (companyId: string) => [...queryKeys.companies.all, 'detail', companyId] as const,
   },
   insights: {

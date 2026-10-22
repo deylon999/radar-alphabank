@@ -84,6 +84,31 @@ export const meSchema = z.object({
   canViewQualityMetrics: z.boolean(),
 });
 
+export const companySearchSchema = z.object({ companies: z.array(companyRefSchema) });
+
+export const createCompanyBodySchema = z.object({
+  name: z.string().trim().min(1).max(200),
+  inn: z.string().trim(),
+  position: userRoleSchema.optional(),
+});
+
+export const joinRequestBodySchema = z.object({
+  position: userRoleSchema.optional(),
+  message: z.string().trim().max(500).optional(),
+});
+
+export const joinRequestListSchema = z.object({ joinRequests: z.array(joinRequestSchema) });
+
+export const memberSchema = z.object({
+  userId: z.string().min(1),
+  email: z.string().min(1),
+  role: z.enum(['owner', 'member']),
+  position: userRoleSchema.optional(),
+  joinedAt: isoDateTimeSchema,
+});
+
+export const memberListSchema = z.object({ members: z.array(memberSchema) });
+
 export type Csrf = z.infer<typeof csrfSchema>;
 export type AuthUser = z.infer<typeof authUserSchema>;
 export type Authenticated = z.infer<typeof authenticatedSchema>;
@@ -94,3 +119,7 @@ export type CompanyRef = z.infer<typeof companyRefSchema>;
 export type Membership = z.infer<typeof membershipSchema>;
 export type JoinRequest = z.infer<typeof joinRequestSchema>;
 export type Me = z.infer<typeof meSchema>;
+export type CreateCompanyBody = z.infer<typeof createCompanyBodySchema>;
+export type JoinRequestBody = z.infer<typeof joinRequestBodySchema>;
+export type Member = z.infer<typeof memberSchema>;
+export type JoinDecision = 'approve' | 'reject';

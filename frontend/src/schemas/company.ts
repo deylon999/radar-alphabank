@@ -91,8 +91,6 @@ export const companySchema = z.object({
   profile: clientProfileSchema.optional(),
 });
 
-export const companyListSchema = z.array(companySchema);
-
 export const describeCompanyBodySchema = z.object({
   text: z.string().trim(),
   links: z.array(z.url()),

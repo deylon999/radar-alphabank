@@ -1,4 +1,5 @@
 import { apiConfig } from '../../api/config';
+import { useMe } from '../../api/hooks/auth';
 import { useQualityMetrics } from '../../api/hooks/quality';
 import { Completeness } from '../../features/quality/Completeness';
 import styles from '../../features/quality/Quality.module.css';
@@ -8,13 +9,28 @@ import { StatTiles } from '../../features/quality/StatTiles';
 import { TopicTable } from '../../features/quality/TopicTable';
 import { terms } from '../../shared/labels';
 import { useDocumentTitle } from '../../shared/lib/useDocumentTitle';
+import { EmptyState } from '../../shared/ui/EmptyState';
 import { PageTitle } from '../../shared/ui/PageTitle';
 import { QueryView } from '../../shared/ui/QueryView';
 
 /** Экран для команды и жюри: как принимают выводы и насколько полно они собраны. */
 export function QualityPage() {
-  const metrics = useQualityMetrics();
+  const me = useMe();
+  const allowed = me.data?.canViewQualityMetrics ?? false;
+  const metrics = useQualityMetrics({ enabled: allowed });
   useDocumentTitle(terms.quality);
+
+  if (!allowed) {
+    return (
+      <>
+        <PageTitle>{terms.quality}</PageTitle>
+        <EmptyState
+          title="Метрики доступны команде и экспертам"
+          description="Если вы проверяете решение, войдите под демо-аккаунтом владельца компании."
+        />
+      </>
+    );
+  }
 
   return (
     <>

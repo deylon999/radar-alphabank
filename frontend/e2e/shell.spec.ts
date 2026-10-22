@@ -1,5 +1,5 @@
 import AxeBuilder from '@axe-core/playwright';
-import { expect, type Page, test } from './fixtures';
+import { expect, test } from './fixtures';
 
 const PAGES = [
   { path: '/', title: 'Лента — Радар', heading: 'Лента' },
@@ -16,33 +16,21 @@ const PAGES = [
   { path: '/no-such-page', title: 'Страница не найдена — Радар', heading: 'Страница не найдена' },
 ] as const;
 
-const companyButton = (page: Page) => page.getByRole('button', { name: /^Компания: / });
+test.describe('компания пользователя', () => {
+  test.use({ signedInAs: 'user-u1465' });
 
-/** Выбор клиента: кнопка в шапке открывает панель с поиском. */
-async function chooseCompany(page: Page, name: string) {
-  await companyButton(page).click();
-  await page
-    .getByRole('dialog', { name: 'Выбор клиента' })
-    .getByRole('button', { name: new RegExp(`^${name}(?!\\d)`) })
-    .click();
-}
+  test('у демо-аккаунта другой компании — её название и её лента, и так после перезагрузки', async ({
+    page,
+  }) => {
+    await page.goto('/');
+    await expect(page.getByRole('link', { name: /Рубль слабеет: импортные вино/ })).toBeVisible();
+    await expect(page.getByRole('banner')).toContainText('Клиент U_1465');
 
-async function expectCompany(page: Page, name: string) {
-  await expect(companyButton(page)).toHaveAccessibleName(`Компания: ${name}`);
-}
+    await page.reload();
 
-test('выбранная компания переживает перезагрузку', async ({ page }) => {
-  await page.goto('/');
-  await expect(page.getByRole('link', { name: /ЦБ сохранил ставку 14%/ })).toBeVisible();
-
-  await chooseCompany(page, 'Клиент U_1465');
-  await expect(page.getByRole('link', { name: /Рубль слабеет: импортные вино/ })).toBeVisible();
-
-  await page.reload();
-
-  await expectCompany(page, 'Клиент U_1465');
-  await expect(page.getByRole('link', { name: /Рубль слабеет: импортные вино/ })).toBeVisible();
-  await expect(page.getByRole('link', { name: /ЦБ сохранил ставку 14%/ })).toHaveCount(0);
+    await expect(page.getByRole('link', { name: /Рубль слабеет: импортные вино/ })).toBeVisible();
+    await expect(page.getByRole('link', { name: /ЦБ сохранил ставку 14%/ })).toHaveCount(0);
+  });
 });
 
 test('разделы открываются из навигации, активный отмечен', async ({ page }) => {
@@ -74,18 +62,7 @@ test('навигация работает с клавиатуры', async ({ pag
   await page.keyboard.press('Enter');
 
   await expect(page).toHaveURL(/\/company$/);
-  // Enter открывает поиск, стрелка ведёт к результату, Enter выбирает — фокус на кнопке.
-  await companyButton(page).focus();
-  await page.keyboard.press('Enter');
-  await page.keyboard.type('зерн');
-  await expect(
-    page.getByRole('dialog').getByRole('button', { name: /^Клиент U_9250/ }),
-  ).toHaveCount(0);
-  await page.keyboard.press('ArrowDown');
-  await page.keyboard.press('Enter');
-  await expect(companyButton(page)).toBeFocused();
-  await expectCompany(page, 'Клиент U_34911');
-  await expect(page.getByRole('heading', { name: 'Клиент U_34911' })).toBeVisible();
+  await expect(page.getByRole('heading', { level: 1, name: 'Профиль компании' })).toBeVisible();
 });
 
 for (const { path, title, heading } of PAGES) {
@@ -118,7 +95,7 @@ for (const { path, title, heading } of PAGES) {
 }
 
 for (const { path, text } of [
-  { path: '/?mock=errors', text: 'Не удалось загрузить список компаний' },
+  { path: '/?mock=errors', text: 'Не удалось загрузить компанию' },
   { path: '/?q=несуществующее', text: 'Ничего не нашлось' },
 ]) {
   test(`${path}: состояние без данных проходит axe`, async ({ page }) => {
@@ -134,18 +111,27 @@ for (const { path, text } of [
   });
 }
 
-test('открытый выбор клиента проходит axe и помещается в экран', async ({ page }) => {
-  await page.goto('/');
-  await companyButton(page).click();
-  const picker = page.getByRole('dialog', { name: 'Выбор клиента' });
-  await expect(picker.getByRole('list', { name: 'Клиенты' })).toBeVisible();
+test.describe('без компании', () => {
+  test.use({ signedInAs: 'user-newcomer' });
 
-  const box = await picker.boundingBox();
-  const width = page.viewportSize()?.width ?? 0;
-  expect(box && box.x >= 0 && box.x + box.width <= width).toBe(true);
-  const { violations } = await new AxeBuilder({ page }).analyze();
-  const severe = violations
-    .filter((violation) => violation.impact === 'serious' || violation.impact === 'critical')
-    .map((violation) => `${violation.id}: ${violation.help}`);
-  expect(severe).toEqual([]);
+  test('экран подключения компании проходит axe и не прокручивается вбок', async ({ page }) => {
+    await page.goto('/');
+    await expect(page.getByRole('heading', { level: 1, name: 'Заявка отправлена' })).toBeVisible();
+    await page.getByRole('button', { name: 'Отменить заявку' }).click();
+    await expect(
+      page.getByRole('heading', { level: 1, name: 'Подключите компанию' }),
+    ).toBeVisible();
+    await page.getByLabel('Название, ID или ИНН').fill('клиент');
+    await expect(page.getByRole('list', { name: 'Найденные компании' })).toBeVisible();
+
+    const overflow = await page.evaluate(
+      () => document.documentElement.scrollWidth - document.documentElement.clientWidth,
+    );
+    expect(overflow).toBeLessThanOrEqual(0);
+    const { violations } = await new AxeBuilder({ page }).analyze();
+    const severe = violations
+      .filter((violation) => violation.impact === 'serious' || violation.impact === 'critical')
+      .map((violation) => `${violation.id}: ${violation.help}`);
+    expect(severe).toEqual([]);
+  });
 });

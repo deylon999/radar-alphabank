@@ -1,5 +1,6 @@
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
+import type { CreateCompanyBody, JoinDecision, JoinRequestBody } from '../../schemas/auth';
 import type {
   Company,
   DescribeCompanyBody,
@@ -7,20 +8,105 @@ import type {
   UpdateFactBody,
 } from '../../schemas/company';
 import {
+  cancelJoinRequest,
+  createCompany,
+  decideJoinRequest,
   describeCompany,
-  fetchCompanies,
   fetchCompany,
+  fetchJoinRequests,
+  fetchMembers,
+  removeMember,
+  searchCompanies,
+  submitJoinRequest,
   updateFact,
   uploadCompanyDocuments,
 } from '../endpoints/companies';
 import { queryKeys } from '../queryKeys';
 
-/** Список клиентов. Пока идёт новый поиск, показываются прежние результаты. */
-export function useCompanies(query = '') {
+export const COMPANY_SEARCH_MIN = 2;
+
+/** Поиск компании для заявки. Пока идёт новый поиск, показываются прежние результаты. */
+export function useCompanySearch(query: string) {
+  const trimmed = query.trim();
   return useQuery({
-    queryKey: queryKeys.companies.list(query),
-    queryFn: ({ signal }) => fetchCompanies(query, signal),
+    queryKey: queryKeys.companies.search(trimmed),
+    queryFn: ({ signal }) => searchCompanies(trimmed, signal),
+    enabled: trimmed.length >= COMPANY_SEARCH_MIN,
     placeholderData: keepPreviousData,
+  });
+}
+
+/** Членство и заявка — в `/me`: после этих действий меняется, что видит пользователь. */
+function useInvalidateMe() {
+  const queryClient = useQueryClient();
+  return () => queryClient.invalidateQueries({ queryKey: queryKeys.me });
+}
+
+export function useCreateCompany() {
+  const invalidateMe = useInvalidateMe();
+  return useMutation({
+    mutationFn: (body: CreateCompanyBody) => createCompany(body),
+    onSuccess: invalidateMe,
+  });
+}
+
+export function useSubmitJoinRequest() {
+  const invalidateMe = useInvalidateMe();
+  return useMutation({
+    mutationFn: ({ companyId, body }: { companyId: string; body: JoinRequestBody }) =>
+      submitJoinRequest(companyId, body),
+    onSuccess: invalidateMe,
+  });
+}
+
+export function useCancelJoinRequest() {
+  const invalidateMe = useInvalidateMe();
+  return useMutation({
+    mutationFn: ({ companyId, requestId }: { companyId: string; requestId: string }) =>
+      cancelJoinRequest(companyId, requestId),
+    onSuccess: invalidateMe,
+  });
+}
+
+/** Заявки видит только владелец: остальным запрос не нужен. */
+export function useJoinRequests(companyId: string, { enabled }: { enabled: boolean }) {
+  return useQuery({
+    queryKey: queryKeys.companies.joinRequests(companyId),
+    queryFn: ({ signal }) => fetchJoinRequests(companyId, signal),
+    enabled,
+  });
+}
+
+export function useMembers(companyId: string) {
+  return useQuery({
+    queryKey: queryKeys.companies.members(companyId),
+    queryFn: ({ signal }) => fetchMembers(companyId, signal),
+  });
+}
+
+function useInvalidateTeam(companyId: string) {
+  const queryClient = useQueryClient();
+  return () =>
+    Promise.all([
+      queryClient.invalidateQueries({ queryKey: queryKeys.companies.joinRequests(companyId) }),
+      queryClient.invalidateQueries({ queryKey: queryKeys.companies.members(companyId) }),
+    ]);
+}
+
+export function useDecideJoinRequest(companyId: string) {
+  const invalidateTeam = useInvalidateTeam(companyId);
+  return useMutation({
+    mutationFn: ({ requestId, decision }: { requestId: string; decision: JoinDecision }) =>
+      decideJoinRequest(companyId, requestId, decision),
+    onSettled: invalidateTeam,
+  });
+}
+
+export function useRemoveMember(companyId: string) {
+  const invalidateTeam = useInvalidateTeam(companyId);
+  return useMutation({
+    mutationFn: (userId: string) => removeMember(companyId, userId),
+    onSettled: invalidateTeam,
   });
 }
 
