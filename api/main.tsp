@@ -11,6 +11,7 @@ import "./members";
 import "./facts";
 import "./insights";
 import "./metrics";
+import "./notifications";
 
 using TypeSpec.Http;
 using TypeSpec.OpenAPI;

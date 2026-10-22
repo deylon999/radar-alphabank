@@ -1,7 +1,7 @@
 import "@typespec/http";
 
 import "../model/request/DescribeCompanyRequest.tsp";
-import "../model/response/ExtractionResponse.tsp";
+import "../model/response/ExtractedFactsResponse.tsp";
 import "../model/error/FactValidationIssue.tsp";
 import "../../companies/model/error/CompanyErrors.tsp";
 
@@ -16,16 +16,13 @@ using AlfaHackathonApi.Facts.Errors;
 
 namespace AlfaHackathonApi.Facts;
 
-const extractionLocationExample = "/api/companies/U_9250/extractions/f1e2d3c4-b5a6-4978-8a9b-0c1d2e3f4a5b";
-
 const describeCompanySuccessOperationExample = #{
     parameters: #{ companyId: "U_9250", body: describeCompanyRequestExample, csrfToken: csrfTokenExample },
     returnType: #{
-        statusCode: 202,
+        statusCode: 200,
         contentType: "application/json",
         cacheControl: "no-store",
-        location: extractionLocationExample,
-        body: processingExtractionExample
+        body: extractedFactsResponseExample
     }
 };
 
@@ -33,15 +30,17 @@ const describeCompanySuccessOperationExample = #{
 @route("/describe")
 @summary("Описание компании")
 @doc("""
-    Доступно любому участнику компании. Принимает описание своими словами и ссылки, а факты извлекает в фоне.
-    Ответ приходит сразу; результат клиент получает по адресу из Location, пока статус не станет completed или failed.
+    Доступно любому участнику компании. Принимает описание своими словами и ссылки и извлекает из них факты.
+    Непустой текст становится описанием компании (description) вместо прежнего.
     Новые факты появляются в статусе pending и не используются в аналитике, пока их не подтвердят.
     Факты, которые у компании уже есть, повторно не добавляются, поэтому повтор запроса не создаёт дублей.
     Ссылки сервер загружает сам: только https, без обращения к внутренним и частным адресам,
     с ограничением размера, времени и числа перенаправлений. Недоступная ссылка не считается ошибкой запроса
-    и попадает в incompleteSources. Число запросов ограничено; при исчерпании лимита анализа возвращается 429.
+    и попадает в incompleteSources.
+    Ответ приходит не позже чем через 15 секунд. Если обработка не успевает или модель недоступна, возвращается 503
+    и факты из этого запроса не сохраняются. Число запросов ограничено.
     """)
-@returnsDoc("Запрос принят, извлечение выполняется.")
+@returnsDoc("Новые факты.")
 @opExample(describeCompanySuccessOperationExample)
 @opExample(badRequestOperationExample)
 @opExample(describeValidationOperationExample)
@@ -50,6 +49,7 @@ const describeCompanySuccessOperationExample = #{
 @opExample(companyMembershipRequiredOperationExample)
 @opExample(companyNotFoundOperationExample)
 @opExample(tooManyRequestsOperationExample)
+@opExample(aiUnavailableOperationExample)
 op describeCompany(
     @doc("ID компании.")
     @path companyId: CompanyId,
@@ -57,10 +57,11 @@ op describeCompany(
     ...CsrfParameters,
     @body body: DescribeCompanyRequest
 ):
-    AlfaHackathonApi.Ok.AcceptedResponse<ExtractionResponse>
+    AlfaHackathonApi.Ok.OkResponse<ExtractedFactsResponse>
     | BadRequestError
     | ValidationError<DescribeValidationIssue>
     | UnauthorizedError
     | ForbiddenError<InvalidCsrfDetails | CompanyMembershipRequiredDetails>
     | NotFoundError<CompanyNotFoundDetails>
-    | TooManyRequestsError;
+    | TooManyRequestsError
+    | ServiceUnavailableError<AiUnavailableDetails>;

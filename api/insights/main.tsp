@@ -10,6 +10,5 @@ import "./operations/ask_question.tsp";
 
 using TypeSpec.Http;
 
-@route("/companies/{companyId}")
 @tag("Insights")
 namespace AlfaHackathonApi.Insights;

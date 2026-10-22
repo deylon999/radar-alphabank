@@ -35,7 +35,6 @@ union FactCategory {
     "site",
     "region",
     "product",
-    "activity",
     "logistics",
     "finance",
     "other",

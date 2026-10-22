@@ -25,7 +25,7 @@ const getDigestSuccessOperationExample = #{
 };
 
 @get
-@route("/digest")
+@route("/companies/{companyId}/digest")
 @summary("Сводка за неделю")
 @doc("""
     Доступно любому участнику компании. Считает выводы вкладки «Главное» за последние 7 суток.

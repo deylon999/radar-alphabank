@@ -12,6 +12,7 @@ const credentialsValidationExample: ValidationError<AuthValidationIssue> = #{
         type: "/problems/validation-failed",
         title: "Ошибка валидации",
         status: 422,
+        detail: "Укажите корректный email.",
         errors: #[
             #{
                 field: "email",
@@ -28,6 +29,7 @@ const passwordValidationExample: ValidationError<AuthValidationIssue> = #{
         type: "/problems/validation-failed",
         title: "Ошибка валидации",
         status: 422,
+        detail: "Новый пароль должен быть длиной от 15 до 255 символов.",
         errors: #[
             #{
                 field: "newPassword",
@@ -44,6 +46,7 @@ const secondFactorValidationExample: ValidationError<AuthValidationIssue> = #{
         type: "/problems/validation-failed",
         title: "Ошибка валидации",
         status: 422,
+        detail: "TOTP-код должен состоять ровно из шести цифр.",
         errors: #[
             #{
                 field: "code",
@@ -64,6 +67,7 @@ const reauthenticationValidationExample: ValidationError<AuthValidationIssue> = 
         type: "/problems/validation-failed",
         title: "Ошибка валидации",
         status: 422,
+        detail: "Нужно указать текущий пароль.",
         errors: #[
             #{
                 field: "password",

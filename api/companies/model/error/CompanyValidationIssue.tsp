@@ -12,6 +12,7 @@ const companyValidationExample: ValidationError<CompanyValidationIssue> = #{
         type: "/problems/validation-failed",
         title: "Ошибка валидации",
         status: 422,
+        detail: "Проверьте ИНН: контрольная цифра не совпадает.",
         errors: #[
             #{
                 field: "inn",
@@ -28,6 +29,7 @@ const companySearchValidationExample: ValidationError<CompanyValidationIssue> = 
         type: "/problems/validation-failed",
         title: "Ошибка валидации",
         status: 422,
+        detail: "Поисковый запрос должен быть длиной от 2 до 100 символов.",
         errors: #[
             #{
                 field: "q",

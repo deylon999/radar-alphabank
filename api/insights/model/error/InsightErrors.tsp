@@ -34,6 +34,7 @@ const insightsValidationExample: ValidationError<InsightsValidationIssue> = #{
         type: "/problems/validation-failed",
         title: "Ошибка валидации",
         status: 422,
+        detail: "Поисковый запрос должен быть не длиннее 200 символов.",
         errors: #[
             #{
                 field: "q",
@@ -64,7 +65,7 @@ union InsightsValidationIssue {
     },
 }
 
-@doc("Вывода нет среди выводов этой компании.")
+@doc("Вывода нет среди выводов компании пользователя. Существование чужих выводов не раскрывается.")
 model InsightNotFoundDetails {
     ...OmitProperties<ProblemDetails<404>, "type">;
     type: "/problems/insight-not-found";
@@ -78,7 +79,7 @@ const insightNotFoundExample: NotFoundError<InsightNotFoundDetails> = #{
         type: "/problems/insight-not-found",
         title: "Вывод не найден",
         status: 404,
-        detail: "У компании нет такого вывода."
+        detail: "Такого вывода нет среди доступных вам."
     }
 };
 
@@ -92,6 +93,7 @@ const insightStatusValidationExample: ValidationError<InsightStatusValidationIss
         type: "/problems/validation-failed",
         title: "Ошибка валидации",
         status: 422,
+        detail: "Статус должен быть new, read или dismissed.",
         errors: #[
             #{
                 field: "status",
@@ -110,6 +112,7 @@ const feedbackValidationExample: ValidationError<FeedbackValidationIssue> = #{
         type: "/problems/validation-failed",
         title: "Ошибка валидации",
         status: 422,
+        detail: "Комментарий должен быть длиной от 1 до 2000 символов.",
         errors: #[
             #{
                 field: "comment",
@@ -128,6 +131,7 @@ const askValidationExample: ValidationError<AskValidationIssue> = #{
         type: "/problems/validation-failed",
         title: "Ошибка валидации",
         status: 422,
+        detail: "Вопрос должен быть длиной от 1 до 500 символов.",
         errors: #[
             #{
                 field: "question",

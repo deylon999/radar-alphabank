@@ -33,6 +33,7 @@ const membershipValidationExample: ValidationError<MembershipValidationIssue> = 
         type: "/problems/validation-failed",
         title: "Ошибка валидации",
         status: 422,
+        detail: "Выберите должность из списка.",
         errors: #[
             #{
                 field: "position",

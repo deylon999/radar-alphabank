@@ -1,7 +1,7 @@
 import "@typespec/http";
 
 import "../model/request/UploadDocumentsRequest.tsp";
-import "../model/response/ExtractionResponse.tsp";
+import "../model/response/ExtractedFactsResponse.tsp";
 import "../model/error/FactValidationIssue.tsp";
 import "../../companies/model/error/CompanyErrors.tsp";
 
@@ -18,15 +18,10 @@ namespace AlfaHackathonApi.Facts;
 
 const uploadDocumentsSuccessOperationExample = #{
     returnType: #{
-        statusCode: 202,
+        statusCode: 200,
         contentType: "application/json",
         cacheControl: "no-store",
-        location: "/api/companies/U_9250/extractions/0a9b8c7d-6e5f-4a3b-9c2d-1e0f9a8b7c6d",
-        body: #{
-            ...processingExtractionExample,
-            id: "0a9b8c7d-6e5f-4a3b-9c2d-1e0f9a8b7c6d",
-            sources: #[documentSourceExample]
-        }
+        body: #{ facts: #[#{ ...pendingFactExample, source: documentSourceExample }] }
     }
 };
 
@@ -34,14 +29,15 @@ const uploadDocumentsSuccessOperationExample = #{
 @route("/documents")
 @summary("Загрузка документов о компании")
 @doc("""
-    Доступно любому участнику компании. Принимает документы, а факты извлекает в фоне так же, как описание:
-    ответ приходит сразу, результат — по адресу из Location.
+    Доступно любому участнику компании. Извлекает факты из документов так же, как из описания.
     Тип файла определяется по содержимому, а не только по расширению. Ошибка в любом файле отклоняет весь запрос.
     Из большого документа может быть учтена только часть, такой документ попадает в incompleteSources.
     Оригиналы файлов после обработки не хранятся: остаются только имена файлов как источники фактов.
+    Ответ приходит не позже чем через 60 секунд. Если обработка не успевает или модель недоступна, возвращается 503
+    и факты из этого запроса не сохраняются.
     Если общий размер запроса больше допустимого, возвращается 413. Число запросов ограничено.
     """)
-@returnsDoc("Документы приняты, извлечение выполняется.")
+@returnsDoc("Новые факты.")
 @opExample(uploadDocumentsSuccessOperationExample)
 @opExample(badRequestOperationExample)
 @opExample(documentsValidationOperationExample)
@@ -51,6 +47,7 @@ const uploadDocumentsSuccessOperationExample = #{
 @opExample(companyNotFoundOperationExample)
 @opExample(contentTooLargeOperationExample)
 @opExample(tooManyRequestsOperationExample)
+@opExample(aiUnavailableOperationExample)
 op uploadDocuments(
     @doc("ID компании.")
     @path companyId: CompanyId,
@@ -62,11 +59,12 @@ op uploadDocuments(
 
     @multipartBody body: UploadDocumentsRequest
 ):
-    AlfaHackathonApi.Ok.AcceptedResponse<ExtractionResponse>
+    AlfaHackathonApi.Ok.OkResponse<ExtractedFactsResponse>
     | BadRequestError
     | ValidationError<DocumentsValidationIssue>
     | UnauthorizedError
     | ForbiddenError<InvalidCsrfDetails | CompanyMembershipRequiredDetails>
     | NotFoundError<CompanyNotFoundDetails>
     | ContentTooLargeError
-    | TooManyRequestsError;
+    | TooManyRequestsError
+    | ServiceUnavailableError<AiUnavailableDetails>;

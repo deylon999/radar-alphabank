@@ -12,6 +12,7 @@ const joinRequestValidationExample: ValidationError<JoinRequestValidationIssue> 
         type: "/problems/validation-failed",
         title: "Ошибка валидации",
         status: 422,
+        detail: "Сообщение должно быть длиной от 1 до 500 символов.",
         errors: #[
             #{
                 field: "message",

@@ -12,6 +12,7 @@ const describeValidationExample: ValidationError<DescribeValidationIssue> = #{
         type: "/problems/validation-failed",
         title: "Ошибка валидации",
         status: 422,
+        detail: "Опишите компанию или добавьте ссылку.",
         errors: #[
             #{
                 field: "text",
@@ -30,6 +31,7 @@ const documentsValidationExample: ValidationError<DocumentsValidationIssue> = #{
         type: "/problems/validation-failed",
         title: "Ошибка валидации",
         status: 422,
+        detail: "Файл «Отчёт.xlsx»: допустимы только PDF, DOCX и TXT.",
         errors: #[
             #{
                 field: "files[1]",
@@ -48,6 +50,7 @@ const factValidationExample: ValidationError<FactValidationIssue> = #{
         type: "/problems/validation-failed",
         title: "Ошибка валидации",
         status: 422,
+        detail: "Исправленный факт должен быть подтверждён.",
         errors: #[
             #{
                 field: "status",

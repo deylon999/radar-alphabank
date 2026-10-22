@@ -25,7 +25,7 @@ const getOverviewSuccessOperationExample = #{
 };
 
 @get
-@route("/overview")
+@route("/companies/{companyId}/overview")
 @summary("Обзор по темам и материалам банка")
 @doc("""
     Доступно любому участнику компании. Группирует актуальные выводы по темам и по материалам банка.

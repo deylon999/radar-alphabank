@@ -1,6 +1,6 @@
 namespace AlfaHackathonApi.Companies;
 
-const bankDataExample: BankData = #{
+const clientProfileExample: ClientProfile = #{
     okved: #{
         code: "42.99",
         name: "Строительство прочих инженерных сооружений, не включённых в другие группировки"
@@ -96,8 +96,8 @@ model Counterparty {
     Признаки компании из обезличенного датасета банка. Только для чтения, пользователи их не меняют.
     Строковые градации передаются как в данных, например «Более 251».
     """)
-@example(bankDataExample)
-model BankData {
+@example(clientProfileExample)
+model ClientProfile {
     @doc("Основной вид деятельности.")
     okved: Okved;
 

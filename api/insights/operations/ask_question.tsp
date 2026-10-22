@@ -3,7 +3,6 @@ import "@typespec/http";
 import "../model/request/AskQuestionRequest.tsp";
 import "../model/response/AskStream.tsp";
 import "../model/error/InsightErrors.tsp";
-import "../../companies/model/error/CompanyErrors.tsp";
 
 import "../../common";
 
@@ -11,13 +10,12 @@ using TypeSpec.Http;
 using AlfaHackathonApi.Security;
 using AlfaHackathonApi.Domain;
 using AlfaHackathonApi.Errors;
-using AlfaHackathonApi.Companies.Errors;
 using AlfaHackathonApi.Insights.Errors;
 
 namespace AlfaHackathonApi.Insights;
 
 const askQuestionSuccessOperationExample = #{
-    parameters: #{ companyId: "U_9250", insightId: "9b1f3c5e-7a2d-4e6f-8b0c-1d3e5f7a9b2c", accept: "text/event-stream", body: askQuestionRequestExample, csrfToken: csrfTokenExample },
+    parameters: #{ insightId: "9b1f3c5e-7a2d-4e6f-8b0c-1d3e5f7a9b2c", accept: "text/event-stream", body: askQuestionRequestExample, csrfToken: csrfTokenExample },
     returnType: #{
         statusCode: 200,
         contentType: "text/event-stream",
@@ -27,7 +25,7 @@ const askQuestionSuccessOperationExample = #{
 };
 
 const askQuestionStreamErrorOperationExample = #{
-    parameters: #{ companyId: "U_9250", insightId: "9b1f3c5e-7a2d-4e6f-8b0c-1d3e5f7a9b2c", accept: "text/event-stream", body: askQuestionRequestExample, csrfToken: csrfTokenExample },
+    parameters: #{ insightId: "9b1f3c5e-7a2d-4e6f-8b0c-1d3e5f7a9b2c", accept: "text/event-stream", body: askQuestionRequestExample, csrfToken: csrfTokenExample },
     returnType: #{
         statusCode: 200,
         contentType: "text/event-stream",
@@ -40,9 +38,9 @@ const askQuestionStreamErrorOperationExample = #{
 @route("/insights/{insightId}/ask")
 @summary("Вопрос по выводу")
 @doc("""
-    Доступно любому участнику компании. Ответ приходит потоком Server-Sent Events: сначала шаги агента по мере выполнения,
+    Доступно любому участнику компании, к которой относится вывод. Ответ приходит потоком Server-Sent Events: сначала шаги агента по мере выполнения,
     затем ответ или ошибка. Шаги настоящие, без внутренних промптов; придумывать их нельзя.
-    Каждый вопрос обрабатывается отдельно, без истории предыдущих вопросов. Ответ учитывает должность пользователя из членства.
+    Каждый вопрос обрабатывается отдельно, без истории предыдущих вопросов. Ответ учитывает должность: role из запроса, а без него — должность из членства.
     Вопрос не по теме вывода — обычный ответ с объяснением, что сервис отвечает только о выводе.
     Права, тело и лимиты проверяются до начала потока, их ошибки приходят обычным Problem Details.
     После начала потока статус уже 200, и сбой приходит событием error.
@@ -56,20 +54,15 @@ const askQuestionStreamErrorOperationExample = #{
 @opExample(askValidationOperationExample)
 @opExample(unauthorizedOperationExample)
 @opExample(invalidCsrfOperationExample)
-@opExample(companyMembershipRequiredOperationExample)
-@opExample(companyNotFoundOperationExample)
 @opExample(insightNotFoundOperationExample)
 @opExample(tooManyRequestsOperationExample)
 op askQuestion(
-    @doc("ID компании.")
-    @path companyId: CompanyId,
-
     @doc("ID вывода.")
     @path insightId: Uuid,
 
-    @doc("Должен допускать text/event-stream, иначе возвращается 406.")
+    @doc("Должен включать text/event-stream, например «text/event-stream, application/json»; иначе возвращается 406.")
     @header("Accept")
-    accept: "text/event-stream",
+    accept: string,
 
     ...CsrfParameters,
     @body body: AskQuestionRequest
@@ -78,7 +71,7 @@ op askQuestion(
     | BadRequestError
     | ValidationError<AskValidationIssue>
     | UnauthorizedError
-    | ForbiddenError<InvalidCsrfDetails | CompanyMembershipRequiredDetails>
-    | NotFoundError<CompanyNotFoundDetails | InsightNotFoundDetails>
+    | ForbiddenError<InvalidCsrfDetails>
+    | NotFoundError<InsightNotFoundDetails>
     | ProblemResponse<406>
     | TooManyRequestsError;
