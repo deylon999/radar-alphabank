@@ -5,25 +5,25 @@ using AlfaHackathonApi.Errors;
 
 namespace AlfaHackathonApi.Notifications.Errors;
 
-@doc("Telegram уже привязан. Чтобы привязать другой аккаунт, сначала отключите текущий.")
-model TelegramAlreadyConnectedDetails {
+@doc("Мессенджер уже привязан. Чтобы привязать другой аккаунт, сначала отключите текущий.")
+model ChannelAlreadyConnectedDetails {
     ...OmitProperties<ProblemDetails<409>, "type">;
-    type: "/problems/telegram-already-connected";
+    type: "/problems/channel-already-connected";
 }
 
-const telegramAlreadyConnectedExample: ConflictError<TelegramAlreadyConnectedDetails> = #{
+const channelAlreadyConnectedExample: ConflictError<ChannelAlreadyConnectedDetails> = #{
     statusCode: 409,
     contentType: "application/problem+json",
     cacheControl: "no-store",
     body: #{
-        type: "/problems/telegram-already-connected",
-        title: "Telegram уже подключён",
+        type: "/problems/channel-already-connected",
+        title: "Мессенджер уже подключён",
         status: 409,
         detail: "Чтобы подключить другой аккаунт, сначала отключите текущий."
     }
 };
 
-const telegramAlreadyConnectedOperationExample = #{ returnType: telegramAlreadyConnectedExample };
+const channelAlreadyConnectedOperationExample = #{ returnType: channelAlreadyConnectedExample };
 
 const notificationSettingsValidationExample: ValidationError<NotificationSettingsValidationIssue> = #{
     statusCode: 422,

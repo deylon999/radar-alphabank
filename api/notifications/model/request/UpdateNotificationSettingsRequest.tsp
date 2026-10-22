@@ -14,12 +14,15 @@ const updateNotificationSettingsRequestExample: UpdateNotificationSettingsReques
 
 @doc("""
     Настройки уведомлений. Клиент может прислать объект настроек целиком, как получил его из GET.
-    Подключить Telegram этим запросом нельзя, только отключить.
+    Подключить мессенджер этим запросом нельзя, только отключить.
     """)
 @example(updateNotificationSettingsRequestExample)
 model UpdateNotificationSettingsRequest {
-    @doc("Только для отключения: connected = false снимает привязку. connected = true и username игнорируются.")
-    telegram?: TelegramConnection;
+    @doc("Только для отключения Telegram: connected = false снимает привязку. connected = true и username игнорируются.")
+    telegram?: MessengerConnection;
+
+    @doc("Только для отключения MAX, по тем же правилам, что telegram.")
+    max?: MessengerConnection;
 
     @doc("Виды срочных выводов для уведомлений, без повторов. Пустой массив отключает срочные уведомления.")
     @maxItems(2)

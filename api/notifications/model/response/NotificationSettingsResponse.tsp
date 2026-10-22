@@ -4,10 +4,11 @@ using AlfaHackathonApi.Insights;
 
 namespace AlfaHackathonApi.Notifications;
 
-const connectedTelegramExample: TelegramConnection = #{ connected: true, username: "demo_director" };
+const connectedTelegramExample: MessengerConnection = #{ connected: true, username: "demo_director" };
 
 const notificationSettingsExample: NotificationSettingsResponse = #{
     telegram: connectedTelegramExample,
+    max: #{ connected: false },
     urgentKinds: #["risk"],
     digest: "daily",
     digestTime: "09:00",
@@ -16,6 +17,7 @@ const notificationSettingsExample: NotificationSettingsResponse = #{
 
 const defaultNotificationSettingsExample: NotificationSettingsResponse = #{
     telegram: #{ connected: false },
+    max: #{ connected: false },
     urgentKinds: #["risk"],
     digest: "daily",
     digestTime: "09:00",
@@ -29,25 +31,28 @@ union DigestFrequency {
     "off",
 }
 
-@doc("Привязка Telegram. Подключает её только подтверждение в боте; отключает бот или PUT с connected = false.")
-model TelegramConnection {
-    @doc("Привязан ли Telegram.")
+@doc("Привязка мессенджера. Подключает её только подтверждение в боте; отключает бот или PUT с connected = false.")
+model MessengerConnection {
+    @doc("Привязан ли мессенджер.")
     connected: boolean;
 
-    @doc("Имя пользователя Telegram без @. Не передаётся, если Telegram не привязан или у пользователя нет имени.")
+    @doc("Имя пользователя в мессенджере без @. Не передаётся, если мессенджер не привязан или у пользователя нет имени.")
     username?: string;
 }
 
 @doc("""
-    Личные настройки уведомлений текущего пользователя. Уведомления приходят только в Telegram
+    Личные настройки уведомлений текущего пользователя. Уведомления приходят во все привязанные мессенджеры
     и только о выводах компании, в которой пользователь состоит. У нового пользователя настройки по умолчанию:
-    срочные риски, ежедневная сводка в 09:00 по Москве, Telegram не привязан.
+    срочные риски, ежедневная сводка в 09:00 по Москве, мессенджеры не привязаны.
     """)
 @example(notificationSettingsExample)
 @example(defaultNotificationSettingsExample)
 model NotificationSettingsResponse {
     @doc("Привязка Telegram.")
-    telegram: TelegramConnection;
+    telegram: MessengerConnection;
+
+    @doc("Привязка MAX.")
+    max: MessengerConnection;
 
     @doc("Виды срочных выводов, о которых сообщать сразу. Пустой массив — срочных уведомлений нет.")
     urgentKinds: InsightKind[];
