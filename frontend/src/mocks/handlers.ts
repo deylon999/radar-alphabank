@@ -20,6 +20,7 @@ import {
 import { notificationSettingsSchema } from '../schemas/notifications';
 import { userRoleSchema } from '../schemas/user';
 import { typograph } from '../shared/lib/typography';
+import { createAuthHandlers, createGuard } from './auth';
 import type { MockDb, MockStore } from './db';
 import { extractableFacts, MOCK_NOW, TELEGRAM_DEMO_LINK, TELEGRAM_DEMO_USERNAME } from './fixtures';
 import {
@@ -34,6 +35,7 @@ import {
   filterInsights,
   paginate,
 } from './logic';
+import { problem } from './problems';
 
 export interface MockHandlerOptions {
   store: MockStore;
@@ -45,21 +47,7 @@ export interface MockHandlerOptions {
 
 const API = '*/api';
 
-/** Ошибки — в формате Problem Details, как в спецификации `api/`. */
-const PROBLEMS: Record<number, { type: string; title: string }> = {
-  400: { type: '/problems/malformed-request', title: 'Некорректный запрос' },
-  404: { type: '/problems/not-found', title: 'Не найдено' },
-  500: { type: '/problems/internal-error', title: 'Ошибка сервера' },
-};
-
-const error = (status: number, detail: string) =>
-  HttpResponse.json(
-    { ...(PROBLEMS[status] ?? { type: 'about:blank', title: 'Ошибка' }), status, detail },
-    {
-      status,
-      headers: { 'Content-Type': 'application/problem+json', 'Cache-Control': 'no-store' },
-    },
-  );
+const error = (status: number, detail: string) => problem(status, detail);
 const notFound = () => error(404, 'Не найдено');
 
 async function readJson<Schema extends z.ZodType>(
@@ -129,6 +117,14 @@ export function createHandlers({ store, latency, isErrorMode }: MockHandlerOptio
   }
 
   return [
+    createGuard(store),
+    // Вход и /me режим ошибок не трогает: он нужен, чтобы показать экраны ошибок данных.
+    ...createAuthHandlers(store, async () => {
+      const ms = latency();
+      if (ms > 0) await delay(ms);
+      return undefined;
+    }),
+
     http.get(`${API}/companies`, async ({ request }) => {
       const failure = await prelude();
       if (failure) return failure;

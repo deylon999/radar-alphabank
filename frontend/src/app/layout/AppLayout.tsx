@@ -1,6 +1,7 @@
 import cn from 'classnames';
 import { Outlet, ScrollRestoration } from 'react-router';
 
+import { AuthGate } from '../auth/AuthGate';
 import { CompanyGate } from '../company/CompanyGate';
 import { SelectedCompanyProvider } from '../company/SelectedCompanyProvider';
 import { AppHeader } from './AppHeader';
@@ -15,6 +16,14 @@ interface AppLayoutProps {
 
 /** Каркас: шапка, контент выбранной компании, нижняя навигация Радара на телефоне. */
 export function AppLayout({ variant = 'radar' }: AppLayoutProps) {
+  return (
+    <AuthGate>
+      <AppShell variant={variant} />
+    </AuthGate>
+  );
+}
+
+function AppShell({ variant }: { variant: 'radar' | 'business' }) {
   const isRadar = variant === 'radar';
   return (
     <SelectedCompanyProvider>

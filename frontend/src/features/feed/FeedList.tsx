@@ -20,7 +20,7 @@ interface FeedListProps {
 const SKELETON_CARDS = 5;
 
 const feedSkeleton = (
-  <div className={styles.list} aria-busy="true" aria-label="Загрузка ленты">
+  <div className={styles.list} role="status" aria-busy="true" aria-label="Загрузка ленты">
     {Array.from({ length: SKELETON_CARDS }, (_, index) => (
       <InsightCardSkeleton key={index} />
     ))}

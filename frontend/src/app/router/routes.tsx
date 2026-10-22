@@ -4,6 +4,7 @@ import { matchPath, type RouteObject } from 'react-router';
 import { NotFoundPage } from '../../pages/not-found/NotFoundPage';
 import { PageSkeleton } from '../../shared/ui/Skeleton/PageSkeleton';
 import { AppLayout, BusinessLayout } from '../layout/AppLayout';
+import { AuthLayout } from '../layout/AuthLayout';
 import { RouteErrorBoundary } from './RouteErrorBoundary';
 
 /**
@@ -26,12 +27,17 @@ const loadCompany = async () => (await import('../../pages/company/CompanyPage')
 const loadNotifications = async () =>
   (await import('../../pages/notifications/NotificationsPage')).NotificationsPage;
 
+const loadLogin = async () => (await import('../../pages/auth/LoginPage')).LoginPage;
+const loadRegister = async () => (await import('../../pages/auth/RegisterPage')).RegisterPage;
+
 const loadBusiness = async () =>
   (await import('../../pages/business/BusinessHomePage')).BusinessHomePage;
 
 const PAGE_LOADERS: [pattern: string, load: () => Promise<ComponentType>][] = [
   ['/', loadFeed],
   ['/business', loadBusiness],
+  ['/login', loadLogin],
+  ['/register', loadRegister],
   ['/overview', loadOverview],
   ['/quality', loadQuality],
   ['/insights/:insightId', loadInsight],
@@ -51,6 +57,12 @@ export function preloadPage(pathname: string): void {
 }
 
 export const routes: RouteObject[] = [
+  {
+    Component: AuthLayout,
+    HydrateFallback: PageSkeleton,
+    ErrorBoundary: RouteErrorBoundary,
+    children: [page('login', loadLogin), page('register', loadRegister)],
+  },
   {
     path: '/business',
     Component: BusinessLayout,

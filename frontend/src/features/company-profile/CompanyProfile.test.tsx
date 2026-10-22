@@ -151,14 +151,17 @@ describe('профиль компании', () => {
 
     await user.type(field, 'Технику возят по железной дороге до Братска{Enter}');
 
-    expect(
-      await screen.findByText('Технику возят по железной дороге до Братска'),
-    ).toBeInTheDocument();
-    expect(storedFact('Технику возят')).toMatchObject({ status: 'confirmed' });
+    // Строка перерисовывается после ответа сервера — ждём итоговое состояние, а не первое.
+    await waitFor(() => {
+      expect(storedFact('Технику возят')).toMatchObject({ status: 'confirmed' });
+    });
+    expect(screen.getByText('Технику возят по железной дороге до Братска')).toBeInTheDocument();
     expect(storedFact(PORT_FACT)).toBeUndefined();
-    expect(
-      within(factRow('Технику возят')).getByRole('button', { name: 'Исправить' }),
-    ).toHaveFocus();
+    await waitFor(() => {
+      expect(
+        within(factRow('Технику возят')).getByRole('button', { name: 'Исправить' }),
+      ).toHaveFocus();
+    });
   });
 
   it('Esc закрывает правку без сохранения', async () => {

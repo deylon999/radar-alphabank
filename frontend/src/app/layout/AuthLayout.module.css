@@ -1,0 +1,29 @@
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  max-width: 1200px;
+  height: 64px;
+  margin: 0 auto;
+  padding: 0 var(--gap-16);
+}
+
+.logo {
+  color: var(--color-light-text-primary);
+  font-size: 16px;
+  line-height: 20px;
+  font-weight: 700;
+  letter-spacing: 0.2px;
+  text-decoration: none;
+}
+
+.main {
+  display: flex;
+  justify-content: center;
+  padding: var(--gap-24) var(--gap-16) var(--gap-48);
+}
+
+.card {
+  width: 100%;
+  max-width: 420px;
+}

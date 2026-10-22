@@ -1,0 +1,120 @@
+.form {
+  display: grid;
+  gap: var(--gap-16);
+}
+
+.field {
+  display: grid;
+  gap: var(--gap-4);
+}
+
+.label {
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 500;
+}
+
+.hint,
+.fieldError {
+  margin: 0;
+  font-size: 14px;
+  line-height: 20px;
+}
+
+.hint {
+  color: var(--color-light-text-secondary);
+}
+
+/* Красный текст не проходит контраст AA — красной делаем метку, текст остаётся тёмным. */
+.fieldError {
+  padding-left: var(--gap-8);
+  border-left: 2px solid var(--color-light-status-negative);
+  color: var(--color-light-text-primary);
+}
+
+.formError {
+  margin: 0;
+  padding: var(--gap-12);
+  border-radius: var(--border-radius-8);
+  background: var(--color-light-decorative-muted-alt-red);
+  color: var(--color-light-text-primary);
+  font-size: 14px;
+  line-height: 20px;
+}
+
+.switch {
+  margin: 0;
+  color: var(--color-light-text-secondary);
+  font-size: 14px;
+  line-height: 20px;
+}
+
+.switch a {
+  color: var(--color-light-text-primary);
+}
+
+.methods {
+  display: flex;
+  gap: var(--gap-16);
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.demo {
+  display: grid;
+  gap: var(--gap-8);
+  margin-top: var(--gap-24);
+  padding-top: var(--gap-24);
+  border-top: 1px solid var(--color-light-neutral-translucent-300);
+}
+
+.demoTitle {
+  margin: 0;
+  font-size: 16px;
+  line-height: 20px;
+  font-weight: 700;
+}
+
+.demoList {
+  display: grid;
+  gap: var(--gap-8);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.demoButton {
+  display: grid;
+  gap: 2px;
+  width: 100%;
+  padding: var(--gap-10) var(--gap-12);
+  border: 1px solid var(--radar-card-border);
+  border-radius: var(--border-radius-8);
+  background: var(--radar-card-bg);
+  color: var(--color-light-text-primary);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.demoButton:hover {
+  border-color: var(--color-light-neutral-translucent-500);
+}
+
+.demoButton:focus-visible {
+  outline: 2px solid var(--focus-color);
+  outline-offset: 2px;
+}
+
+.demoEmail {
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 500;
+}
+
+.demoLabel {
+  color: var(--color-light-text-secondary);
+  font-size: 14px;
+  line-height: 20px;
+}
