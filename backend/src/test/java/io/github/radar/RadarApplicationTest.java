@@ -15,8 +15,8 @@ class RadarApplicationTest {
     private JdbcClient jdbcClient;
 
     @Test
-    void starts_against_postgresql_of_the_deployed_major_version() {
-        String actualVersion = jdbcClient.sql("show server_version").query(String.class).single();
+    void connects_to_postgresql_of_deployed_major_version() {
+        String actualVersion = jdbcClient.sql("SHOW server_version").query(String.class).single();
 
         assertThat(actualVersion).startsWith("18.");
     }
