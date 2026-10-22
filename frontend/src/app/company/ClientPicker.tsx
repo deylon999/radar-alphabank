@@ -184,8 +184,7 @@ export function ClientPicker({ company, onSelect }: ClientPickerProps) {
                       <span className={styles.itemText}>
                         <span className={styles.itemName}>{item.name}</span>
                         <span className={styles.itemIndustry}>
-                          {item.industry}
-                          {item.profile ? ` · ${item.profile.region}` : ''}
+                          {[item.industry, item.profile?.region].filter(Boolean).join(' · ')}
                         </span>
                       </span>
                       {selected ? (
