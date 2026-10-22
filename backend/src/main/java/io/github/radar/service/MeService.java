@@ -1,8 +1,10 @@
 package io.github.radar.service;
 
+import io.github.radar.domain.CompanyMembership;
 import io.github.radar.domain.JoinRequestStatus;
 import io.github.radar.domain.Membership;
 import io.github.radar.domain.User;
+import io.github.radar.domain.UserProfile;
 import io.github.radar.dto.AuthenticatedUserResponse;
 import io.github.radar.dto.CompanySummaryResponse;
 import io.github.radar.dto.JoinRequestResponse;
@@ -24,7 +26,8 @@ import org.springframework.stereotype.Service;
  * Текущий пользователь и его отношение к компании.
  *
  * <p>Членство читается из базы при каждом запросе: одобрение заявки, исключение
- * и передача прав видны без повторного входа.
+ * и передача прав видны без повторного входа. Пользователь, членство, компания и признак
+ * 2FA читаются одним запросом.
  */
 @Service
 @RequiredArgsConstructor
@@ -39,8 +42,6 @@ public class MeService {
 
     private final JoinRequestMapper joinRequestMapper;
 
-    private final SecondFactorService secondFactorService;
-
     /**
      * Описывает текущего пользователя.
      *
@@ -49,13 +50,12 @@ public class MeService {
      */
     public MeResponse describe(Principal principal) {
         UUID userId = UUID.fromString(principal.getName());
-        User user = userRepository.findById(userId).orElseThrow();
-        MembershipResponse membership = membershipRepository.findByUserId(userId)
-                .map(this::toResponse)
-                .orElse(null);
+        UserProfile profile = userRepository.findProfile(userId).orElseThrow();
+        User user = profile.getUser();
+        MembershipResponse membership = profile.getMembership().map(this::toResponse).orElse(null);
         return new MeResponse(
                 new AuthenticatedUserResponse(user.getId(), user.getEmail(),
-                        secondFactorService.isEnabled(userId)),
+                        profile.isTwoFactorEnabled()),
                 membership,
                 membership == null ? visibleJoinRequest(userId) : null,
                 user.isCanViewQualityMetrics()
@@ -87,13 +87,16 @@ public class MeService {
         if (!membershipRepository.updatePosition(userId, request.getPosition())) {
             throw new MembershipNotFoundException();
         }
-        return toResponse(membershipRepository.findByUserId(userId).orElseThrow());
+        return userRepository.findProfile(userId)
+                .flatMap(UserProfile::getMembership)
+                .map(this::toResponse)
+                .orElseThrow(MembershipNotFoundException::new);
     }
 
-    private MembershipResponse toResponse(Membership membership) {
+    private MembershipResponse toResponse(CompanyMembership companyMembership) {
+        Membership membership = companyMembership.getMembership();
         return new MembershipResponse(
-                new CompanySummaryResponse(
-                        companyRepository.findById(membership.getCompanyId()).orElseThrow()),
+                new CompanySummaryResponse(companyMembership.getCompany()),
                 membership.getRole(),
                 membership.getPosition(),
                 membership.getJoinedAt());

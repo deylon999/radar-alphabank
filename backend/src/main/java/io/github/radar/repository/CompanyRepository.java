@@ -1,9 +1,12 @@
 package io.github.radar.repository;
 
 import io.github.radar.domain.Company;
+import io.github.radar.domain.CompanyAccess;
 import io.github.radar.domain.CompanyOrigin;
+import io.github.radar.domain.MembershipRole;
 import java.util.Locale;
 import java.util.Optional;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.simple.JdbcClient;
@@ -21,6 +24,14 @@ public class CompanyRepository {
             resultSet.getString("inn"),
             CompanyOrigin.valueOf(resultSet.getString("origin").toUpperCase(Locale.ROOT))
     );
+
+    private static final RowMapper<CompanyAccess> ACCESS_ROW_MAPPER = (resultSet, row) -> {
+        String role = resultSet.getString("role");
+        return new CompanyAccess(
+                COMPANY_ROW_MAPPER.mapRow(resultSet, row),
+                role == null ? null : MembershipRole.valueOf(role.toUpperCase(Locale.ROOT))
+        );
+    };
 
     private final JdbcClient jdbcClient;
 
@@ -64,6 +75,29 @@ public class CompanyRepository {
                 )
                 .param("id", id)
                 .query(COMPANY_ROW_MAPPER)
+                .optional();
+    }
+
+    /**
+     * Ищет компанию вместе с ролью пользователя в ней.
+     *
+     * @param companyId ID компании
+     * @param userId ID пользователя
+     * @return компания и роль или пустой результат, если компании нет
+     */
+    public Optional<CompanyAccess> findAccess(String companyId, UUID userId) {
+        return jdbcClient
+                .sql(
+                        """
+                        SELECT c.id, c.name, c.inn, c.origin, m.role
+                        FROM companies c
+                        LEFT JOIN memberships m ON m.company_id = c.id AND m.user_id = :userId
+                        WHERE c.id = :companyId
+                        """
+                )
+                .param("companyId", companyId)
+                .param("userId", userId)
+                .query(ACCESS_ROW_MAPPER)
                 .optional();
     }
 }
