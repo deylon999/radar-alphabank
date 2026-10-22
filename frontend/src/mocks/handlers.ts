@@ -22,6 +22,7 @@ import { userRoleSchema } from '../schemas/user';
 import { typograph } from '../shared/lib/typography';
 import { createAuthHandlers, createGuard } from './auth';
 import type { MockDb, MockStore } from './db';
+import { createMembershipGuard, createMembershipHandlers } from './membership';
 import { extractableFacts, MOCK_NOW, TELEGRAM_DEMO_LINK, TELEGRAM_DEMO_USERNAME } from './fixtures';
 import {
   answerQuestion,
@@ -118,6 +119,7 @@ export function createHandlers({ store, latency, isErrorMode }: MockHandlerOptio
 
   return [
     createGuard(store),
+    createMembershipGuard(store),
     // Вход и /me режим ошибок не трогает: он нужен, чтобы показать экраны ошибок данных.
     ...createAuthHandlers(store, async () => {
       const ms = latency();
@@ -125,12 +127,7 @@ export function createHandlers({ store, latency, isErrorMode }: MockHandlerOptio
       return undefined;
     }),
 
-    http.get(`${API}/companies`, async ({ request }) => {
-      const failure = await prelude();
-      if (failure) return failure;
-      const query = new URL(request.url).searchParams.get('q') ?? '';
-      return HttpResponse.json(searchCompanies(store.read().companies, query));
-    }),
+    ...createMembershipHandlers(store, prelude),
 
     http.get<{ companyId: string }>(`${API}/companies/:companyId`, async ({ params }) => {
       const failure = await prelude();

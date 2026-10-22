@@ -11,6 +11,7 @@ import {
   demoQuestions,
   insights,
   notificationSettings,
+  joinRequests,
   users,
 } from './fixtures';
 
@@ -31,8 +32,22 @@ const mockUserSchema = z.object({
   canViewQualityMetrics: z.boolean(),
 });
 
+const mockJoinRequestSchema = z.object({
+  id: z.string(),
+  companyId: z.string(),
+  applicantId: z.string(),
+  status: z.enum(['pending', 'approved', 'rejected', 'cancelled']),
+  position: userRoleSchema.optional(),
+  message: z.string().optional(),
+  createdAt: isoDateTimeSchema,
+  decidedAt: isoDateTimeSchema.optional(),
+});
+
 const mockDbSchema = z.object({
   users: z.array(mockUserSchema),
+  joinRequests: z.array(mockJoinRequestSchema),
+  /** Компании, созданные пользователями, — у них нет данных банка. */
+  createdCompanyIds: z.array(z.string()),
   companies: z.array(companySchema),
   insights: z.array(insightSchema),
   notifications: notificationSettingsSchema,
@@ -47,6 +62,7 @@ const mockDbSchema = z.object({
 
 export type MockDb = z.infer<typeof mockDbSchema>;
 export type MockUser = z.infer<typeof mockUserSchema>;
+export type MockJoinRequest = z.infer<typeof mockJoinRequestSchema>;
 
 /** Сессия вкладки — как cookie на настоящем бэкенде. Хранится отдельно от данных. */
 const mockSessionSchema = z.object({
@@ -60,12 +76,14 @@ export type MockSession = z.infer<typeof mockSessionSchema>;
 
 export type MockStorage = Pick<Storage, 'getItem' | 'setItem' | 'removeItem'>;
 
-const STORAGE_KEY = 'radar-mock-db-v3';
+const STORAGE_KEY = 'radar-mock-db-v4';
 export const SESSION_STORAGE_KEY = 'radar-mock-session-v1';
 
 export function createInitialDb(): MockDb {
   return structuredClone({
     users,
+    joinRequests,
+    createdCompanyIds: [],
     companies,
     insights,
     notifications: notificationSettings,

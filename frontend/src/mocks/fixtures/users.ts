@@ -1,5 +1,5 @@
 import { DEMO_PASSWORD, DEMO_TOTP_ACCOUNT } from '../../shared/demoAccounts';
-import type { MockUser } from '../db';
+import type { MockJoinRequest, MockUser } from '../db';
 import { COMPANY_IDS } from './companies';
 
 const owner = (key: keyof typeof COMPANY_IDS, email: string): MockUser => ({
@@ -24,6 +24,27 @@ export const users: MockUser[] = [
     membership: { companyId: COMPANY_IDS.construction, role: 'member', position: 'cfo' },
     canViewQualityMetrics: false,
   },
+  {
+    id: 'user-newcomer',
+    email: 'newcomer@demo.radar',
+    password: DEMO_PASSWORD,
+    canViewQualityMetrics: false,
+  },
 ];
 
 export const DEFAULT_USER_ID = 'user-u9250';
+
+/** Новый сотрудник уже попросился в U_9250 — владелец видит заявку в профиле компании. */
+export const NEWCOMER_ID = 'user-newcomer';
+
+export const joinRequests: MockJoinRequest[] = [
+  {
+    id: 'join-newcomer',
+    companyId: COMPANY_IDS.construction,
+    applicantId: NEWCOMER_ID,
+    status: 'pending',
+    position: 'accountant',
+    message: 'Главный бухгалтер, вышла на работу в октябре',
+    createdAt: '2026-10-20T08:30:00Z',
+  },
+];
