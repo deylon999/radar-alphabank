@@ -1,0 +1,7 @@
+radar:
+  rate-limit:
+    login:
+      email-attempts: 1000
+      ip-attempts: 1000
+    registration:
+      ip-attempts: 1000

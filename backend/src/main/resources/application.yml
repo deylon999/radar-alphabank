@@ -1,10 +1,10 @@
 spring:
   application:
     name: radar
-  autoconfigure:
-    exclude: org.springframework.boot.security.autoconfigure.UserDetailsServiceAutoConfiguration
   config:
     import: optional:file:.env[.properties]
+  session:
+    timeout: ${radar.session.idle-timeout}
   docker:
     compose:
       lifecycle-management: start-only
@@ -32,9 +32,23 @@ server:
 
 logging:
   pattern:
-    correlation: "[%X{requestId:-}] "
+    correlation: "[%X{requestId:-}%replace( %X{userId:-}){'^ $', ''}] "
 
 radar:
   log-dir: ${RADAR_LOG_DIR:logs}
+  session:
+    idle-timeout: 60m
+    absolute-timeout: 8h
   cors:
     allowed-origins: ${RADAR_CORS_ALLOWED_ORIGINS:}
+  password-hashing:
+    max-concurrent: 4
+    max-wait: 2s
+  rate-limit:
+    login:
+      email-attempts: ${RADAR_LOGIN_EMAIL_ATTEMPTS:5}
+      ip-attempts: ${RADAR_LOGIN_IP_ATTEMPTS:20}
+      window: 15m
+    registration:
+      ip-attempts: ${RADAR_REGISTRATION_IP_ATTEMPTS:5}
+      window: 1h

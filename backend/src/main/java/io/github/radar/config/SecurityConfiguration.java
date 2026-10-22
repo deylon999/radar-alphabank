@@ -1,7 +1,9 @@
 package io.github.radar.config;
 
+import io.github.radar.logging.UserIdFilter;
 import io.github.radar.security.CsrfAccessDeniedHandler;
 import io.github.radar.security.ProblemAuthenticationEntryPoint;
+import jakarta.servlet.DispatcherType;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -17,8 +19,11 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.access.AccessDeniedHandlerImpl;
 import org.springframework.security.web.access.DelegatingAccessDeniedHandler;
+import org.springframework.security.web.context.SecurityContextRepository;
 import org.springframework.security.web.csrf.CsrfException;
+import org.springframework.security.web.csrf.CsrfTokenRepository;
 import org.springframework.security.web.header.writers.StaticHeadersWriter;
+import org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -35,6 +40,8 @@ public class SecurityConfiguration {
      * @param http построитель цепочки
      * @param authenticationEntryPoint ответ на запрос без входа
      * @param csrfAccessDeniedHandler ответ на запрос без верного CSRF-токена
+     * @param csrfTokenRepository хранилище CSRF-токенов в сессии
+     * @param securityContextRepository хранилище входа в сессии
      * @return цепочка фильтров
      */
     @Bean
@@ -42,14 +49,23 @@ public class SecurityConfiguration {
     public SecurityFilterChain securityFilterChain(
             HttpSecurity http,
             ProblemAuthenticationEntryPoint authenticationEntryPoint,
-            CsrfAccessDeniedHandler csrfAccessDeniedHandler
+            CsrfAccessDeniedHandler csrfAccessDeniedHandler,
+            CsrfTokenRepository csrfTokenRepository,
+            SecurityContextRepository securityContextRepository
     ) throws Exception {
         return http
                 .authorizeHttpRequests(requests -> requests
+                        .dispatcherTypeMatchers(DispatcherType.ERROR).permitAll()
                         .requestMatchers(HttpMethod.GET, "/auth/csrf").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/auth/register", "/auth/login")
+                        .permitAll()
                         .anyRequest().authenticated())
                 .cors(Customizer.withDefaults())
+                .csrf(csrf -> csrf.csrfTokenRepository(csrfTokenRepository))
+                .securityContext(context -> context
+                        .securityContextRepository(securityContextRepository))
                 .logout(AbstractHttpConfigurer::disable)
+                .addFilterAfter(new UserIdFilter(), SecurityContextHolderAwareRequestFilter.class)
                 .headers(headers -> headers
                         .cacheControl(HeadersConfigurer.CacheControlConfig::disable)
                         .addHeaderWriter(new StaticHeadersWriter("Cache-Control", "no-store")))

@@ -3,6 +3,7 @@ package io.github.radar.security;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import io.github.radar.ApiHttpClient;
+import io.github.radar.BrowserSession;
 import io.github.radar.PostgresContainerConfiguration;
 import io.github.radar.RedisContainerConfiguration;
 import java.net.http.HttpRequest;
@@ -46,6 +47,19 @@ class AuthenticationRequirementTest {
         assertThat(actualBody.get("type").asString()).isEqualTo("/problems/authentication-required");
         assertThat(actualBody.get("title").asString()).isEqualTo("Нужно войти");
         assertThat(actualBody.get("status").asInt()).isEqualTo(401);
+    }
+
+    @Test
+    void reports_unsupported_content_type_of_public_operation_without_asking_to_log_in() throws Exception {
+        BrowserSession session = client.openSession();
+
+        HttpResponse<String> actualResponse = client.send(session.apply(client.request("/auth/register"))
+                .header("Content-Type", "text/plain")
+                .POST(HttpRequest.BodyPublishers.ofString("ivan@example.com")));
+
+        assertThat(actualResponse.statusCode())
+                .as("Ошибка запроса к публичной операции не должна превращаться в 401 на странице /error.")
+                .isEqualTo(415);
     }
 
     @Test
