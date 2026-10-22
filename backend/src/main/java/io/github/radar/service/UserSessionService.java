@@ -119,6 +119,16 @@ public class UserSessionService {
     }
 
     /**
+     * Возвращает время завершения входа в текущей сессии.
+     *
+     * @param session сессия, в которой выполнен вход
+     * @return время входа
+     */
+    public Instant authenticatedAt(HttpSession session) {
+        return (Instant) session.getAttribute(AUTHENTICATED_AT);
+    }
+
+    /**
      * Завершает сессию, вышедшую за абсолютный предел.
      *
      * @param session сессия

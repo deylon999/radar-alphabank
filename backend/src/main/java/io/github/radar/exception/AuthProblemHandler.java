@@ -112,4 +112,40 @@ public class AuthProblemHandler {
                 .header(HttpHeaders.RETRY_AFTER, String.valueOf(retryAfterSeconds))
                 .body(response.getBody());
     }
+
+    /**
+     * Отвечает 401, если повторная проверка личности не пройдена. Вход не завершается.
+     *
+     * @param exception отказ проверки
+     * @return описание ошибки
+     */
+    @ExceptionHandler(InvalidReauthenticationException.class)
+    public ResponseEntity<ProblemDetailsResponse> handleInvalidReauthentication(
+            InvalidReauthenticationException exception
+    ) {
+        return problemResponses.problem(new ProblemDetailsResponse(
+                "/problems/invalid-reauthentication",
+                "Подтверждение не пройдено",
+                HttpStatus.UNAUTHORIZED.value(),
+                "Не удалось подтвердить личность."
+        ));
+    }
+
+    /**
+     * Отвечает 403, если для действия нужно свежее подтверждение личности.
+     *
+     * @param exception отказ
+     * @return описание ошибки
+     */
+    @ExceptionHandler(ReauthenticationRequiredException.class)
+    public ResponseEntity<ProblemDetailsResponse> handleReauthenticationRequired(
+            ReauthenticationRequiredException exception
+    ) {
+        return problemResponses.problem(new ProblemDetailsResponse(
+                "/problems/reauthentication-required",
+                "Нужно подтвердить личность",
+                HttpStatus.FORBIDDEN.value(),
+                "Перед этой операцией подтвердите личность."
+        ));
+    }
 }

@@ -28,6 +28,8 @@ public class MembershipRepository {
 
     private static final String POSITION = "position";
 
+    private static final String COMPANY_ID = "companyId";
+
     private static final RowMapper<Membership> MEMBERSHIP_ROW_MAPPER = (resultSet, rowNumber) -> {
         String position = resultSet.getString(POSITION);
         return new Membership(
@@ -68,7 +70,7 @@ public class MembershipRepository {
                         """
                 )
                 .param(USER_ID, membership.getUserId())
-                .param("companyId", membership.getCompanyId())
+                .param(COMPANY_ID, membership.getCompanyId())
                 .param("role", membership.getRole().code())
                 .param(POSITION, membership.getPosition() == null
                         ? null : membership.getPosition().code())
@@ -113,7 +115,7 @@ public class MembershipRepository {
                         ORDER BY m.role = 'owner' DESC, m.joined_at, m.user_id
                         """
                 )
-                .param("companyId", companyId)
+                .param(COMPANY_ID, companyId)
                 .query(MEMBER_ROW_MAPPER)
                 .list();
     }
@@ -133,7 +135,7 @@ public class MembershipRepository {
                         WHERE company_id = :companyId AND user_id = :userId AND role = 'member'
                         """
                 )
-                .param("companyId", companyId)
+                .param(COMPANY_ID, companyId)
                 .param(USER_ID, userId)
                 .update() == 1;
     }
@@ -150,6 +152,43 @@ public class MembershipRepository {
                 .sql("UPDATE memberships SET position = :position WHERE user_id = :userId")
                 .param(POSITION, position.code())
                 .param(USER_ID, userId)
+                .update() == 1;
+    }
+
+    /**
+     * Делает владельца компании обычным участником.
+     *
+     * @param companyId ID компании
+     * @param userId ID владельца
+     * @return true, если пользователь был владельцем этой компании
+     */
+    public boolean demoteOwner(String companyId, UUID userId) {
+        return changeRole(companyId, userId, MembershipRole.OWNER, MembershipRole.MEMBER);
+    }
+
+    /**
+     * Делает участника компании владельцем.
+     *
+     * @param companyId ID компании
+     * @param userId ID участника
+     * @return true, если пользователь был участником этой компании с ролью member
+     */
+    public boolean promoteMember(String companyId, UUID userId) {
+        return changeRole(companyId, userId, MembershipRole.MEMBER, MembershipRole.OWNER);
+    }
+
+    private boolean changeRole(String companyId, UUID userId, MembershipRole from, MembershipRole to) {
+        return jdbcClient
+                .sql(
+                        """
+                        UPDATE memberships SET role = :to
+                        WHERE company_id = :companyId AND user_id = :userId AND role = :from
+                        """
+                )
+                .param("to", to.code())
+                .param(COMPANY_ID, companyId)
+                .param(USER_ID, userId)
+                .param("from", from.code())
                 .update() == 1;
     }
 }

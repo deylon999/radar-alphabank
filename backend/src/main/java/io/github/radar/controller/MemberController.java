@@ -2,6 +2,7 @@ package io.github.radar.controller;
 
 import io.github.radar.dto.MembersResponse;
 import io.github.radar.service.MemberService;
+import jakarta.servlet.http.HttpServletRequest;
 import java.security.Principal;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -9,6 +10,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
@@ -45,5 +47,24 @@ public class MemberController {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void remove(@PathVariable String companyId, @PathVariable UUID userId, Principal user) {
         memberService.remove(companyId, userId, user);
+    }
+
+    /**
+     * Передаёт права владельца участнику.
+     *
+     * @param companyId ID компании
+     * @param userId ID будущего владельца
+     * @param user вошедший пользователь
+     * @param request текущий запрос
+     */
+    @PostMapping("/{userId}/transfer-ownership")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void transferOwnership(
+            @PathVariable String companyId,
+            @PathVariable UUID userId,
+            Principal user,
+            HttpServletRequest request
+    ) {
+        memberService.transferOwnership(companyId, userId, user, request.getSession());
     }
 }

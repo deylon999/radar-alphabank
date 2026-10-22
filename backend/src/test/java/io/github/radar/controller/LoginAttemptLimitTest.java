@@ -3,6 +3,7 @@ package io.github.radar.controller;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import io.github.radar.ApiHttpClient;
+import io.github.radar.BrowserSession;
 import io.github.radar.PostgresContainerConfiguration;
 import io.github.radar.RedisContainerConfiguration;
 import java.io.IOException;
@@ -118,6 +119,32 @@ class LoginAttemptLimitTest {
         HttpResponse<String> actualResponse = login(email, PASSWORD);
 
         assertTooManyAttempts(actualResponse, 15 * 60);
+    }
+
+    @Test
+    void counts_failed_reauthentication_toward_login_limit() throws Exception {
+        BrowserSession loggedIn = client.login(email, PASSWORD, Map.of());
+        for (int attempt = 0; attempt < 3; attempt++) {
+            client.postJson("/auth/reauthenticate", "{\"password\": \"" + WRONG_PASSWORD + "\"}", loggedIn);
+        }
+
+        HttpResponse<String> actualResponse = login(email, PASSWORD);
+
+        assertTooManyAttempts(actualResponse, 15 * 60);
+    }
+
+    @Test
+    void resets_email_counter_after_successful_reauthentication() throws Exception {
+        BrowserSession loggedIn = client.login(email, PASSWORD, Map.of());
+        failTimes(email, 2);
+        client.postJson("/auth/reauthenticate", "{\"password\": \"" + PASSWORD + "\"}", loggedIn);
+        failTimes(email, 2);
+
+        HttpResponse<String> actualResponse = login(email, WRONG_PASSWORD);
+
+        assertThat(actualResponse.statusCode())
+                .as("Успешное подтверждение личности, как и вход, сбрасывает счётчик email.")
+                .isEqualTo(401);
     }
 
     @Test

@@ -146,6 +146,47 @@ public final class CompanyApi {
     }
 
     /**
+     * Подтверждает личность паролем тестовых пользователей.
+     *
+     * @param session сессия
+     * @return ответ
+     * @throws IOException при ошибке соединения
+     * @throws InterruptedException при прерывании потока
+     */
+    public HttpResponse<String> reauthenticate(BrowserSession session) throws IOException, InterruptedException {
+        return client.postJson("/auth/reauthenticate", "{\"password\": \"" + PASSWORD + "\"}", session);
+    }
+
+    /**
+     * Передаёт права владельца участнику.
+     *
+     * @param session сессия владельца
+     * @param companyId ID компании
+     * @param userId ID будущего владельца
+     * @return ответ
+     * @throws IOException при ошибке соединения
+     * @throws InterruptedException при прерывании потока
+     */
+    public HttpResponse<String> transfer(BrowserSession session, String companyId, String userId)
+            throws IOException, InterruptedException {
+        return client.send(session.apply(client.request(
+                        "/companies/" + companyId + "/members/" + userId + "/transfer-ownership"))
+                .POST(HttpRequest.BodyPublishers.noBody()));
+    }
+
+    /**
+     * Возвращает роль пользователя в его компании.
+     *
+     * @param session сессия
+     * @return owner или member
+     * @throws IOException при ошибке соединения
+     * @throws InterruptedException при прерывании потока
+     */
+    public String role(BrowserSession session) throws IOException, InterruptedException {
+        return json(get(session, "/me")).get("membership").get("role").asString();
+    }
+
+    /**
      * Выполняет GET в рамках сессии.
      *
      * @param session сессия

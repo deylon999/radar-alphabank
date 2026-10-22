@@ -85,4 +85,17 @@ public class UserRepository {
                 .query(USER_ROW_MAPPER)
                 .optional();
     }
+
+    /**
+     * Заменяет хеш пароля пользователя.
+     *
+     * @param id ID пользователя
+     * @param passwordHash новый хеш
+     */
+    public void updatePasswordHash(UUID id, String passwordHash) {
+        jdbcClient.sql("UPDATE users SET password_hash = :passwordHash WHERE id = :id")
+                .param("passwordHash", passwordHash)
+                .param("id", id)
+                .update();
+    }
 }

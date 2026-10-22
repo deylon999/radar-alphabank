@@ -6,10 +6,12 @@ import io.github.radar.exception.CompanyOwnerRequiredException;
 import io.github.radar.exception.MemberNotFoundException;
 import io.github.radar.exception.OwnerCannotLeaveException;
 import io.github.radar.repository.MembershipRepository;
+import jakarta.servlet.http.HttpSession;
 import java.security.Principal;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Участники компании: список, исключение и выход.
@@ -23,6 +25,8 @@ public class MemberService {
     private final MembershipRepository membershipRepository;
 
     private final CompanyAccessService companyAccessService;
+
+    private final ReauthenticationService reauthenticationService;
 
     /**
      * Возвращает участников компании любому её участнику.
@@ -68,5 +72,38 @@ public class MemberService {
             throw new OwnerCannotLeaveException();
         }
         throw new MemberNotFoundException();
+    }
+
+    /**
+     * Передаёт права владельца участнику компании.
+     *
+     * <p>Нужно свежее подтверждение личности в текущей сессии. Роли меняются условными
+     * обновлениями в одной транзакции: владелец в компании всегда ровно один, а повторный
+     * или одновременный запрос бывшего владельца получает 403. Должности не меняются.
+     *
+     * @param companyId ID компании
+     * @param userId ID будущего владельца
+     * @param user вошедший пользователь
+     * @param session текущая сессия
+     * @throws CompanyOwnerRequiredException если пользователь не владелец
+     * @throws io.github.radar.exception.ReauthenticationRequiredException если личность
+     *         не подтверждена
+     * @throws MemberNotFoundException если получатель не состоит в компании
+     */
+    @Transactional
+    public void transferOwnership(String companyId, UUID userId, Principal user,
+            HttpSession session) {
+        companyAccessService.requireOwner(user, companyId);
+        reauthenticationService.requireRecentConfirmation(session);
+        UUID ownerId = UUID.fromString(user.getName());
+        if (userId.equals(ownerId)) {
+            return;
+        }
+        if (!membershipRepository.demoteOwner(companyId, ownerId)) {
+            throw new CompanyOwnerRequiredException();
+        }
+        if (!membershipRepository.promoteMember(companyId, userId)) {
+            throw new MemberNotFoundException();
+        }
     }
 }

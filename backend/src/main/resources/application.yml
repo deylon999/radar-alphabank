@@ -42,6 +42,7 @@ radar:
   session:
     idle-timeout: 60m
     absolute-timeout: 8h
+    reauthentication-timeout: 5m
   cors:
     allowed-origins: ${RADAR_CORS_ALLOWED_ORIGINS:}
   password-hashing:
