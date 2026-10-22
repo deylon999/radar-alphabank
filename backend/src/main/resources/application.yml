@@ -1,0 +1,15 @@
+spring:
+  application:
+    name: radar
+  datasource:
+    url: ${RADAR_DB_URL:jdbc:postgresql://localhost:5432/radar}
+    username: ${RADAR_DB_USERNAME:radar}
+    password: ${RADAR_DB_PASSWORD}
+  data:
+    redis:
+      host: ${RADAR_REDIS_HOST:localhost}
+      port: ${RADAR_REDIS_PORT:6379}
+      password: ${RADAR_REDIS_PASSWORD:}
+
+server:
+  port: ${RADAR_PORT:8080}
