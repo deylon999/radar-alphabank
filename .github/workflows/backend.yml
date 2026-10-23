@@ -1,0 +1,51 @@
+name: backend
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+concurrency:
+  group: backend-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  changes:
+    runs-on: ubuntu-latest
+    outputs:
+      backend: ${{ steps.diff.outputs.backend }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - id: diff
+        run: |
+          if [ "${{ github.event_name }}" != "pull_request" ]; then
+            echo "backend=true" >> "$GITHUB_OUTPUT"
+          elif git diff --name-only "origin/${{ github.base_ref }}...HEAD" | grep -qE '^(backend/|\.github/workflows/backend\.yml)'; then
+            echo "backend=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "backend=false" >> "$GITHUB_OUTPUT"
+          fi
+
+  backend:
+    needs: changes
+    if: needs.changes.outputs.backend == 'true'
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 25
+      - uses: gradle/actions/setup-gradle@v4
+      - run: ./gradlew check
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: backend-reports
+          path: backend/build/reports
+          retention-days: 7

@@ -1,0 +1,66 @@
+spring:
+  application:
+    name: radar
+  config:
+    import: optional:file:.env[.properties]
+  session:
+    timeout: ${radar.session.idle-timeout}
+    data:
+      redis:
+        repository-type: indexed
+  docker:
+    compose:
+      lifecycle-management: start-only
+  datasource:
+    url: ${RADAR_DB_URL:jdbc:postgresql://localhost:5432/radar}
+    username: ${RADAR_DB_USERNAME:radar}
+    password: ${RADAR_DB_PASSWORD}
+  data:
+    redis:
+      host: ${RADAR_REDIS_HOST:localhost}
+      port: ${RADAR_REDIS_PORT:6379}
+      password: ${RADAR_REDIS_PASSWORD:}
+
+server:
+  port: ${RADAR_PORT:8080}
+  servlet:
+    context-path: /api
+    session:
+      cookie:
+        name: SESSION
+        path: /
+        http-only: true
+        secure: true
+        same-site: lax
+
+logging:
+  pattern:
+    correlation: "[%X{requestId:-}%replace( %X{userId:-}){'^ $', ''}] "
+
+radar:
+  log-dir: ${RADAR_LOG_DIR:logs}
+  session:
+    idle-timeout: 60m
+    absolute-timeout: 8h
+    reauthentication-timeout: 5m
+    pending-login-timeout: 5m
+    totp-setup-timeout: 5m
+  totp:
+    issuer: Radar
+    encryption-key: ${RADAR_TOTP_ENCRYPTION_KEY}
+  cors:
+    allowed-origins: ${RADAR_CORS_ALLOWED_ORIGINS:}
+  password-hashing:
+    max-concurrent: 4
+    max-wait: 2s
+  rate-limit:
+    login:
+      email-attempts: ${RADAR_LOGIN_EMAIL_ATTEMPTS:5}
+      ip-attempts: ${RADAR_LOGIN_IP_ATTEMPTS:20}
+      window: 15m
+    registration:
+      ip-attempts: ${RADAR_REGISTRATION_IP_ATTEMPTS:5}
+      window: 1h
+    second-factor:
+      user-attempts: ${RADAR_SECOND_FACTOR_USER_ATTEMPTS:10}
+      window: 24h
