@@ -5,14 +5,13 @@ Spring Boot 4.1, Java 25, PostgreSQL через Spring JDBC, Spring Security, с
 
 ## Что нужно
 
-- JDK 25 или любой JDK, на котором запускается Gradle 9.8: недостающий JDK 25 для сборки
-  Gradle скачает сам (toolchain).
+- JDK 25 или любой JDK, на котором запускается Gradle 9.8: недостающий JDK 25 для сборки Gradle скачает сам (toolchain).
 - Docker: локальные PostgreSQL и Redis, а также тесты (Testcontainers).
 
 ## Запуск
 
 ```bash
-cp .env.example .env    # задайте RADAR_DB_PASSWORD и RADAR_TOTP_ENCRYPTION_KEY
+cp .env.example .env
 ./gradlew bootRun
 ```
 
@@ -25,41 +24,30 @@ cp .env.example .env    # задайте RADAR_DB_PASSWORD и RADAR_TOTP_ENCRYPT
 `docker compose stop`. Модуль работает только при локальном запуске: в jar и тесты
 он не попадает. Локальный Redis без пароля, порты открыты только на 127.0.0.1.
 
-Из IntelliJ IDEA: конфигурация `RadarApplication`, **Working directory** —
-каталог `backend`, иначе не найдутся `compose.yaml` и `.env`. Переменные окружения
-в конфигурацию добавлять не нужно.
-
 Миграции схемы (`src/main/resources/db/migration`) применяет Flyway при старте.
 
 API отвечает под базовым путём `/api`, например `http://localhost:8080/api/auth/csrf`.
 
 ## Настройки окружения
 
-| Переменная | Назначение |
-| --- | --- |
-| `RADAR_DB_URL`, `RADAR_DB_USERNAME`, `RADAR_DB_PASSWORD` | PostgreSQL |
-| `RADAR_REDIS_HOST`, `RADAR_REDIS_PORT`, `RADAR_REDIS_PASSWORD` | Redis для сессий |
-| `RADAR_CORS_ALLOWED_ORIGINS` | адреса фронтенда через запятую, если он на другом сайте; пусто — CORS выключен |
-| `RADAR_LOG_DIR` | каталог файлов журнала, по умолчанию `logs` |
-| `RADAR_LOGIN_EMAIL_ATTEMPTS`, `RADAR_LOGIN_IP_ATTEMPTS` | неудачных входов за 15 минут на email и на IP, по умолчанию 5 и 20 |
-| `RADAR_REGISTRATION_IP_ATTEMPTS` | регистраций за час с одного IP, по умолчанию 5 |
-| `RADAR_SECOND_FACTOR_USER_ATTEMPTS` | неверных TOTP-кодов за сутки на пользователя, по умолчанию 10 |
-| `RADAR_TOTP_ENCRYPTION_KEY` | обязательный ключ AES-256 для TOTP-секретов, 32 байта в Base64: `openssl rand -base64 32` |
-| `SPRING_PROFILES_ACTIVE=production` | вывод в консоль в JSON (ECS) для сборщика журналов |
+| Переменная                                                     | Назначение                                                                                |
+|----------------------------------------------------------------|-------------------------------------------------------------------------------------------|
+| `RADAR_DB_URL`, `RADAR_DB_USERNAME`, `RADAR_DB_PASSWORD`       | PostgreSQL                                                                                |
+| `RADAR_REDIS_HOST`, `RADAR_REDIS_PORT`, `RADAR_REDIS_PASSWORD` | Redis для сессий                                                                          |
+| `RADAR_CORS_ALLOWED_ORIGINS`                                   | адреса фронтенда через запятую, если он на другом сайте; пусто — CORS выключен            |
+| `RADAR_LOG_DIR`                                                | каталог файлов журнала, по умолчанию `logs`                                               |
+| `RADAR_LOGIN_EMAIL_ATTEMPTS`, `RADAR_LOGIN_IP_ATTEMPTS`        | неудачных входов за 15 минут на email и на IP, по умолчанию 5 и 20                        |
+| `RADAR_REGISTRATION_IP_ATTEMPTS`                               | регистраций за час с одного IP, по умолчанию 5                                            |
+| `RADAR_SECOND_FACTOR_USER_ATTEMPTS`                            | неверных TOTP-кодов за сутки на пользователя, по умолчанию 10                             |
+| `RADAR_TOTP_ENCRYPTION_KEY`                                    | обязательный ключ AES-256 для TOTP-секретов, 32 байта в Base64: `openssl rand -base64 32` |
+| `SPRING_PROFILES_ACTIVE=production`                            | вывод в консоль в JSON (ECS) для сборщика журналов                                        |
 
 Фронтенд должен работать с того же сайта, что и API (cookie `SESSION` с `SameSite=Lax`),
 поэтому `RADAR_CORS_ALLOWED_ORIGINS` обычно пуст.
 
-В `.env.example` лимиты попыток подняты, чтобы повторные прогоны `./http/run.sh` локально
-не упирались в 429. Без этих переменных действуют значения по умолчанию из таблицы.
-
 IP клиента для лимитов — адрес TCP-соединения, заголовок `X-Forwarded-For` не учитывается.
 За обратным прокси нужно явно включить `server.forward-headers-strategy=native` и указать
 адреса прокси в `server.tomcat.remoteip.internal-proxies`, иначе все клиенты получат один IP.
-
-Список распространённых паролей `src/main/resources/security/compromised-passwords.txt` —
-пароли длиной от 15 символов из `Pwdb_top-1000000.txt` проекта
-[SecLists](https://github.com/danielmiessler/SecLists) (лицензия MIT, © Daniel Miessler).
 
 ## Журналы
 
@@ -74,12 +62,12 @@ IP клиента для лимитов — адрес TCP-соединения,
 ## Проверки
 
 ```bash
-./gradlew check     # Checkstyle, PMD, тесты и пороги JaCoCo (80% строк и ветвей)
-./gradlew pitest    # мутационный анализ, отдельно от check
-./gradlew pitest -PpitTargetClasses='io.github.radar.domain.*'   # только выбранная область
+./gradlew check
+./gradlew pitest
+./gradlew pitest -PpitTargetClasses='io.github.radar.domain.*'   # конкретный пакет
 ```
 
-Тестам нужен Docker: PostgreSQL и Redis поднимаются через Testcontainers.
+Тестам нужен Docker, PostgreSQL и Redis поднимаются через Testcontainers.
 
 Отчёты лежат в `build/reports/`: `tests/`, `jacoco/`, `checkstyle/`, `pmd/`, `pitest/`.
 
