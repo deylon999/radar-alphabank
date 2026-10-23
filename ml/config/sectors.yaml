@@ -1,0 +1,328 @@
+# Справочник «ОКВЭД → сектор → факторы чувствительности».
+# Сектор выбирается по самому длинному совпавшему префиксу кода ОКВЭД (например, 46.71 точнее, чем 46).
+# factors: фактор → вес 0..1 (насколько сильно сектор зависит от фактора без учёта особенностей компании).
+# trade_role: кем компания с данными ФТС скорее является — exporter, importer или unknown.
+# Это предположение, а не факт: в выводах оно помечается как предположение.
+# Новая отрасль = новая запись здесь. Код менять не нужно.
+
+sectors:
+  agriculture:
+    name: Сельское хозяйство
+    prefixes: ['01', '02', '03']
+    trade_role: exporter
+    factors: {grain: 1.0, fertilizers: 0.7, fuel: 0.5, customs_trade: 0.7, fx_usd: 0.5, key_rate: 0.5, rail_logistics: 0.4, sea_logistics: 0.5}
+  coal_mining:
+    name: Добыча угля
+    prefixes: ['05']
+    trade_role: exporter
+    factors: {coal: 1.0, rail_logistics: 0.9, fx_usd: 0.7, sanctions: 0.7, taxes: 0.6, sea_logistics: 0.6}
+  oil_gas:
+    name: Добыча нефти и газа
+    prefixes: ['06', '09', '19']
+    trade_role: exporter
+    factors: {oil: 1.0, gas: 0.8, taxes: 0.8, fx_usd: 0.7, sanctions: 0.8, fuel: 0.6}
+  metal_mining:
+    name: Добыча металлических руд и прочих полезных ископаемых
+    prefixes: ['07', '08']
+    trade_role: exporter
+    factors: {metals: 1.0, gold: 0.6, fx_usd: 0.7, sanctions: 0.6, taxes: 0.6, rail_logistics: 0.6}
+  food_production:
+    name: Производство продуктов питания
+    prefixes: ['10', '12']
+    trade_role: unknown
+    factors: {consumer_demand: 0.9, inflation: 0.7, grain: 0.6, labor_market: 0.5, key_rate: 0.5, customs_trade: 0.4}
+  beverages_production:
+    name: Производство напитков
+    prefixes: ['11']
+    trade_role: unknown
+    factors: {excise_alcohol: 1.0, consumer_demand: 0.9, inflation: 0.6, taxes: 0.6, key_rate: 0.4}
+  light_industry:
+    name: Лёгкая промышленность
+    prefixes: ['13', '14', '15']
+    trade_role: importer
+    factors: {consumer_demand: 0.9, fx_cny: 0.7, customs_trade: 0.6, labor_market: 0.6}
+  wood_paper:
+    name: Деревообработка, бумага и печать
+    prefixes: ['16', '17', '18']
+    trade_role: exporter
+    factors: {rail_logistics: 0.7, fx_usd: 0.5, sanctions: 0.6, electricity: 0.5, consumer_demand: 0.4}
+  chemicals:
+    name: Химическое производство
+    prefixes: ['20']
+    trade_role: exporter
+    factors: {gas: 0.9, fertilizers: 0.7, fx_usd: 0.6, sanctions: 0.6, rail_logistics: 0.5}
+  pharma:
+    name: Фармацевтика
+    prefixes: ['21']
+    trade_role: importer
+    factors: {pharma_regulation: 1.0, fx_eur: 0.6, fx_cny: 0.5, customs_trade: 0.6}
+  plastics:
+    name: Резиновые и пластмассовые изделия
+    prefixes: ['22']
+    trade_role: unknown
+    factors: {oil: 0.6, consumer_demand: 0.6, construction_materials: 0.4, fx_cny: 0.4}
+  building_materials:
+    name: Производство стройматериалов
+    prefixes: ['23']
+    trade_role: unknown
+    factors: {construction_materials: 1.0, real_estate: 0.8, gas: 0.6, electricity: 0.6, rail_logistics: 0.5}
+  metallurgy:
+    name: Металлургия
+    prefixes: ['24']
+    trade_role: exporter
+    factors: {metals: 1.0, fx_usd: 0.7, sanctions: 0.7, electricity: 0.6, rail_logistics: 0.7, coal: 0.4}
+  metal_products:
+    name: Металлоизделия
+    prefixes: ['25']
+    trade_role: unknown
+    factors: {metals: 0.9, state_spending: 0.6, labor_market: 0.5, key_rate: 0.5}
+  machinery:
+    name: Машиностроение и электроника
+    prefixes: ['26', '27', '28', '33']
+    trade_role: importer
+    factors: {fx_cny: 0.8, customs_trade: 0.6, state_spending: 0.6, labor_market: 0.6, key_rate: 0.6, metals: 0.5, business_activity: 0.5}
+  automotive:
+    name: Автомобилестроение
+    prefixes: ['29', '30']
+    trade_role: importer
+    factors: {auto_market: 1.0, fx_cny: 0.8, customs_trade: 0.7, metals: 0.6, key_rate: 0.6}
+  other_manufacturing:
+    name: Прочее производство
+    prefixes: ['31', '32']
+    trade_role: unknown
+    factors: {consumer_demand: 0.8, fx_cny: 0.5, labor_market: 0.5}
+  energy:
+    name: Электроэнергетика и газоснабжение
+    prefixes: ['35']
+    trade_role: unknown
+    factors: {electricity: 1.0, gas: 0.8, coal: 0.5, taxes: 0.4, key_rate: 0.5}
+  utilities:
+    name: Водоснабжение и утилизация отходов
+    prefixes: ['36', '37', '38', '39']
+    trade_role: unknown
+    factors: {electricity: 0.8, state_spending: 0.5, labor_market: 0.4}
+  housing_construction:
+    name: Строительство зданий
+    prefixes: ['41', '71.12.2']
+    trade_role: importer
+    factors: {real_estate: 1.0, key_rate: 1.0, construction_materials: 0.8, metals: 0.6, labor_market: 0.6, credit_conditions: 0.6}
+  civil_engineering:
+    name: Строительство инженерных сооружений и инфраструктуры
+    prefixes: ['42']
+    trade_role: importer
+    factors: {state_spending: 1.0, key_rate: 0.8, metals: 0.7, construction_materials: 0.7, fuel: 0.5, labor_market: 0.6}
+  specialized_construction:
+    name: Специализированные строительные работы
+    prefixes: ['43']
+    trade_role: unknown
+    factors: {real_estate: 0.7, construction_materials: 0.7, labor_market: 0.7, key_rate: 0.5}
+  auto_trade:
+    name: Торговля и обслуживание автомобилей
+    prefixes: ['45']
+    trade_role: importer
+    factors: {auto_market: 1.0, fx_cny: 0.8, customs_trade: 0.8, key_rate: 0.7, consumer_demand: 0.6}
+  wholesale:
+    name: Оптовая торговля
+    prefixes: ['46']
+    trade_role: importer
+    factors: {consumer_demand: 0.5, key_rate: 0.5, customs_trade: 0.5, road_logistics: 0.4, fx_cny: 0.4}
+  wholesale_agri:
+    name: Оптовая торговля зерном и сельхозсырьём
+    prefixes: ['46.2', '46.21']
+    trade_role: exporter
+    factors: {grain: 1.0, customs_trade: 0.9, fx_usd: 0.7, sea_logistics: 0.8, rail_logistics: 0.6, key_rate: 0.6}
+  wholesale_food:
+    name: Оптовая торговля продуктами питания
+    prefixes: ['46.3', '46.31', '46.32', '46.33', '46.36', '46.37', '46.38', '46.39']
+    trade_role: importer
+    factors: {consumer_demand: 0.9, inflation: 0.7, customs_trade: 0.6, road_logistics: 0.5, key_rate: 0.5}
+  wholesale_beverages:
+    name: Оптовая торговля напитками и табаком
+    prefixes: ['46.34', '46.35']
+    trade_role: importer
+    factors: {excise_alcohol: 1.0, consumer_demand: 0.9, taxes: 0.6, customs_trade: 0.6, road_logistics: 0.5, key_rate: 0.5}
+  wholesale_consumer:
+    name: Оптовая торговля непродовольственными потребительскими товарами
+    prefixes: ['46.4', '46.41', '46.42', '46.43', '46.44', '46.45', '46.47', '46.48', '46.49']
+    trade_role: importer
+    factors: {consumer_demand: 0.9, fx_cny: 0.8, customs_trade: 0.7, payments_infra: 0.6, key_rate: 0.5}
+  wholesale_pharma:
+    name: Оптовая торговля фармацевтической продукцией
+    prefixes: ['46.46']
+    trade_role: importer
+    factors: {pharma_regulation: 1.0, fx_eur: 0.6, fx_cny: 0.5, customs_trade: 0.6, consumer_demand: 0.5}
+  wholesale_ict:
+    name: Оптовая торговля компьютерами и электроникой
+    prefixes: ['46.5', '46.51', '46.52']
+    trade_role: importer
+    factors: {fx_cny: 1.0, customs_trade: 0.9, sanctions: 0.7, payments_infra: 0.8, it_regulation: 0.5, consumer_demand: 0.5}
+  wholesale_machinery:
+    name: Оптовая торговля машинами и оборудованием
+    prefixes: ['46.6', '46.61', '46.62', '46.63', '46.64', '46.65', '46.66', '46.69']
+    trade_role: importer
+    factors: {fx_cny: 0.9, customs_trade: 0.8, payments_infra: 0.7, key_rate: 0.7, business_activity: 0.6, sanctions: 0.5}
+  wholesale_fuel:
+    name: Оптовая торговля топливом
+    prefixes: ['46.71']
+    trade_role: exporter
+    factors: {fuel: 1.0, oil: 0.9, taxes: 0.7, customs_trade: 0.8, rail_logistics: 0.6, key_rate: 0.5}
+  wholesale_metals:
+    name: Оптовая торговля металлами
+    prefixes: ['46.72']
+    trade_role: unknown
+    factors: {metals: 1.0, construction_materials: 0.5, real_estate: 0.5, key_rate: 0.6, rail_logistics: 0.5}
+  wholesale_building:
+    name: Оптовая торговля стройматериалами
+    prefixes: ['46.73', '46.74']
+    trade_role: importer
+    factors: {construction_materials: 1.0, real_estate: 0.9, key_rate: 0.6, fx_cny: 0.5}
+  wholesale_chemicals:
+    name: Оптовая торговля химикатами и удобрениями
+    prefixes: ['46.75']
+    trade_role: unknown
+    factors: {fertilizers: 0.9, gas: 0.6, customs_trade: 0.6, fx_usd: 0.5, grain: 0.4}
+  wholesale_general:
+    name: Неспециализированная оптовая торговля
+    prefixes: ['46.9', '46.90', '46.76', '46.77']
+    trade_role: importer
+    factors: {consumer_demand: 0.8, fx_cny: 0.7, customs_trade: 0.7, payments_infra: 0.6, key_rate: 0.5, road_logistics: 0.5}
+  retail:
+    name: Розничная торговля
+    prefixes: ['47']
+    trade_role: importer
+    factors: {consumer_demand: 1.0, inflation: 0.8, labor_market: 0.7, key_rate: 0.5, fx_cny: 0.4}
+  rail_transport:
+    name: Железнодорожные перевозки
+    prefixes: ['49.1', '49.2']
+    trade_role: unknown
+    factors: {rail_logistics: 1.0, electricity: 0.5, coal: 0.5, labor_market: 0.5}
+  road_transport:
+    name: Автомобильные грузоперевозки
+    prefixes: ['49', '49.4']
+    trade_role: unknown
+    factors: {fuel: 0.9, road_logistics: 1.0, labor_market: 0.7, key_rate: 0.6, auto_market: 0.4}
+  water_air_transport:
+    name: Водный и воздушный транспорт
+    prefixes: ['50', '51']
+    trade_role: unknown
+    factors: {fuel: 0.9, sea_logistics: 0.8, sanctions: 0.7, fx_usd: 0.6}
+  logistics:
+    name: Складская и транспортная логистика
+    prefixes: ['52', '53']
+    trade_role: unknown
+    factors: {road_logistics: 0.8, rail_logistics: 0.7, sea_logistics: 0.7, customs_trade: 0.7, fuel: 0.6, labor_market: 0.5}
+  hospitality:
+    name: Гостиницы и общепит
+    prefixes: ['55', '56']
+    trade_role: unknown
+    factors: {consumer_demand: 1.0, labor_market: 0.8, inflation: 0.7, taxes: 0.4}
+  it_media:
+    name: ИТ, связь и медиа
+    prefixes: ['58', '59', '60', '61', '62', '63']
+    trade_role: importer
+    factors: {it_regulation: 0.9, labor_market: 0.8, taxes: 0.6, fx_cny: 0.4, business_activity: 0.5}
+  finance:
+    name: Финансовые услуги
+    prefixes: ['64', '65', '66']
+    trade_role: unknown
+    factors: {key_rate: 1.0, credit_conditions: 1.0, bond_market: 0.9, business_activity: 0.6}
+  real_estate_ops:
+    name: Операции с недвижимостью
+    prefixes: ['68']
+    trade_role: unknown
+    factors: {key_rate: 1.0, real_estate: 0.9, consumer_demand: 0.5, credit_conditions: 0.6}
+  professional_services:
+    name: Профессиональные и деловые услуги
+    prefixes: ['69', '70', '71', '72', '73', '74', '75']
+    trade_role: unknown
+    factors: {labor_market: 0.8, business_activity: 0.7, taxes: 0.6, state_spending: 0.4}
+  rental_leasing:
+    name: Аренда и лизинг
+    prefixes: ['77']
+    trade_role: unknown
+    factors: {key_rate: 1.0, credit_conditions: 0.7, auto_market: 0.6, business_activity: 0.5}
+  admin_services:
+    name: Административные и вспомогательные услуги
+    prefixes: ['78', '79', '80', '81', '82']
+    trade_role: unknown
+    factors: {labor_market: 1.0, business_activity: 0.6, taxes: 0.5}
+  public_social:
+    name: Образование, здравоохранение и социальные услуги
+    prefixes: ['84', '85', '86', '87', '88']
+    trade_role: unknown
+    factors: {state_spending: 0.8, labor_market: 0.7, pharma_regulation: 0.4}
+  consumer_services:
+    name: Прочие услуги населению
+    prefixes: ['90', '91', '92', '93', '94', '95', '96']
+    trade_role: unknown
+    factors: {consumer_demand: 0.9, labor_market: 0.6, inflation: 0.5}
+
+default_sector:
+  name: Прочие виды деятельности
+  trade_role: unknown
+  factors: {key_rate: 0.4, business_activity: 0.5, taxes: 0.4}
+
+# Финансовая структура по продуктам банка. Продукт усиливает фактор, через который событие бьёт по компании.
+products:
+  loan: {label: кредиты, factors: {key_rate: 1.0, credit_conditions: 0.7}}
+  leasing: {label: лизинг, factors: {key_rate: 0.8, credit_conditions: 0.4}}
+  guarantee: {label: банковские гарантии, factors: {state_spending: 0.6, credit_conditions: 0.4}}
+  deposit: {label: депозиты, factors: {key_rate: 0.7}}
+  factoring: {label: факторинг, factors: {key_rate: 0.6, credit_conditions: 0.5}}
+  payroll: {label: зарплатный проект, factors: {labor_market: 0.6, taxes: 0.4}}
+  settlement: {label: расчётный счёт, factors: {}}
+
+# Валюта расчётов по стране ВЭД. Страны без своей ликвидной пары с рублём сводим к доллару.
+country_currency:
+  Китай: fx_cny
+  Гонконг: fx_cny
+  Макао: fx_cny
+  Германия: fx_eur
+  Италия: fx_eur
+  Франция: fx_eur
+  Испания: fx_eur
+  Нидерланды: fx_eur
+  Бельгия: fx_eur
+  Австрия: fx_eur
+  Финляндия: fx_eur
+  Литва: fx_eur
+  Латвия: fx_eur
+  Эстония: fx_eur
+  Польша: fx_eur
+  Чехия: fx_eur
+  Словакия: fx_eur
+  Словения: fx_eur
+  Венгрия: fx_eur
+  Греция: fx_eur
+  Кипр: fx_eur
+  Ирландия: fx_eur
+  Португалия: fx_eur
+  Люксембург: fx_eur
+  Хорватия: fx_eur
+  Болгария: fx_eur
+  Румыния: fx_eur
+  Дания: fx_eur
+  Швеция: fx_eur
+  Швейцария: fx_eur
+  Сербия: fx_eur
+  _default: fx_usd
+
+# Страны ЕС и присоединившиеся к ограничениям: для них растёт вес фактора санкций.
+sanction_sensitive_countries: [Литва, Латвия, Эстония, Польша, Германия, Италия, Франция, Нидерланды, Бельгия, Финляндия, Чехия, Словакия, Словения, Венгрия, Греция, Кипр, Ирландия, Португалия, Испания, Австрия, Люксембург, Хорватия, Болгария, Румыния, Дания, Швеция, Великобритания, США, Канада, Япония, Швейцария, Норвегия, Австралия, Южная Корея, Тайвань, Сингапур]
+
+# Должность пользователя → множитель темы. Влияет только на порядок ленты и акценты разбора.
+roles:
+  owner: {financing: 1.1, currency: 1.0, costs: 1.0, demand: 1.15, regulation: 1.1, logistics: 1.0}
+  ceo: {financing: 1.0, currency: 1.0, costs: 1.1, demand: 1.2, regulation: 1.1, logistics: 1.1}
+  cfo: {financing: 1.3, currency: 1.2, costs: 1.1, demand: 1.0, regulation: 1.0, logistics: 0.9}
+  accountant: {financing: 0.9, currency: 1.0, costs: 1.0, demand: 0.8, regulation: 1.4, logistics: 0.8}
+  treasurer: {financing: 1.4, currency: 1.4, costs: 0.9, demand: 0.8, regulation: 0.9, logistics: 0.8}
+  other: {financing: 1.0, currency: 1.0, costs: 1.0, demand: 1.0, regulation: 1.0, logistics: 1.0}
+
+role_focus:
+  owner: стоимость бизнеса, стратегические риски и возможности
+  ceo: операционные последствия, спрос, поставки и сроки
+  cfo: долговая нагрузка, процентные расходы, денежный поток и бюджет
+  accountant: налоги, отчётность, учёт и регуляторные требования
+  treasurer: ликвидность, ставки, валютные позиции и хеджирование
+  other: общее влияние на бизнес

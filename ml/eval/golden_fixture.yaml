@@ -1,0 +1,13 @@
+# Эталон на синтетических данных тестов (tests/fixtures). Прогоняется в CI без LLM.
+reference_time: "2026-10-23T18:00:00+03:00"
+cases:
+  - {company: U_T1, event: "ключевую ставку", relevance: direct, kind: risk, topic: financing}
+  - {company: U_T1, event: "Иркутской области", relevance: direct, kind: risk}
+  - {company: U_T1, event: "Краснодарском", relevance: [possible, none]}
+  - {company: U_T1, event: "арматуру", relevance: [direct, possible], kind: risk}
+  - {company: U_T1, event: "монета", relevance: none}
+  - {company: U_T2, event: "арматуру", relevance: direct, kind: opportunity}
+  - {company: U_T3, event: "пшеницу", relevance: direct, kind: any}
+  - {company: U_T3, event: "НДС", relevance: [possible, none]}
+  - {company: U_T3, event: "Иркутской области", relevance: none}
+  - {company: U_T4, event: "ключевую ставку", relevance: [possible, none, direct]}

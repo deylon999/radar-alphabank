@@ -1,0 +1,59 @@
+name: ml
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+concurrency:
+  group: ml-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # Как у бота: PR без изменений в ml/ пропускают проверку, пропущенная задача засчитывается.
+  changes:
+    runs-on: ubuntu-latest
+    outputs:
+      ml: ${{ steps.diff.outputs.ml }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - id: diff
+        run: |
+          if [ "${{ github.event_name }}" != "pull_request" ]; then
+            echo "ml=true" >> "$GITHUB_OUTPUT"
+          elif git diff --name-only "origin/${{ github.base_ref }}...HEAD" | grep -qE '^(ml/|\.github/workflows/ml\.yml)'; then
+            echo "ml=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "ml=false" >> "$GITHUB_OUTPUT"
+          fi
+
+  ml:
+    needs: changes
+    if: needs.changes.outputs.ml == 'true'
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ml
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+        with:
+          version: "0.11.32"
+      - run: uv sync --frozen
+      - run: uv run ruff check radar_ml tests
+      - run: uv run ruff format --check radar_ml tests
+      # Тесты без сети и без лимита LLM: синтетические данные и заглушки моделей
+      - run: uv run pytest
+      # Эталон отбора на синтетических данных: падение точности ниже порога ломает сборку
+      - run: >
+          RADAR_ML_DATA_DIR=tests/fixtures/data RADAR_ML_STATE_DIR=/tmp/ml-eval RADAR_ML_LLM_MODE=off
+          RADAR_ML_SNAPSHOT_PATH=tests/fixtures/news.jsonl
+          uv run python -m radar_ml.eval.run --golden eval/golden_fixture.yaml --min-accuracy 0.9 --out eval-out
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ml-eval
+          path: ml/eval-out
+          retention-days: 7

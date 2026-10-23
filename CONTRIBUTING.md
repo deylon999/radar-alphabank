@@ -18,16 +18,17 @@
   ```
 
   Типы: `feat`, `fix`, `refactor`, `perf`, `test`, `docs`, `style`, `build`, `ci`, `chore`,
-  `revert`. Область — необязательная: `frontend`, `backend`, `bot`, `api`.
+  `revert`. Область — необязательная: `frontend`, `backend`, `bot`, `api`, `ml`.
   Примеры: `feat(frontend): обзор по темам`, `fix(api): 404 для неизвестного клиента`.
   Ломающее изменение договора API — с `!`: `feat(api)!: topic обязателен у инсайта`.
 
 - Описание — по шаблону: что сделано, как проверить, чек-лист.
 - Перед слиянием CI должен быть зелёным: `frontend / check` (типы, линтер, unit-тесты,
   сборка), `frontend / e2e`, `bot / bot` (`go vet`, `gofmt`, `go test`), `api / spec`
-  (спецификация собирается без предупреждений) и `backend / backend` (Checkstyle, PMD, тесты,
-  покрытие JaCoCo). Проверки бота, спецификации и бэкенда запускаются, только если в PR менялись
-  `bot/`, `api/` или `backend/`, иначе засчитываются пропущенными.
+  (спецификация собирается без предупреждений), `backend / backend` (Checkstyle, PMD, тесты,
+  покрытие JaCoCo) и `ml / ml` (ruff, pytest, эталон отбора). Проверки бота, спецификации,
+  бэкенда и ML запускаются, только если в PR менялись `bot/`, `api/`, `backend/` или `ml/`,
+  иначе засчитываются пропущенными.
 - Слияние — только **Squash and merge**: в `main` одна запись на PR, её текст — заголовок PR.
   Ветка удаляется автоматически.
 
@@ -44,4 +45,7 @@
 cd frontend
 npm run check   # типы, линтер, unit-тесты, сборка
 npm run e2e     # если менялись экраны
+
+cd ml           # если менялся ML-сервис
+uv run ruff check radar_ml tests && uv run pytest
 ```

@@ -1,0 +1,9 @@
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+.ruff_cache/
+.env
+# Данные кейса и PDF банка не коммитим; состояние сервиса — в volume
+/data/
+/eval-out/

@@ -1,0 +1,21 @@
+# Отдельный запуск ML-сервиса: docker compose -f ml/compose.yaml up --build
+# Данные кейса (CSV) и PDF банка кладутся в ml/data/raw и ml/data/materials — они не в репозитории.
+# В общем compose проекта сервис подключается так же; наружу порт не публикуется, ходит только бэкенд.
+services:
+  ml:
+    build: .
+    env_file:
+      - path: .env
+        required: false
+    environment:
+      RADAR_ML_LLM_MODE: ${RADAR_ML_LLM_MODE:-live}
+    volumes:
+      - ./data/raw:/data/raw:ro
+      - ./data/materials:/data/materials
+      - ml-state:/data/state
+    ports:
+      - "127.0.0.1:8090:8090"
+    restart: unless-stopped
+
+volumes:
+  ml-state:
