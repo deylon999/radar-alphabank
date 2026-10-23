@@ -1,0 +1,36 @@
+# Эталонный набор «компания — событие» на данных кейса и снимке новостей (snapshots/news.jsonl).
+# Разметка экспертная (команда), не ответ модели. relevance: direct | possible | none;
+# kind: risk | opportunity | any. Запуск: python -m radar_ml.eval.run --golden eval/golden_demo.yaml
+# Набор пополняется разборами с отрицательной оценкой пользователей и экспертов.
+
+reference_time: "2026-10-23T18:00:00+03:00"
+cases:
+  # Строительство инфраструктуры, Иркутская область, кредиты/лизинг/гарантии, ВЭД с Китаем
+  - {company: U_9250, event: "сохранить ключевую ставку", relevance: direct, kind: risk, topic: financing}
+  - {company: U_9250, event: "Курс юаня на 22 октября", relevance: direct, kind: opportunity, topic: currency}
+  - {company: U_9250, event: "сократят расходы на национальную экономику", relevance: [direct, possible], kind: risk}
+  - {company: U_9250, event: "Потребление цемента", relevance: [direct, possible], kind: any}
+  - {company: U_9250, event: "акцизы на алкоголь", relevance: none}
+  - {company: U_9250, event: "обнулило пошлины на экспорт зерновых", relevance: none}
+  - {company: U_9250, event: "Верхний Ларс", relevance: none}
+  # Оптовая торговля зерном, Ростовская область, экспорт в ОАЭ, Алжир, Индию
+  - {company: U_34911, event: "Проблемы с вывозом зерна", relevance: direct, kind: risk}
+  - {company: U_34911, event: "обнулило пошлины на экспорт зерновых", relevance: direct, kind: any}
+  - {company: U_34911, event: "сохранить ключевую ставку", relevance: direct, kind: risk}
+  - {company: U_34911, event: "акцизы на алкоголь", relevance: none}
+  - {company: U_34911, event: "Потребление цемента", relevance: none}
+  - {company: U_34911, event: "выдача ипотеки", relevance: none}
+  # Оптовая торговля топливом, Башкортостан, ВЭД: Грузия, Латвия, Польша
+  - {company: U_26030, event: "Цены на бензин в России резко пошли вниз", relevance: direct, kind: risk, topic: costs}
+  - {company: U_26030, event: "сохранить ключевую ставку", relevance: direct, kind: risk}
+  - {company: U_26030, event: "Верхний Ларс", relevance: [direct, possible], kind: risk}
+  - {company: U_26030, event: "санкции ЕС", relevance: [possible, direct], kind: risk}
+  - {company: U_26030, event: "выдача ипотеки", relevance: none}
+  - {company: U_26030, event: "акцизы на алкоголь", relevance: none}
+  # Оптовая торговля напитками, Москва, ВЭД: Грузия, Азербайджан, Туркменистан
+  - {company: U_1465, event: "акцизы на алкоголь", relevance: direct, kind: risk, topic: regulation}
+  - {company: U_1465, event: "пошлину на ввоз пива", relevance: possible, kind: risk}
+  - {company: U_1465, event: "Рост розничных продаж", relevance: direct, kind: risk}
+  - {company: U_1465, event: "Верхний Ларс", relevance: direct, kind: risk}
+  - {company: U_1465, event: "обнулило пошлины на экспорт зерновых", relevance: none}
+  - {company: U_1465, event: "Потребление цемента", relevance: none}
