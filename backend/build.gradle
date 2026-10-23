@@ -1,0 +1,143 @@
+plugins {
+    id 'java'
+    id 'checkstyle'
+    id 'pmd'
+    id 'jacoco'
+    id 'org.springframework.boot' version '4.1.1'
+    id 'io.spring.dependency-management' version '1.1.7'
+    id 'info.solidsoft.pitest' version '1.19.0'
+}
+
+group = 'io.github.radar'
+version = '0.1.0-SNAPSHOT'
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(25)
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+configurations {
+    compileOnly {
+        extendsFrom annotationProcessor
+    }
+}
+
+dependencies {
+    implementation 'org.springframework.boot:spring-boot-starter-webmvc'
+    implementation 'org.springframework.boot:spring-boot-starter-security'
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
+    implementation 'org.springframework.boot:spring-boot-starter-jdbc'
+    implementation 'org.springframework.boot:spring-boot-starter-flyway'
+    implementation 'org.springframework.boot:spring-boot-starter-session-data-redis'
+    implementation 'org.springframework.boot:spring-boot-starter-aspectj'
+    implementation 'com.eatthepath:java-otp:1.0.0'
+    implementation 'commons-codec:commons-codec'
+    runtimeOnly 'org.bouncycastle:bcprov-jdk18on:1.86'
+    runtimeOnly 'org.flywaydb:flyway-database-postgresql'
+    runtimeOnly 'org.postgresql:postgresql'
+    developmentOnly 'org.springframework.boot:spring-boot-docker-compose'
+
+    compileOnly 'org.projectlombok:lombok'
+    annotationProcessor 'org.projectlombok:lombok'
+
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testImplementation 'org.springframework.boot:spring-boot-starter-jdbc-test'
+    testImplementation 'org.springframework.boot:spring-boot-testcontainers'
+    testImplementation 'org.testcontainers:testcontainers-junit-jupiter'
+    testImplementation 'org.testcontainers:testcontainers-postgresql'
+    testImplementation 'com.redis:testcontainers-redis'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = 'UTF-8'
+    options.compilerArgs << '-parameters'
+}
+
+tasks.named('test') {
+    useJUnitPlatform()
+    systemProperty 'radar.log-dir', layout.buildDirectory.dir('test-logs').get().asFile.path
+    finalizedBy tasks.named('jacocoTestReport')
+}
+
+checkstyle {
+    toolVersion = '14.3.0'
+    configFile = file('config/checkstyle/checkstyle.xml')
+    ignoreFailures = false
+    maxWarnings = 0
+}
+
+pmd {
+    toolVersion = '7.28.0'
+    consoleOutput = true
+    ignoreFailures = false
+    rulesMinimumPriority = 5
+    ruleSets = []
+}
+
+tasks.named('pmdMain') {
+    ruleSetFiles = files('config/pmd/pmd.xml')
+}
+
+tasks.named('pmdTest') {
+    ruleSetFiles = files('config/pmd/pmd-test.xml')
+}
+
+tasks.withType(Pmd).configureEach {
+    reports {
+        html.required = true
+        xml.required = true
+    }
+}
+
+jacoco {
+    toolVersion = '0.8.15'
+}
+
+tasks.named('jacocoTestReport') {
+    dependsOn tasks.named('test')
+    reports {
+        xml.required = true
+        html.required = true
+    }
+}
+
+tasks.named('jacocoTestCoverageVerification') {
+    dependsOn tasks.named('test')
+    violationRules {
+        rule {
+            limit {
+                counter = 'LINE'
+                value = 'COVEREDRATIO'
+                minimum = 0.80
+            }
+            limit {
+                counter = 'BRANCH'
+                value = 'COVEREDRATIO'
+                minimum = 0.80
+            }
+        }
+    }
+}
+
+tasks.named('check') {
+    dependsOn tasks.named('jacocoTestCoverageVerification')
+}
+
+pitest {
+    pitestVersion = '1.30.1'
+    junit5PluginVersion = '1.2.3'
+    targetClasses = [findProperty('pitTargetClasses') ?: 'io.github.radar.*']
+    if (findProperty('pitTargetTests')) {
+        targetTests = [findProperty('pitTargetTests')]
+    }
+    threads = (findProperty('pitThreads') ?: '2') as int
+    jvmArgs = ["-Dradar.log-dir=${layout.buildDirectory.dir('pit-logs').get().asFile.path}"]
+    outputFormats = ['HTML', 'XML']
+    timestampedReports = false
+}

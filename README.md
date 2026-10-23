@@ -6,6 +6,7 @@
 | ------------------------ | ---------------------------------------------------------- |
 | [`frontend/`](frontend/) | веб-приложение: React, TypeScript, моки API, Docker, тесты |
 | [`api/`](api/)           | API-спецификация: TypeSpec                                 |
+| [`backend/`](backend/)   | бэкенд: Java, Spring Boot, PostgreSQL, Redis               |
 | [`bot/`](bot/)           | Telegram-бот: привязка аккаунта, срочные инсайты и сводка  |
 
 Описание, запуск и сценарий проверки — в [`frontend/README.md`](frontend/README.md).
