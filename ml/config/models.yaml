@@ -1,0 +1,49 @@
+# Модели из Приложения 3 кейса. Другие модели сервис не вызывает: роутер проверяет allowlist.
+# id — идентификатор модели в OpenAI-совместимом прокси организаторов. Подтверждён только
+# deepseek/deepseek-v4.1-flash (ноутбук команды); остальные сверить командой
+#   python -m radar_ml.llm.check
+# которая выводит GET /v1/models и проверяет этот файл.
+# price_rub_per_1m — оценка цены за миллион токенов (вход/выход) для учёта дневного лимита.
+# Уточнить по фактическому списанию лимита и поправить здесь.
+
+models:
+  gemma:
+    id: google/gemma-4-26b-a4b-it
+    family: gemma-4-26b
+    price_rub_per_1m: {input: 10, output: 30}
+  glm:
+    id: z-ai/glm-5.3-flash
+    family: glm-5.3-flash
+    price_rub_per_1m: {input: 15, output: 60}
+  qwen:
+    id: qwen/qwen3.6-35b-a3b
+    family: qwen3.6-35b
+    price_rub_per_1m: {input: 12, output: 45}
+  deepseek:
+    id: deepseek/deepseek-v4.1-flash
+    family: deepseek-v4.1-flash
+    price_rub_per_1m: {input: 15, output: 60}
+  qwen_vl:
+    id: qwen/qwen3-vl-30b-a3b-instruct
+    family: qwen3-vl-30b
+    price_rub_per_1m: {input: 15, output: 50}
+  kimi:
+    id: moonshotai/kimi-k2.6
+    family: kimi-k2.6
+    price_rub_per_1m: {input: 40, output: 160}
+
+# Задача -> модели по порядку: первая основная, остальные — резерв при ошибке.
+# Лёгкие задачи (классификация, извлечение) — Gemma; рассуждения — GLM; универсальные — Qwen;
+# связи и большие объёмы — DeepSeek; таблицы и графики в PDF — Qwen-VL.
+tasks:
+  news_extract: {models: [gemma, qwen], max_tokens: 1200, temperature: 0.0}
+  facts_extract: {models: [gemma, qwen], max_tokens: 1500, temperature: 0.0}
+  sector_classify: {models: [gemma, qwen], max_tokens: 200, temperature: 0.0}
+  bank_positions: {models: [qwen, deepseek], max_tokens: 2500, temperature: 0.0}
+  bank_vision: {models: [qwen_vl], max_tokens: 1500, temperature: 0.0}
+  insight_plan: {models: [qwen, gemma], max_tokens: 600, temperature: 0.0}
+  insight_draft: {models: [glm, deepseek, qwen], max_tokens: 2200, temperature: 0.2}
+  insight_critic: {models: [qwen, kimi], max_tokens: 700, temperature: 0.0}
+  insight_revise: {models: [glm, deepseek], max_tokens: 2200, temperature: 0.1}
+  ask_plan: {models: [gemma, qwen], max_tokens: 300, temperature: 0.0}
+  ask_answer: {models: [deepseek, glm, qwen], max_tokens: 900, temperature: 0.2}

@@ -1,0 +1,68 @@
+# Источники новостей. Новый источник = новая запись: адаптер rss уже есть, для других типов
+# добавляется класс в radar_ml/news/sources.py. trust — доверие к источнику (0..1) для ранжирования.
+# official: true — официальный источник (регулятор, ведомство): решения из него считаются установленными фактами.
+# Все источники — публичные RSS. Сохраняем заголовок, анонс, ссылку и дату; полный текст статьи
+# загружается только для разбора и в репозиторий не попадает.
+
+sources:
+  - id: cbr_press
+    publisher: Банк России
+    kind: rss
+    url: https://www.cbr.ru/rss/RssPress
+    trust: 1.0
+    official: true
+  - id: cbr_events
+    publisher: Банк России
+    kind: rss
+    url: https://www.cbr.ru/rss/eventrss
+    trust: 1.0
+    official: true
+  - id: minfin
+    publisher: Минфин России
+    kind: rss
+    url: https://minfin.gov.ru/ru/press-center/?rss=Y
+    trust: 1.0
+    official: true
+    enabled: false
+  - id: interfax
+    publisher: Интерфакс
+    kind: rss
+    url: https://www.interfax.ru/rss.asp
+    trust: 0.9
+  - id: rbc
+    publisher: РБК
+    kind: rss
+    url: https://rssexport.rbc.ru/rbcnews/news/30/full.rss
+    trust: 0.85
+  - id: kommersant_econ
+    publisher: Коммерсантъ
+    kind: rss
+    url: https://www.kommersant.ru/RSS/section-economics.xml
+    trust: 0.85
+  - id: tass_econ
+    publisher: ТАСС
+    kind: rss
+    url: https://tass.ru/rss/v2.xml
+    trust: 0.9
+  - id: prime
+    publisher: ПРАЙМ
+    kind: rss
+    url: https://1prime.ru/export/rss2/index.xml
+    trust: 0.85
+  - id: vedomosti
+    publisher: Ведомости
+    kind: rss
+    url: https://www.vedomosti.ru/rss/news
+    trust: 0.85
+
+  # Издания из снимка новостей (snapshots/news.jsonl). Сбор по ним не настроен — нужны только для доверия.
+  - {id: themoscowtimes, publisher: The Moscow Times, kind: snapshot, url: https://ru.themoscowtimes.com, trust: 0.8, enabled: false}
+  - {id: expert, publisher: Эксперт, kind: snapshot, url: https://expert.ru, trust: 0.8, enabled: false}
+  - {id: dp, publisher: Деловой Петербург, kind: snapshot, url: https://www.dp.ru, trust: 0.75, enabled: false}
+  - {id: ptoday, publisher: Петербургский дневник, kind: snapshot, url: https://www.ptoday.ru, trust: 0.7, enabled: false}
+  - {id: rg, publisher: Российская газета, kind: snapshot, url: https://rg.ru, trust: 0.85, enabled: false}
+  - {id: meduza, publisher: Meduza, kind: snapshot, url: https://meduza.io, trust: 0.75, enabled: false}
+  - {id: tks, publisher: ТКС.РУ, kind: snapshot, url: https://www.tks.ru, trust: 0.8, enabled: false}
+  - {id: rbc_realty, publisher: РБК Недвижимость, kind: snapshot, url: https://realty.rbc.ru, trust: 0.85, enabled: false}
+  - {id: ria_realty, publisher: РИА Недвижимость, kind: snapshot, url: https://realty.ria.ru, trust: 0.85, enabled: false}
+  - {id: runews24, publisher: RuNews24, kind: snapshot, url: https://runews24.ru, trust: 0.6, enabled: false}
