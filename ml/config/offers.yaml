@@ -1,0 +1,49 @@
+# Каталог продуктов банка для нативного предложения в выводе. Модель не придумывает продукты:
+# агент выбирает только из этого списка по правилам ниже, а в интерфейсе это подписано как предложение банка.
+# url — страница продукта. Сейчас общая страница раздела для бизнеса: заменить на точные страницы продуктов.
+#
+# when: условия срабатывания. topics/factors — тема или фактор вывода; kind — риск/возможность;
+# requires_products — продукты, которые у компании уже есть (предложение дополняет их);
+# requires_foreign_trade — у компании есть ВЭД; excludes_products — не предлагать, если продукт уже есть.
+
+offers:
+  - id: interest_rate_swap
+    title: Процентный своп
+    description: Фиксирует ставку по кредиту с плавающей ставкой, если не хочется ждать снижения ключевой
+    url: https://alfabank.ru/corporate/
+    when: {factors: [key_rate, credit_conditions], kind: risk, requires_products_any: [loan, leasing]}
+  - id: deposit
+    title: Депозит и неснижаемый остаток
+    description: Позволяет зафиксировать доходность свободных средств, пока ставки высокие
+    url: https://alfabank.ru/corporate/
+    when: {factors: [key_rate], kind: opportunity}
+  - id: fx_forward
+    title: Валютный форвард
+    description: Фиксирует курс будущих платежей или выручки в валюте и убирает курсовой риск из бюджета
+    url: https://alfabank.ru/corporate/
+    when: {factors: [fx_cny, fx_usd, fx_eur], requires_foreign_trade: true}
+  - id: ved_support
+    title: Сопровождение ВЭД и валютный контроль
+    description: Помогает провести платежи контрагентам за рубежом и пройти валютный контроль при смене правил
+    url: https://alfabank.ru/corporate/
+    when: {factors: [customs_trade, sanctions, payments_infra], requires_foreign_trade: true}
+  - id: factoring
+    title: Факторинг
+    description: Ускоряет получение денег от покупателей, если отсрочки платежа давят на оборотный капитал
+    url: https://alfabank.ru/corporate/
+    when: {factors: [consumer_demand, business_activity, inflation], kind: risk, excludes_products: [factoring]}
+  - id: working_capital_line
+    title: Кредитная линия на пополнение оборотных средств
+    description: Закрывает кассовые разрывы при росте закупочных цен или сезонных закупках
+    url: https://alfabank.ru/corporate/
+    when: {factors: [grain, metals, fuel, construction_materials, inflation], kind: risk}
+  - id: tender_guarantee
+    title: Банковская гарантия для госзакупок
+    description: Обеспечивает участие в тендерах и исполнение госконтрактов без отвлечения денег из оборота
+    url: https://alfabank.ru/corporate/
+    when: {factors: [state_spending], kind: opportunity}
+  - id: leasing
+    title: Лизинг техники и оборудования
+    description: Позволяет обновить технику с платежами в рублях и без единовременного вывода денег из оборота
+    url: https://alfabank.ru/corporate/
+    when: {factors: [auto_market, customs_trade], kind: risk, excludes_products: [leasing]}
